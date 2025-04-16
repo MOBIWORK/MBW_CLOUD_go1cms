@@ -14,7 +14,8 @@
   "route_template",
   "icon",
   "allow_edit",
-  "allow_delete"
+  "allow_delete",
+  "hidden"
  ],
  "fields": [
   {
@@ -71,12 +72,18 @@
    "fieldname": "category",
    "fieldtype": "Data",
    "label": "Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "hidden",
+   "fieldtype": "Check",
+   "label": "Hidden"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-15 10:21:23.717262",
+ "modified": "2025-04-16 10:08:41.686877",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "MBW Website Template Item",

@@ -15,6 +15,7 @@
   "icon",
   "allow_edit",
   "allow_delete",
+  "hidden",
   "index_new_page"
  ],
  "fields": [
@@ -22,7 +23,7 @@
    "fieldname": "page_id",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "M\u00e3 trang",
+   "label": "Page ID",
    "options": "Web Page Builder"
   },
   {
@@ -39,7 +40,7 @@
    "fieldname": "name_page",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "T\u00ean trang"
+   "label": "Page name"
   },
   {
    "fieldname": "icon",
@@ -49,7 +50,7 @@
   {
    "fieldname": "page_type",
    "fieldtype": "Select",
-   "label": "Lo\u1ea1i trang",
+   "label": "Page type",
    "options": "\nTrang chi ti\u1ebft tin t\u1ee9c\nTrang chi ti\u1ebft s\u1ea3n ph\u1ea9m\nTrang chi ti\u1ebft tuy\u1ec3n d\u1ee5ng\nTrang m\u1edbi"
   },
   {
@@ -68,19 +69,26 @@
    "default": "0",
    "fieldname": "index_new_page",
    "fieldtype": "Int",
-   "label": "M\u00e3 trang t\u1ea1o "
+   "label": "Index new page"
   },
   {
    "depends_on": "eval:  doc.page_type == \"Trang chi ti\u1ebft tin t\u1ee9c\"",
    "fieldname": "category",
    "fieldtype": "Data",
    "label": "Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "hidden",
+   "fieldtype": "Check",
+   "label": "Hidden"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-09-21 11:16:27.206991",
+ "modified": "2025-04-16 10:09:18.539595",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "MBW Client Website Item",

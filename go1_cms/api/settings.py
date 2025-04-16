@@ -8,11 +8,11 @@ from go1_cms.api.wrapper_api import (
 )
 
 TYPE_TEMPLATE = {
-    'Website giới thiệu': 1,
-    'Website tuyển dụng': 2,
-    'Website bán hàng dạng liên hệ đặt hàng': 3,
-    'Website bán hàng dạng liên hệ đặt hàng và tuyển dụng': 4,
-    'Website bán hàng có giỏ hàng': 5
+    'Introduction website': 1,
+    'Recruitment website': 2,
+    'Sales website with contact-based ordering': 3,
+    'Sales and recruitment website with contact-based ordering': 4,
+    'Sales website with shopping cart': 5
 }
 
 

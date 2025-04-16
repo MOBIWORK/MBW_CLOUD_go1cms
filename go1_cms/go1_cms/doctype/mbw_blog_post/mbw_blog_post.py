@@ -141,7 +141,7 @@ class MbwBlogPost(WebsiteGenerator):
 
         if not self.route.endswith('blog-123-blog-456-blog'):
             web_client = frappe.db.get_value(
-                'MBW Client Website', {"type_web": "Bản chính"}, as_dict=1)
+                'MBW Client Website', {"type_web": "Live version"}, as_dict=1)
             if web_client:
                 page_type = 'Trang chi tiết tin tức'
 

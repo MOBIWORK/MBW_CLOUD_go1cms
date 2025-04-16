@@ -25,21 +25,21 @@
    "default": "0",
    "fieldname": "edit",
    "fieldtype": "Check",
-   "label": "Ch\u1ec9nh s\u1eeda"
+   "label": "Edit"
   },
   {
    "fieldname": "name_web",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "T\u00ean Website",
+   "label": "Website name",
    "reqd": 1
   },
   {
    "default": "0",
    "fieldname": "published",
    "fieldtype": "Check",
-   "label": "K\u00edch ho\u1ea1t"
+   "label": "Published"
   },
   {
    "fieldname": "column_break_uzqk",
@@ -52,7 +52,7 @@
   {
    "fieldname": "page_websites",
    "fieldtype": "Table",
-   "label": "C\u00e1c trang website",
+   "label": "Pages",
    "options": "MBW Client Website Item"
   },
   {
@@ -63,27 +63,27 @@
   {
    "fieldname": "type_template",
    "fieldtype": "Select",
-   "label": "Lo\u1ea1i m\u1eabu",
-   "options": "Website gi\u1edbi thi\u1ec7u\nWebsite tuy\u1ec3n d\u1ee5ng\nWebsite b\u00e1n h\u00e0ng d\u1ea1ng li\u00ean h\u1ec7 \u0111\u1eb7t h\u00e0ng\nWebsite b\u00e1n h\u00e0ng d\u1ea1ng li\u00ean h\u1ec7 \u0111\u1eb7t h\u00e0ng v\u00e0 tuy\u1ec3n d\u1ee5ng\nWebsite b\u00e1n h\u00e0ng c\u00f3 gi\u1ecf h\u00e0ng"
+   "label": "Template type",
+   "options": "Introduction website\nRecruitment website\nSales website with contact-based ordering\nSales and recruitment website with contact-based ordering\nSales website with shopping cart"
   },
   {
-   "default": "B\u1ea3n nh\u00e1p",
+   "default": "Draft",
    "fieldname": "type_web",
    "fieldtype": "Select",
-   "label": "Lo\u1ea1i website",
-   "options": "B\u1ea3n nh\u00e1p\nB\u1ea3n ch\u00ednh"
+   "label": "Website type",
+   "options": "Live version\nDraft"
   },
   {
    "fieldname": "header_component",
    "fieldtype": "Link",
-   "label": "\u0110\u1ea7u trang",
+   "label": "Header",
    "options": "Header Component",
    "read_only": 1
   },
   {
    "fieldname": "footer_component",
    "fieldtype": "Link",
-   "label": "Ch\u00e2n trang",
+   "label": "Footer",
    "options": "Footer Component",
    "read_only": 1
   },
@@ -97,13 +97,14 @@
   {
    "fieldname": "setting_from_template",
    "fieldtype": "Link",
-   "label": "C\u00e0i \u0111\u1eb7t t\u1eeb m\u1eabu",
+   "label": "Set up from template",
    "options": "MBW Website Template"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-21 16:33:09.214338",
+ "modified": "2025-04-16 08:50:38.196741",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "MBW Client Website",

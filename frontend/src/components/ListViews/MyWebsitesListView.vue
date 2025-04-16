@@ -120,7 +120,7 @@
             </span>
           </div>
           <div v-else-if="column.key === 'type_web'">
-            <span v-if="item === 'Bản chính'" class="text-blue-600 text-base">
+            <span v-if="item === 'Live version'" class="text-blue-600 text-base">
               {{ item }}
             </span>
             <span v-else class="text-base">
@@ -449,7 +449,7 @@ function handleShowDialog(item, type_modal) {
 
 // set primary
 async function setPrimaryMyWebsite(close) {
-  if (selectedItem.value.type_web == 'Bản chính') {
+  if (selectedItem.value.type_web == 'Live version') {
     createToast({
       title: __('Cannot convert'),
       text: __('The website is set as the main website'),

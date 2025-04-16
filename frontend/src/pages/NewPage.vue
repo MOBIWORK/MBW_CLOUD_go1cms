@@ -133,7 +133,10 @@ import {
   validErrApi,
 } from '@/utils'
 import { globalStore } from '@/stores/global'
+import { viewsStore } from '@/stores/views'
 import { useRouter } from 'vue-router'
+
+const { views } = viewsStore()
 const router = useRouter()
 
 const { changeLoadingValue } = globalStore()
@@ -152,7 +155,9 @@ const page = createResource({
   auto: true,
   transform: (data) => {
     route_prefix.value = data?.web_page?.route_prefix
-    _page.value = JSON.parse(JSON.stringify(data))
+    if (views.data?.open_add_new_page) {
+      _page.value = JSON.parse(JSON.stringify(data))
+    }
     alreadyActions.value = true
     return data
   },

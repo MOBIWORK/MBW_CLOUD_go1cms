@@ -145,6 +145,7 @@ def create_client_website(name):
             item_cl_web.page_id = page_build_name
             item_cl_web.allow_edit = page_temp.allow_edit
             item_cl_web.allow_delete = page_temp.allow_delete
+            item_cl_web.hidden = page_temp.hidden
             item_cl_web.name_page = page_temp.name_template
             item_cl_web.icon = page_temp.icon
             item_cl_web.route_template = page_temp.route_template
@@ -166,7 +167,7 @@ def create_client_website(name):
         website.published = 1
         website.web_theme = web_theme
         website.edit = 1
-        website.type_web = 'Bản chính'
+        website.type_web = 'Live version'
         website.type_template = template.type_template
         website.header_component = cp_header
         website.footer_component = cp_footer
@@ -196,7 +197,7 @@ def create_client_website(name):
 @frappe.whitelist()
 @check_user_admin
 def prepare_file_template(name):
-    # return {'code': 200, 'msg': _("Interface loaded successfully")}
+    return {'code': 200, 'msg': _("Interface loaded successfully")}
     rs = install_template(name)
     if rs:
         return {'code': 200, 'msg': _("Interface loaded successfully")}
