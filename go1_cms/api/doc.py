@@ -238,6 +238,8 @@ def get_list_data(
         if web_edit:
             filters['id_client_website'] = web_edit.name
             filters['is_template'] = 0
+        # if doctype == "MBW Form":
+        #     filters['form_type'] = ['not in', ['Contact form']]
 
     custom_view_name = view.get('custom_view_name') if view else None
     view_type = view.get('view_type') if view else None
@@ -336,7 +338,7 @@ def get_list_data(
     for x, y in filters.items():
         filt = [x]
         if type(y) == list:
-            if 'in' in y[0] or 'not in' in y[0]:
+            if ('in' in y[0] or 'not in' in y[0]) and type(y[1]) == str:
                 y[1] = [c.strip()
                         for c in y[1].split(';')]
             filt.extend(y)

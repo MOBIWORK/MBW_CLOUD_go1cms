@@ -103,7 +103,7 @@ def create_contact(**kwargs):
     send_email_manage(None, "email_send_contact", args)
 
     frappe.enqueue(log_page_view, queue='default', ip=local.request.remote_addr,
-                   form_type="Form liên hệ")
+                   form_type="Contact form")
     return {"name": doc.name}
 
 

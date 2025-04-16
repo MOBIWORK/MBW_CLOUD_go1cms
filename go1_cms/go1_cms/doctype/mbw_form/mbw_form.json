@@ -56,13 +56,15 @@
   {
    "fieldname": "form_type",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Form type",
-   "options": "Form l\u1ecdc\nForm li\u00ean h\u1ec7\nForm tuy\u1ec3n d\u1ee5ng\nForm \u0111\u0103ng nh\u1eadp t\u00e0i kho\u1ea3n\nForm \u0111\u0103ng k\u00fd t\u00e0i kho\u1ea3n"
+   "options": "Filter form\nContact form\nRecruitment form\nLogin form\nSign-up form"
   },
   {
    "default": "1",
    "fieldname": "is_template",
    "fieldtype": "Check",
+   "in_list_view": 1,
    "label": "Is Template"
   },
   {
@@ -86,7 +88,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-15 10:10:02.120209",
+ "modified": "2025-04-16 15:44:42.479009",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "MBW Form",
