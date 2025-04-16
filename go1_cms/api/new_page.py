@@ -80,7 +80,7 @@ def get_info_template_page():
     web_page_info = {
         'name_page': web_item.name_page,
         'doc_page': web_item.page_id,
-        'route_prefix': frappe.utils.get_url() + (f'/template_{web_edit.name}/' if web_edit.type_web == 'Bản nháp' else '/')
+        'route_prefix': frappe.utils.get_url() + (f'/template_{web_edit.name}/' if web_edit.type_web == 'Draft' else '/')
     }
     return {'fields_cp': fields_cp, 'fields_st_cp': fields_st_cp, 'web_page': web_page_info}
 
@@ -198,7 +198,7 @@ def create_new_page(**kwargs):
         new_webpage.append("web_section", mb_page_new.as_dict())
         # web_section.append(mb_page_new)
 
-    if web_edit.type_web == 'Bản nháp':
+    if web_edit.type_web == 'Draft':
         route_template = f'template_{web_edit.name}/' + route_page
         route_prefix = f'/template_{web_edit.name}'
     else:

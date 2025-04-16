@@ -28,7 +28,7 @@ class CustomJobOpening(JobOpening):
 
         if not self.route.endswith('jobs-123-jobs-456-jobs'):
             web_client = frappe.db.get_value(
-                'MBW Client Website', {"type_web": "Bản chính"}, pluck='name', as_dict=1)
+                'MBW Client Website', {"type_web": "Live version"}, pluck='name', as_dict=1)
             if web_client:
                 web_item = frappe.db.get_value('MBW Client Website Item', {
                     'parent': web_client, 'parentfield': 'page_websites', 'page_type': 'Trang chi tiết tuyển dụng'}, ['page_id'], as_dict=1)

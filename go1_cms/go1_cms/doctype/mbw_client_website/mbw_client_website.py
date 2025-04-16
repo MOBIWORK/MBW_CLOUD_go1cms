@@ -63,17 +63,17 @@ class MBWClientWebsite(Document):
             else:
                 doc_self_old = frappe._dict({})
             # check status web
-            if doc_self_old.type_web != self.type_web and self.type_web == 'Bản chính':
+            if doc_self_old.type_web != self.type_web and self.type_web == 'Live version':
                 existing_list = frappe.db.get_all(
                     "MBW Client Website",
                     filters={"name": ("!=", self.name),
-                             "type_web": "Bản chính"},
+                             "type_web": "Live version"},
                     fields=['name'],
                 )
                 if existing_list:
                     doc = frappe.get_doc(
                         'MBW Client Website', existing_list[0].get('name'))
-                    doc.type_web = "Bản nháp"
+                    doc.type_web = "Draft"
                     doc.save()
 
             # check edit
@@ -109,7 +109,7 @@ class MBWClientWebsite(Document):
                     route_template = ""
                     doc = frappe.get_doc('Web Page Builder', item.page_id)
 
-                    if self.type_web == 'Bản chính':
+                    if self.type_web == 'Live version':
                         if item.route_template and item.route_template[0] == '/':
                             route_template = item.route_template[1:]
                         else:
@@ -118,7 +118,7 @@ class MBWClientWebsite(Document):
                         route_template = 'template_' + frappe.scrub(
                             self.name) + item.route_template
                     doc.route_template = route_template
-                    doc.route_prefix = '' if self.type_web == 'Bản chính' else router_menu_draft
+                    doc.route_prefix = '' if self.type_web == 'Live version' else router_menu_draft
                     doc.save()
 
                 # update redirect url menu
@@ -139,10 +139,10 @@ class MBWClientWebsite(Document):
                     for m in menu_items:
                         redirect_url = m.redirect_url or '#'
                         if not redirect_url.startswith('http'):
-                            if self.type_web == 'Bản chính' and redirect_url.startswith(router_menu_draft):
+                            if self.type_web == 'Live version' and redirect_url.startswith(router_menu_draft):
                                 redirect_url = redirect_url.replace(
                                     router_menu_draft, "", 1)
-                            elif self.type_web == 'Bản nháp' and not redirect_url.startswith(router_menu_draft):
+                            elif self.type_web == 'Draft' and not redirect_url.startswith(router_menu_draft):
                                 redirect_url = router_menu_draft + redirect_url
 
                             frappe.db.set_value('Menus Item', m.name, {
@@ -151,7 +151,7 @@ class MBWClientWebsite(Document):
 
             # set route website
             route_web = ''
-            if self.type_web == 'Bản chính' and self.page_websites:
+            if self.type_web == 'Live version' and self.page_websites:
                 route_web = self.page_websites[0].route_template
             elif self.page_websites:
                 route_web = '/template_' + frappe.scrub(

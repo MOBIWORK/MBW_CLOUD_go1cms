@@ -20,7 +20,18 @@
           size="sm"
           label="Tạo File"
           :loading="false"
+          :disabled="false"
           @click="callCreateFile"
+        >
+        </Button>
+        <Button
+          :variant="'solid'"
+          theme="gray"
+          size="sm"
+          label="Export Template"
+          :loading="false"
+         :disabled="false"
+          @click="callExportTemplate"
         >
         </Button>
         <Button
@@ -29,6 +40,7 @@
           size="sm"
           label="Cập nhật mẫu từ File"
           :loading="false"
+         :disabled="false"
           @click="callUpdateTemplate"
         >
         </Button>
@@ -65,6 +77,34 @@ async function callCreateFile() {
     if (docUpdate.msg) {
       createToast({
         title: 'Tạo thành công',
+        icon: 'check',
+        iconClasses: 'text-green-600',
+      })
+    }
+  } catch (err) {
+    validErrApi(err, router)
+
+    if (err.messages && err.messages.length) {
+      msgError.value = err.messages.join(', ')
+      errorMessage(__('An error has occurred'), err.messages.join(', '))
+    } else {
+      errorMessage(__('An error has occurred'), err)
+    }
+  }
+  changeLoadingValue(false)
+}
+
+async function callExportTemplate() {
+  changeLoadingValue(true, 'Đang export...')
+  try {
+    let docUpdate = await call(
+      'go1_cms.api.export_template.export_template',
+      {},
+    )
+
+    if (docUpdate.msg) {
+      createToast({
+        title: __('Success'),
         icon: 'check',
         iconClasses: 'text-green-600',
       })

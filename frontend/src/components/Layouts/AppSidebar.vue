@@ -243,11 +243,13 @@ const allViews = computed(() => {
           },
         })
       })
-      items_view.push({
-        label: 'Add New Page',
-        icon: NewPageIcon,
-        to: 'New Page',
-      })
+      if (views.data?.open_add_new_page) {
+        items_view.push({
+          label: 'Add New Page',
+          icon: NewPageIcon,
+          to: 'New Page',
+        })
+      }
 
       _views.push({
         name: 'Page List',

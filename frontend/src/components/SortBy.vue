@@ -51,7 +51,7 @@
           <DesendingIcon v-else class="h-4" />
         </Button>
         <Button
-          :label="getSortLabel()"
+          :label="__(getSortLabel())"
           :class="sortValues.size ? 'rounded-l-none' : ''"
         >
           <template v-if="!hideLabel && !sortValues?.size" #prefix>
@@ -111,7 +111,7 @@
                       size="md"
                       @click="togglePopover()"
                     >
-                      {{ displayValue(selectedValue) }}
+                      {{ __(displayValue(selectedValue)) }}
                       <template #suffix>
                         <FeatherIcon
                           name="chevron-down"
@@ -247,6 +247,7 @@ function getSortLabel() {
 }
 
 function setSort(data) {
+  if (!data) return
   sortValues.value.add({ fieldname: data.value, direction: 'asc' })
   restartSort()
   apply()
