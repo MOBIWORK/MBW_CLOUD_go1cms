@@ -49,17 +49,17 @@ const routes = [
   //   name: 'Form Setup',
   //   component: () => import('@/pages/FormSetup.vue'),
   // },
-  {
-    path: '/contacts',
-    name: 'Contacts',
-    component: () => import('@/pages/contact/Contacts.vue'),
-  },
-  {
-    path: '/contacts/:contactId',
-    name: 'Contact Detail',
-    component: () => import('@/pages/contact/ContactDetail.vue'),
-    props: true,
-  },
+  // {
+  //   path: '/contacts',
+  //   name: 'Contacts',
+  //   component: () => import('@/pages/contact/Contacts.vue'),
+  // },
+  // {
+  //   path: '/contacts/:contactId',
+  //   name: 'Contact Detail',
+  //   component: () => import('@/pages/contact/ContactDetail.vue'),
+  //   props: true,
+  // },
   {
     path: '/dashboard',
     name: 'Dashboard',
@@ -85,38 +85,38 @@ const routes = [
     name: 'Footer Page',
     component: () => import('@/pages/FooterPage.vue'),
   },
-  {
-    path: '/posts',
-    name: 'Posts',
-    component: () => import('@/pages/post/Posts.vue'),
-  },
-  {
-    path: '/posts/create',
-    name: 'Post Create',
-    component: () => import('@/pages/post/PostCreate.vue'),
-  },
-  {
-    path: '/posts/:postId',
-    name: 'Post Detail',
-    component: () => import('@/pages/post/PostDetail.vue'),
-    props: true,
-  },
-  {
-    path: '/categories',
-    name: 'Categories',
-    component: () => import('@/pages/category/Categories.vue'),
-  },
-  {
-    path: '/categories/create',
-    name: 'Category Create',
-    component: () => import('@/pages/category/CategoryCreate.vue'),
-  },
-  {
-    path: '/categories/:categoryId',
-    name: 'Category Detail',
-    component: () => import('@/pages/category/CategoryDetail.vue'),
-    props: true,
-  },
+  // {
+  //   path: '/posts',
+  //   name: 'Posts',
+  //   component: () => import('@/pages/post/Posts.vue'),
+  // },
+  // {
+  //   path: '/posts/create',
+  //   name: 'Post Create',
+  //   component: () => import('@/pages/post/PostCreate.vue'),
+  // },
+  // {
+  //   path: '/posts/:postId',
+  //   name: 'Post Detail',
+  //   component: () => import('@/pages/post/PostDetail.vue'),
+  //   props: true,
+  // },
+  // {
+  //   path: '/categories',
+  //   name: 'Categories',
+  //   component: () => import('@/pages/category/Categories.vue'),
+  // },
+  // {
+  //   path: '/categories/create',
+  //   name: 'Category Create',
+  //   component: () => import('@/pages/category/CategoryCreate.vue'),
+  // },
+  // {
+  //   path: '/categories/:categoryId',
+  //   name: 'Category Detail',
+  //   component: () => import('@/pages/category/CategoryDetail.vue'),
+  //   props: true,
+  // },
   {
     path: '/blog-tags',
     name: 'Blog Tags',

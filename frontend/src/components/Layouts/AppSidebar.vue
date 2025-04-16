@@ -265,21 +265,21 @@ const allViews = computed(() => {
       opened: true,
       // icon: InboxIcon,
       views: [
-        {
-          label: 'Post management',
-          icon: PostIcon,
-          to: 'Posts',
-        },
+        // {
+        //   label: 'Post management',
+        //   icon: PostIcon,
+        //   to: 'Posts',
+        // },
         {
           label: 'Form management',
           icon: FormIcon,
           to: 'Forms',
         },
-        {
-          label: 'Contact List',
-          icon: ContactsIconV1,
-          to: 'Contacts',
-        },
+        // {
+        //   label: 'Contact List',
+        //   icon: ContactsIconV1,
+        //   to: 'Contacts',
+        // },
       ],
     })
   }

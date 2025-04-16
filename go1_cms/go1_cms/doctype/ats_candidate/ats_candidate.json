@@ -1,0 +1,352 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "creation": "2025-02-04 12:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tab_personal_info",
+  "personal_info_section",
+  "column_break_0",
+  "can_id",
+  "can_full_name",
+  "can_avatar",
+  "column_break_1",
+  "can_dob",
+  "can_gender",
+  "can_region",
+  "column_break_2",
+  "can_phone",
+  "can_email",
+  "can_address",
+  "can_other_links",
+  "education_section",
+  "column_break_1111",
+  "educationlevel_id",
+  "institution_id",
+  "column_break_ckoz",
+  "major_id",
+  "application_section",
+  "column_break_yuyuyu",
+  "job_opening_id",
+  "status",
+  "can_application_date",
+  "candidatesource_id",
+  "can_cv",
+  "column_break_faffff",
+  "can_recruiter",
+  "can_collaborator",
+  "can_referral",
+  "can_last_workplace",
+  "section_break_vzyw",
+  "candidate_stages",
+  "section_break_yind",
+  "round_history",
+  "tab_experience",
+  "experience_section",
+  "candidate_work_experience",
+  "candidate_project",
+  "candidate_certification",
+  "candidate_skill",
+  "candidate_award",
+  "candidate_course"
+ ],
+ "fields": [
+  {
+   "fieldname": "tab_personal_info",
+   "fieldtype": "Tab Break",
+   "label": "Personal Information"
+  },
+  {
+   "fieldname": "personal_info_section",
+   "fieldtype": "Section Break",
+   "label": "Personal Information"
+  },
+  {
+   "fieldname": "column_break_0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Candidate ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "can_full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "can_avatar",
+   "fieldtype": "Attach Image",
+   "label": "Avatar"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_dob",
+   "fieldtype": "Date",
+   "label": "Date of Birth"
+  },
+  {
+   "fieldname": "can_gender",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Gender",
+   "options": "Nam\nN\u1eef"
+  },
+  {
+   "fieldname": "can_region",
+   "fieldtype": "Select",
+   "label": "Region",
+   "options": "H\u00e0 N\u1ed9i"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone Number"
+  },
+  {
+   "fieldname": "can_email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "can_address",
+   "fieldtype": "Data",
+   "label": "Address"
+  },
+  {
+   "fieldname": "can_other_links",
+   "fieldtype": "Data",
+   "label": "Other Links"
+  },
+  {
+   "fieldname": "education_section",
+   "fieldtype": "Section Break",
+   "label": "Education Details"
+  },
+  {
+   "fieldname": "column_break_1111",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "educationlevel_id",
+   "fieldtype": "Link",
+   "label": "Education Level",
+   "options": "ATS_EducationLevel"
+  },
+  {
+   "fieldname": "institution_id",
+   "fieldtype": "Link",
+   "label": "Institution",
+   "options": "ATS_Institution"
+  },
+  {
+   "fieldname": "column_break_ckoz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "major_id",
+   "fieldtype": "Link",
+   "label": "Major",
+   "options": "ATS_Major"
+  },
+  {
+   "fieldname": "application_section",
+   "fieldtype": "Section Break",
+   "label": "Application Information"
+  },
+  {
+   "fieldname": "column_break_yuyuyu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "job_opening_id",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Job Opening",
+   "options": "ATS_JobOpening"
+  },
+  {
+   "depends_on": "eval:doc.job_opening_id\n",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status Process"
+  },
+  {
+   "fieldname": "can_application_date",
+   "fieldtype": "Date",
+   "label": "Application Date"
+  },
+  {
+   "fieldname": "candidatesource_id",
+   "fieldtype": "Link",
+   "label": "Candidate Source",
+   "options": "ATS_CandidateSource"
+  },
+  {
+   "fieldname": "can_cv",
+   "fieldtype": "Attach",
+   "label": "CV"
+  },
+  {
+   "fieldname": "column_break_faffff",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_recruiter",
+   "fieldtype": "Link",
+   "label": "Recruiter",
+   "options": "User"
+  },
+  {
+   "fieldname": "can_collaborator",
+   "fieldtype": "Link",
+   "label": "Collaborator",
+   "options": "User"
+  },
+  {
+   "fieldname": "can_referral",
+   "fieldtype": "Data",
+   "label": "Referral"
+  },
+  {
+   "fieldname": "can_last_workplace",
+   "fieldtype": "Data",
+   "label": "Last Workplace"
+  },
+  {
+   "fieldname": "section_break_vzyw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "candidate_stages",
+   "fieldtype": "Table",
+   "label": "Candidate Stages",
+   "options": "Candidate Stages"
+  },
+  {
+   "fieldname": "section_break_yind",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "round_history",
+   "fieldtype": "Table",
+   "label": "Round History",
+   "options": "ATS_CandidateRoundHistory"
+  },
+  {
+   "fieldname": "tab_experience",
+   "fieldtype": "Tab Break",
+   "label": "Experience & Achievements"
+  },
+  {
+   "fieldname": "experience_section",
+   "fieldtype": "Section Break",
+   "label": "Experience Details"
+  },
+  {
+   "fieldname": "candidate_work_experience",
+   "fieldtype": "Table",
+   "label": "Work Experience",
+   "options": "Candidate_Work_Experience"
+  },
+  {
+   "fieldname": "candidate_project",
+   "fieldtype": "Table",
+   "label": "Project",
+   "options": "Candidate_Project"
+  },
+  {
+   "fieldname": "candidate_certification",
+   "fieldtype": "Table",
+   "label": "Certification",
+   "options": "Candidate_Certification"
+  },
+  {
+   "fieldname": "candidate_skill",
+   "fieldtype": "Table",
+   "label": "Skill",
+   "options": "Candidate_Skill"
+  },
+  {
+   "fieldname": "candidate_award",
+   "fieldtype": "Table",
+   "label": "Award",
+   "options": "Candidate_Award"
+  },
+  {
+   "fieldname": "candidate_course",
+   "fieldtype": "Table",
+   "label": "Course",
+   "options": "Candidate_Course"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-04-16 15:21:06.493761",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "ATS_Candidate",
+ "naming_rule": "By script",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Test",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Test 2",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Test 3",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

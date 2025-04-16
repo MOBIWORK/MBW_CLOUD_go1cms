@@ -1,0 +1,124 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:location_name",
+ "creation": "2025-01-10 13:30:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "location_id",
+  "location_name",
+  "country_id",
+  "province_id",
+  "district_id",
+  "ward_id",
+  "location_address",
+  "cat_status",
+  "cat_order",
+  "cat_color",
+  "cat_icon"
+ ],
+ "fields": [
+  {
+   "fieldname": "location_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Location ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "location_name",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Location Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "country_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Country",
+   "options": "ATS_Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "province_id",
+   "fieldtype": "Link",
+   "label": "Province",
+   "link_filters": "[[\"ATS_Province\",\"country_id\",\"=\",\"eval: doc.country_id\"]]",
+   "options": "ATS_Province"
+  },
+  {
+   "fieldname": "district_id",
+   "fieldtype": "Link",
+   "label": "District",
+   "link_filters": "[[\"ATS_District\",\"province_id\",\"=\", \"eval: doc.province_id\"]]",
+   "options": "ATS_District"
+  },
+  {
+   "fieldname": "ward_id",
+   "fieldtype": "Link",
+   "label": "Ward",
+   "link_filters": "[[\"ATS_Ward\",\"district_id\",\"=\", \"eval: doc.district_id\"]]",
+   "options": "ATS_Ward"
+  },
+  {
+   "fieldname": "location_address",
+   "fieldtype": "Data",
+   "label": "Location Address",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "cat_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Cat Status",
+   "options": "Active\nInactive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cat_order",
+   "fieldtype": "Int",
+   "label": "Cat Order",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cat_color",
+   "fieldtype": "Color",
+   "label": "Cat Color"
+  },
+  {
+   "fieldname": "cat_icon",
+   "fieldtype": "Icon",
+   "label": "Cat Icon"
+  }
+ ],
+ "links": [],
+ "modified": "2025-04-16 15:11:27.072973",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "ATS_Location",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:position_name",
+ "creation": "2025-01-10 14:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "position_id",
+  "position_name",
+  "unit_id",
+  "profession_id",
+  "position_description",
+  "required_skills",
+  "position_benefits",
+  "recruitment_process_id",
+  "cat_status",
+  "cat_order",
+  "cat_color",
+  "cat_icon",
+  "job_position_rounds"
+ ],
+ "fields": [
+  {
+   "fieldname": "position_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Position ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "position_name",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Position Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "unit_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Using Unit",
+   "options": "ATS_Unit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "profession_id",
+   "fieldtype": "Link",
+   "label": "Profession ID",
+   "options": "ATS_Profession",
+   "reqd": 1
+  },
+  {
+   "fieldname": "position_description",
+   "fieldtype": "Text Editor",
+   "label": "Position Description"
+  },
+  {
+   "fieldname": "required_skills",
+   "fieldtype": "Text Editor",
+   "label": "Required Skills"
+  },
+  {
+   "fieldname": "position_benefits",
+   "fieldtype": "Text Editor",
+   "label": "Position Benefits"
+  },
+  {
+   "fieldname": "recruitment_process_id",
+   "fieldtype": "Data",
+   "label": "Recruitment Process ID"
+  },
+  {
+   "default": "Active",
+   "fieldname": "cat_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Cat Status",
+   "options": "Active\nInactive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cat_order",
+   "fieldtype": "Int",
+   "label": "Cat Order",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cat_color",
+   "fieldtype": "Color",
+   "label": "Cat Color"
+  },
+  {
+   "fieldname": "cat_icon",
+   "fieldtype": "Icon",
+   "label": "Cat Icon"
+  },
+  {
+   "fieldname": "job_position_rounds",
+   "fieldtype": "Table",
+   "label": "Job_Position_Rounds",
+   "options": "Job_Position_Rounds"
+  }
+ ],
+ "links": [],
+ "modified": "2025-04-16 15:08:18.040434",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "ATS_Position",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

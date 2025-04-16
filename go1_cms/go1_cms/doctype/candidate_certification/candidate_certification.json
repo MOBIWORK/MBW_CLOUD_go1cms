@@ -1,0 +1,87 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-04 10:53:34.400842",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_1",
+  "can_cert_name",
+  "can_cert_organization",
+  "column_break_xqht",
+  "can_cert_issued_date",
+  "can_cert_expiration_date",
+  "section_break_psof",
+  "can_cert_file",
+  "column_break_gyah",
+  "can_cert_link"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_1",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "can_cert_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Certification Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "can_cert_organization",
+   "fieldtype": "Data",
+   "label": "Issuing Organization",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xqht",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_cert_issued_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Issued Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "can_cert_expiration_date",
+   "fieldtype": "Date",
+   "label": "Expiration Date"
+  },
+  {
+   "fieldname": "section_break_psof",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "can_cert_file",
+   "fieldtype": "Attach",
+   "label": "File"
+  },
+  {
+   "fieldname": "column_break_gyah",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_cert_link",
+   "fieldtype": "Data",
+   "label": "Link"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-16 15:19:59.062517",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "Candidate_Certification",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

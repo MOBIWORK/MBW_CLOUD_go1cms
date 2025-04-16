@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "creation": "2025-01-10 13:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "district_id",
+  "district_name",
+  "province_id",
+  "cat_status",
+  "cat_order",
+  "cat_color",
+  "cat_icon"
+ ],
+ "fields": [
+  {
+   "fieldname": "district_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "District ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "district_name",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "District Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "province_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Province Name",
+   "options": "ATS_Province",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "cat_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Cat Status",
+   "options": "Active\nInactive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cat_order",
+   "fieldtype": "Int",
+   "label": "Cat Order",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "cat_color",
+   "fieldtype": "Color",
+   "label": "Cat Color"
+  },
+  {
+   "fieldname": "cat_icon",
+   "fieldtype": "Icon",
+   "label": "Cat Icon"
+  }
+ ],
+ "links": [],
+ "modified": "2025-04-16 15:10:55.651249",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "ATS_District",
+ "naming_rule": "By script",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

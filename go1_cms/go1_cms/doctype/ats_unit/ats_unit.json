@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:unit_id",
+ "creation": "2024-12-27 14:58:56.536545",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_u3z6",
+  "column_break_1",
+  "parent_ats_unit",
+  "unit_id",
+  "unit_name",
+  "company_id",
+  "unit_address",
+  "unit_head",
+  "unit_level",
+  "column_break_oafb",
+  "lft",
+  "is_group",
+  "rgt",
+  "old_parent",
+  "cat_order",
+  "cat_status",
+  "cat_color",
+  "cat_icon"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_u3z6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "parent_ats_unit",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Unit Parent",
+   "options": "ATS_Unit"
+  },
+  {
+   "fieldname": "unit_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Unit ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "unit_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Unit Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "ATS_Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "unit_address",
+   "fieldtype": "Data",
+   "label": "Unit Address"
+  },
+  {
+   "fieldname": "unit_head",
+   "fieldtype": "Data",
+   "label": "Unit Head"
+  },
+  {
+   "fieldname": "unit_level",
+   "fieldtype": "Select",
+   "label": "Unit Level",
+   "options": "Subsidiary\nBranch\nRepresentative Office\nOffice\nCenter\nDepartment\nGroup/Team\nWorkshop",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_oafb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lft",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Left",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "rgt",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Right",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "old_parent",
+   "fieldtype": "Link",
+   "label": "Old Parent",
+   "options": "ATS_Unit"
+  },
+  {
+   "fieldname": "cat_order",
+   "fieldtype": "Int",
+   "label": "Cat Order",
+   "non_negative": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "cat_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Cat Status",
+   "options": "Active\nInactive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cat_color",
+   "fieldtype": "Color",
+   "label": "Cat Color"
+  },
+  {
+   "fieldname": "cat_icon",
+   "fieldtype": "Icon",
+   "label": "Cat Icon"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_tree": 1,
+ "links": [],
+ "modified": "2025-04-16 15:04:05.212030",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "ATS_Unit",
+ "naming_rule": "By fieldname",
+ "nsm_parent_field": "parent_ats_unit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "unit_name"
+}

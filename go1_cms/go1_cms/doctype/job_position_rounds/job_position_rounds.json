@@ -1,0 +1,55 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-20 14:14:22.693450",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "round_name",
+  "round_type",
+  "position",
+  "default"
+ ],
+ "fields": [
+  {
+   "fieldname": "round_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Round Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "round_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Round Type",
+   "options": "ATS_Round_Type"
+  },
+  {
+   "fieldname": "position",
+   "fieldtype": "Int",
+   "label": "Position",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "default",
+   "fieldtype": "Check",
+   "label": "Default"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-16 15:07:50.068199",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "Job_Position_Rounds",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-04 10:56:42.342452",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_1",
+  "can_skill_name",
+  "column_break_xqht",
+  "levels",
+  "section_break_psof",
+  "descriptions"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_1",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "can_skill_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Skill Name"
+  },
+  {
+   "fieldname": "column_break_xqht",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "levels",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Levels"
+  },
+  {
+   "fieldname": "section_break_psof",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "descriptions",
+   "fieldtype": "Text Editor",
+   "label": "Skill Details"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-16 15:20:10.749528",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "Candidate_Skill",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

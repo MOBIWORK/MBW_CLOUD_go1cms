@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-04 11:07:23.433045",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_1",
+  "can_course_name",
+  "can_course_organization",
+  "column_break_xqht",
+  "can_course_start_date",
+  "can_course_end_date",
+  "section_break_psof",
+  "can_course_details",
+  "can_cert_file",
+  "can_cert_link"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_1",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "can_course_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Course Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "can_course_organization",
+   "fieldtype": "Data",
+   "label": "Issuing Organization",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xqht",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "can_course_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "can_course_end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "section_break_psof",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "can_course_details",
+   "fieldtype": "Text Editor",
+   "label": "Course Details"
+  },
+  {
+   "fieldname": "can_cert_file",
+   "fieldtype": "Attach",
+   "label": "File"
+  },
+  {
+   "fieldname": "can_cert_link",
+   "fieldtype": "Data",
+   "label": "Link"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-16 15:20:39.773081",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "Candidate_Course",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
