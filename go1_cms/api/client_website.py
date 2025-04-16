@@ -146,25 +146,29 @@ def delete_client_website(name):
 
         web_template.template_in_use = 0
         web_template.installed_template = 0
-        # web_template.web_theme = None
-        # web_template.header_component = None
-        # web_template.footer_component = None
-        # web_template.page_templates = []
-        # web_template.flags.ignore_permissions = True
-        # web_template.flags.ignore_mandatory = True
+
+        # === comment: if keep template
+        web_template.web_theme = None
+        web_template.header_component = None
+        web_template.footer_component = None
+        web_template.page_templates = []
+        web_template.flags.ignore_permissions = True
+        web_template.flags.ignore_mandatory = True
+
         web_template.save()
 
+        # === comment: if keep template
         # delete resource template
-        # for temp in web_template_dict.page_templates:
-        #     frappe.delete_doc('Page Template', temp.page_template)
-        # if web_template_dict.web_theme:
-        #     frappe.delete_doc('Web Theme', web_template_dict.web_theme)
-        # if web_template_dict.header_component:
-        #     frappe.delete_doc('Header Component',
-        #                       web_template_dict.header_component)
-        # if web_template_dict.footer_component:
-        #     frappe.delete_doc('Footer Component',
-        #                       web_template_dict.footer_component)
+        for temp in web_template_dict.page_templates:
+            frappe.delete_doc('Page Template', temp.page_template)
+        if web_template_dict.web_theme:
+            frappe.delete_doc('Web Theme', web_template_dict.web_theme)
+        if web_template_dict.header_component:
+            frappe.delete_doc('Header Component',
+                              web_template_dict.header_component)
+        if web_template_dict.footer_component:
+            frappe.delete_doc('Footer Component',
+                              web_template_dict.footer_component)
 
         return name
     except frappe.ValidationError as ex:

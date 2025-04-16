@@ -197,7 +197,8 @@ def create_client_website(name):
 @frappe.whitelist()
 @check_user_admin
 def prepare_file_template(name):
-    return {'code': 200, 'msg': _("Interface loaded successfully")}
+    # === comment: if keep template
+    # return {'code': 200, 'msg': _("Interface loaded successfully")}
     rs = install_template(name)
     if rs:
         return {'code': 200, 'msg': _("Interface loaded successfully")}
