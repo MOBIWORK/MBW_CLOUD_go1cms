@@ -112,16 +112,15 @@ class PageSection(Document):
         json_obj['is_full_width'] = self.is_full_width
         json_obj['layout_json'] = self.layout_json
         json_obj['web_template'] = self.web_template
+
         if self.section_type == 'Predefined Section' and not self.is_login_required:
             if self.predefined_section == "Recommended Items":
                 # frappe.log_error("rec", "recommended")
                 json_obj['data'] = get_recommended_products(self.query, self.reference_document, self.no_of_records,
                                                             business=self.business, customer=customer, add_info=add_info, store_business=store_business)
-                json_obj['reference_document'] = self.reference_document
             else:
                 json_obj['data'] = get_data_source(self.query, self.reference_document, self.no_of_records,
                                                    business=self.business, customer=customer, add_info=add_info, store_business=store_business)
-                json_obj['reference_document'] = self.reference_document
         elif self.section_type in ['Slider', 'Slider With Banner']:
             slider_cond = ''
             if self.business:
@@ -158,7 +157,6 @@ class PageSection(Document):
                 if self.reference_document == 'Product Category' and self.dynamic_data == 0:
                     json_obj['data'] = json.loads(self.custom_section_data)
                 else:
-                    json_obj['reference_document'] = self.reference_document
                     json_obj['reference_name'] = self.reference_name
                     json_obj['data'] = get_dynamic_data_source(
                         self, customer=customer, store_business=store_business)
@@ -494,6 +492,9 @@ def get_recommended_products(query=None, dt=None, no_of_records=0, login_require
 
 def get_dynamic_data_source(doc, customer=None, store_business=None):
     result = []
+    if not doc.reference_document:
+        return result
+
     condition = ""
     business = None
     if not business:

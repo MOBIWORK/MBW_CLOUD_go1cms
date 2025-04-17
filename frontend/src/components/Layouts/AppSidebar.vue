@@ -261,7 +261,7 @@ const allViews = computed(() => {
 
     //
     _views.push({
-      name: 'Posts & Forms',
+      name: 'Forms',
       opened: true,
       // icon: InboxIcon,
       views: [

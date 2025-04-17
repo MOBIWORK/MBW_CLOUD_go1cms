@@ -320,7 +320,7 @@ def upload_cv(name_job, **kwargs):
         send_email_manage(None, 'email_apply_cv_manage', args)
 
         frappe.enqueue(log_page_view, queue='default', ip=ip,
-                       form_type="Form tuyển dụng")
+                       form_type="Recruitment form")
         # delete captcha
         frappe.db.delete("CMS Captcha", {'name': captcha.name})
 

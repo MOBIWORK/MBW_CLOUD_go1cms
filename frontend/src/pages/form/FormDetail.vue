@@ -177,16 +177,16 @@ const sections = computed(() => {
           placeholder: 'Select',
           disabled: true,
           options: [
-            { label: 'Form lọc', value: 'Form lọc' },
-            { label: 'Form liên hệ', value: 'Form liên hệ' },
-            { label: 'Form tuyển dụng', value: 'Form tuyển dụng' },
+            { label: __('Filter form'), value: 'Filter form' },
+            { label: __('Contact form'), value: __('Contact form') },
+            { label: __('Recruitment form'), value: __('Recruitment form') },
             {
-              label: 'Form đăng nhập tài khoản',
-              value: 'Form đăng nhập tài khoản',
+              label: __('Login form'),
+              value: __('Login form'),
             },
             {
-              label: 'Form đăng ký tài khoản',
-              value: 'Form đăng ký tài khoản',
+              label: __('Sign-up form'),
+              value: __('Sign-up form'),
             },
           ],
         },
