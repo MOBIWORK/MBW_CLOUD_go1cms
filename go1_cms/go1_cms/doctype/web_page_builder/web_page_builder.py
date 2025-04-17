@@ -1584,13 +1584,13 @@ def get_page_html(doc, sections, html, source_doc, device_type, doc_name=None, a
                     pg_doc.query, pg_doc.reference_document, pg_doc.no_of_records, 1, business=pg_doc.business)
             else:
                 allow = False
-        if check_domain('restaurant') and data_source['section_type'] == 'Predefined Section' and doc.is_location_based:
-            check_nearby = False
-            if data_source.get('check_location'):
-                check_nearby = True
-            data_source['data'] = get_all_restaurant_data(
-                data_source['data'], distance, check_nearby, latitude, longitude, sid=res.get('sid'), order_type=order_type)
-            data_source['order_type'] = order_type
+        # if check_domain('restaurant') and data_source['section_type'] == 'Predefined Section' and doc.is_location_based:
+        #     check_nearby = False
+        #     if data_source.get('check_location'):
+        #         check_nearby = True
+        #     data_source['data'] = get_all_restaurant_data(
+        #         data_source['data'], distance, check_nearby, latitude, longitude, sid=res.get('sid'), order_type=order_type)
+        #     data_source['order_type'] = order_type
 
         if allow:
             data_source['blog_detail'] = frappe._dict({})
@@ -1787,13 +1787,13 @@ def get_scroll_content_mobile_app(page, add_info=None, page_no=0, page_len=3):
                     doc.query, doc.reference_document, doc.no_of_records, 1, business=doc.business)
             else:
                 allow = False
-        if check_domain('restaurant') and data_source['section_type'] == 'Predefined Section' and doc.is_location_based:
-            check_nearby = False
-            if data_source.get('check_location'):
-                check_nearby = True
-            data_source['data'] = get_all_restaurant_data(
-                data_source['data'], distance, check_nearby, latitude, longitude, sid=res.get('sid'), order_type=order_type)
-            data_source['order_type'] = order_type
+        # if check_domain('restaurant') and data_source['section_type'] == 'Predefined Section' and doc.is_location_based:
+        #     check_nearby = False
+        #     if data_source.get('check_location'):
+        #         check_nearby = True
+        #     data_source['data'] = get_all_restaurant_data(
+        #         data_source['data'], distance, check_nearby, latitude, longitude, sid=res.get('sid'), order_type=order_type)
+        #     data_source['order_type'] = order_type
         sections_data.append(data_source)
     return sections_data
 
@@ -2175,7 +2175,7 @@ def import_sections_from_template(page_id, doctype="Page Template", id_client_we
         }, target_doc, ignore_permissions=True)
         if doc.form:
             form_set = frappe.db.get_value(
-                'MBW Form', {'id_parent_copy': doc.form}, ['name'], as_dict=1)
+                'MBW Form', {'id_parent_copy': doc.form, 'id_client_website': id_client_website}, ['name'], as_dict=1)
             if not form_set:
                 target_doc_form = None
                 doc_form = frappe.new_doc("MBW Form")
@@ -2215,7 +2215,7 @@ def import_sections_from_template(page_id, doctype="Page Template", id_client_we
         }, target_doc, ignore_permissions=True)
         if doc.form:
             form_set = frappe.db.get_value(
-                'MBW Form', {'id_parent_copy': doc.form}, ['name'], as_dict=1)
+                'MBW Form', {'id_parent_copy': doc.form, 'id_client_website': id_client_website}, ['name'], as_dict=1)
             if not form_set:
                 target_doc_form = None
                 doc_form = frappe.new_doc("MBW Form")

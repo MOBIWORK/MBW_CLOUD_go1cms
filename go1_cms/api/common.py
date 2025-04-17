@@ -227,7 +227,7 @@ def copy_header_component(name, sub_name):
             doc.menu = doc_menu.name
         elif doc.section_type == 'Form':
             form_set = frappe.db.get_value(
-                'MBW Form', {'id_parent_copy': doc.form}, ['name'], as_dict=1)
+                'MBW Form', {'id_parent_copy': doc.form, 'id_client_website': sub_name}, ['name'], as_dict=1)
             if not form_set:
                 target_doc_form = None
                 doc_form = frappe.new_doc("MBW Form")
@@ -784,7 +784,7 @@ def handle_write_multiple_files_web_template():
     # save file image
     print("===>>: image")
     files_resource = [
-        'delete-input.svg', 'asc.svg', 'search.svg', 'vnd.svg', 'Sort-icon-up.svg', 'cancel.svg', 'kh1.png', 'clock.svg', 'ic-job.svg', 'Vectorlogo-breadcrumb.png', 'phone-alert.png', 'mail.png', 'outline.png', 'active-arrown.svg', 'no-active-arrown.svg'
+        'delete-input.svg', 'asc.svg', 'search.svg', 'vnd.svg', 'Sort-icon-up.svg', 'cancel.svg', 'kh1.png', 'clock.svg', 'ic-job.svg', 'Vectorlogo-breadcrumb.png', 'phone-alert.png', 'mail.png', 'outline.png', 'active-arrown.svg', 'no-active-arrown.svg', 'time.svg', 'location.svg', 'range-salary.svg'
     ]
     for file in files_resource:
         if file not in files_attach:
