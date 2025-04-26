@@ -61,6 +61,16 @@ const routes = [
   //   props: true,
   // },
   {
+    path: '/candidates',
+    name: 'candidates',
+    component: () => import('@/pages/ats_candidate/Candidates.vue'),
+  },
+  {
+    path: '/job_opening',
+    name: 'job_opening',
+    component: () => import('@/pages/ats_jobopening/JobOpenings.vue'),
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/pages/Dashboard.vue'),
@@ -175,6 +185,7 @@ const routes = [
     name: 'Login',
     component: () => import('@/pages/Login.vue'),
   },
+  
 ]
 
 const scrollBehavior = (to, from, savedPosition) => {

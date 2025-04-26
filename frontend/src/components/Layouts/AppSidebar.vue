@@ -169,6 +169,16 @@ const links = [
     icon: DisplayIcon,
     to: 'Interface Repository',
   },
+    {
+    label: 'Candidate',
+    icon: DisplayIcon,
+    to: 'candidates',
+  },
+  {
+    label: 'Job Opening',
+    icon: DisplayIcon,
+    to: 'job_opening',
+  },
 ]
 
 const allViews = computed(() => {
