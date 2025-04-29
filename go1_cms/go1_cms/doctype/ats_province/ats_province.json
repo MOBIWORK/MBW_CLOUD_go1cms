@@ -2,6 +2,7 @@
  "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
+ "autoname": "field:province_name",
  "creation": "2025-01-10 12:30:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -28,7 +29,8 @@
    "fieldtype": "Data",
    "in_standard_filter": 1,
    "label": "Province Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "country_id",
@@ -65,11 +67,11 @@
   }
  ],
  "links": [],
- "modified": "2025-04-16 15:10:48.941968",
+ "modified": "2025-04-28 13:49:17.185017",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Province",
- "naming_rule": "By script",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -84,7 +86,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

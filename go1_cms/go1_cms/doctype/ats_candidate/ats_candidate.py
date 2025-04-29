@@ -6,4 +6,72 @@ from frappe.model.document import Document
 
 
 class ATS_Candidate(Document):
-	pass
+	def default_list_data():
+		columns = [
+			{
+				"label": "Full Name",
+				"type": "Data",
+				"key": "can_full_name",
+				"width": "16rem"
+			},
+			{
+				"label": "Phone Number",
+				"type": "Data",
+				"key": "can_phone",
+				"width": "10rem"
+			},
+			{
+				"label": "Email",
+				"type": "Data",
+				"key": "can_email",
+				"width": "14rem"
+			},
+			{
+				"label": "Job Opening",
+				"type": "Link",
+				"key": "job_opening_id",
+				"width": "16rem"
+			},
+			{
+				"label": "Application Date",
+				"type": "Date",
+				"key": "can_application_date",
+				"width": "14rem"
+			},
+   			# {
+			# 	"label": "Tags",
+			# 	"type": "Data",
+			# 	"key": "_user_tags",
+			# 	"width": "16rem"
+			# }
+		]
+
+		rows = [
+			"can_id",
+			"can_full_name",
+			"can_phone",
+			"can_email",
+			"job_opening_id",
+			"can_application_date",
+			"candidatesource_id",
+			"can_recruiter",
+			"can_last_workplace",
+			"can_dob",
+			"can_gender",
+			"can_region",
+			"can_address",
+			"can_other_links",
+			"educationlevel_id",
+			"institution_id",
+			"major_id",
+			"can_collaborator",
+			"can_referral",
+			"status",
+			"_user_tags",
+			"rejected",
+			"name"
+		]
+		return {
+			"columns": columns,
+			"rows": rows
+		}

@@ -288,7 +288,7 @@ def upload_cv(name_job, **kwargs):
             new_file = frappe.get_doc(
                 {
                     "doctype": "File",
-                    "attached_to_doctype": "Job Applicant",
+                    "attached_to_doctype": "ATS_Candidate",
                     "attached_to_name": new_doc.name,
                     "attached_to_field": "resume_attachment",
                     "folder": "Home",

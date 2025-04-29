@@ -4,17 +4,6 @@ from frappe import _
 
 
 def get_api_config(endpoint):
-    # Base URL for the API
-    api_base_url = "https://ivan-ats.mbwnext.com"
-    api_url = f"{api_base_url}{endpoint}"
-    headers = {
-        "X-API-Key": frappe.conf.get("mbw_ats_api_key"),
-        "X-API-Secret": frappe.conf.get("mbw_ats_api_secret")
-    }
-    
-    return api_url, headers
-
-def get_ats_api_config(endpoint):
     
     # Base URL for the API
     api_base_url = "https://ivan-ats.mbwnext.com"
@@ -31,7 +20,7 @@ def sync_ats_company():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_companies"
-        project_a_api_url, headers = get_ats_api_config(endpoint)
+        project_a_api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(project_a_api_url, headers=headers)
@@ -41,18 +30,18 @@ def sync_ats_company():
             companies = response_data_message.get("data", [])
 
             for company in companies:
-                # Check if the record already exists in ATS_Company_Cms
-                existing_company = frappe.db.exists("ATS_Company_Cms", {"company_id": company.get("company_id")})
+                # Check if the record already exists in ATS_Company
+                existing_company = frappe.db.exists("ATS_Company", {"company_id": company.get("company_id")})
 
                 if existing_company:
                     # Update the existing record
-                    doc = frappe.get_doc("ATS_Company_Cms", existing_company)
+                    doc = frappe.get_doc("ATS_Company", existing_company)
                     doc.update(company)
                     doc.save()
                 else:
                     # Insert a new record
                     doc = frappe.get_doc({
-                        "doctype": "ATS_Company_Cms",
+                        "doctype": "ATS_Company",
                         **company
                     })
                     doc.insert()
@@ -73,7 +62,7 @@ def sync_ats_country():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_countries"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -114,7 +103,7 @@ def sync_ats_province():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_provinces"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -155,7 +144,7 @@ def sync_ats_district():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_districts"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -164,23 +153,53 @@ def sync_ats_district():
         
         if response_data_message.get("status") == "success":
             districts = response_data_message.get("data", [])
-
+            
+            # Track processed district_ids to avoid duplicates
+            processed_ids = set()
+            
             for district in districts:
-                # Check if the record already exists
-                existing_district = frappe.db.exists("ATS_District", {"district_id": district.get("district_id")})
-
+                district_id = district.get("district_id")
+                
+                # Skip if already processed in this batch
+                if district_id in processed_ids:
+                    continue
+                
+                processed_ids.add(district_id)
+                
+                # Check if the record already exists by district_id
+                existing_district = frappe.db.exists("ATS_District", {"district_id": district_id})
+                
                 if existing_district:
-                    # Update the existing record
-                    doc = frappe.get_doc("ATS_District", existing_district)
-                    doc.update(district)
-                    doc.save()
+                    # Update existing record
+                    try:
+                        doc = frappe.get_doc("ATS_District", existing_district)
+                        
+                        # Only update fields other than district_name to avoid unique constraint issues
+                        for key, value in district.items():
+                            if key != "district_name":
+                                doc.set(key, value)
+                                
+                        doc.save()
+                    except Exception as e:
+                        frappe.log_error(f"Error updating district {district_id}", "sync_district_err")
                 else:
-                    # Insert a new record
-                    doc = frappe.get_doc({
-                        "doctype": "ATS_District",
-                        **district
-                    })
-                    doc.insert()
+                    # For new records, check if the name already exists
+                    district_name = district.get("district_name")
+                    name_exists = frappe.db.exists("ATS_District", {"district_name": district_name})
+                    
+                    if name_exists:
+                        # If name exists, make it unique by adding district_id
+                        district["district_name"] = f"{district_name} ({district_id})"
+                    
+                    # Insert new record
+                    try:
+                        doc = frappe.get_doc({
+                            "doctype": "ATS_District",
+                            **district
+                        })
+                        doc.insert()
+                    except Exception as e:
+                        frappe.log_error(f"Error inserting district {district_id}", "sync_district_err")
 
             frappe.db.commit()
             return "District synchronization completed successfully."
@@ -188,15 +207,15 @@ def sync_ats_district():
             return f"Failed to fetch district data: {response_data_message.get('message')}"
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_ats_district Error")
-        return f"An error occurred: {str(e)}"
+        frappe.log_error(frappe.get_traceback()[:500], "sync_ats_district Error")
+        return f"An error occurred: {str(e)[:100]}"
 
 @frappe.whitelist(allow_guest=True)
 def sync_ats_ward():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_wards"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -237,7 +256,7 @@ def sync_ats_round_type():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_round_types"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -278,7 +297,7 @@ def sync_ats_educationlevel():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_education_levels"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -319,7 +338,7 @@ def sync_ats_institution():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_institutions"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -360,7 +379,7 @@ def sync_ats_major():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_majors"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -401,7 +420,7 @@ def sync_job_position_rounds():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_job_position_rounds"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -413,22 +432,22 @@ def sync_job_position_rounds():
 
             for round in rounds:
                 # Check if the record already exists
-                existing_round = frappe.db.exists("Job_Position_Rounds_Cms", {
+                existing_round = frappe.db.exists("Job_Position_Rounds", {
                     "round_name": round.get("round_name"),
                     "parent": round.get("parent")
                 })
 
                 if existing_round:
                     # Update the existing record
-                    doc = frappe.get_doc("Job_Position_Rounds_Cms", existing_round)
+                    doc = frappe.get_doc("Job_Position_Rounds", existing_round)
                     doc.update(round)
                     doc.save()
                 else:
                     # Set parenttype for new records
-                    round['parenttype'] = 'ATS_Position_Cms'
+                    round['parenttype'] = 'ATS_Position'
                     # Insert a new record
                     doc = frappe.get_doc({
-                        "doctype": "Job_Position_Rounds_Cms",
+                        "doctype": "Job_Position_Rounds",
                         **round
                     })
                     doc.insert()
@@ -442,53 +461,53 @@ def sync_job_position_rounds():
         frappe.log_error(frappe.get_traceback(), "sync_job_position_rounds Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
-def sync_ats_rejectreasoncampaigngroup():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_reject_reason_campaign_groups"
-        api_url, headers = get_ats_api_config(endpoint)
+# @frappe.whitelist(allow_guest=True)
+# def sync_ats_rejectreasoncampaigngroup():
+#     try:
+#         # Get API URL and headers
+#         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_reject_reason_campaign_groups"
+#         api_url, headers = get_api_config(endpoint)
         
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
+#         # Fetch data from API
+#         response = requests.get(api_url, headers=headers)
+#         response_data = response.json()
+#         response_data_message = response_data.get("message")
         
-        if response_data_message.get("status") == "success":
-            campaign_groups = response_data_message.get("data", [])
+#         if response_data_message.get("status") == "success":
+#             campaign_groups = response_data_message.get("data", [])
 
-            for rejectreasoncampaigngroup in campaign_groups:
-                # Check if the record already exists
-                existing_rejectreasoncampaigngroup = frappe.db.exists("ATS_RejectReasonCampaignGroup", {"rejectreasoncampaigngroup_id": rejectreasoncampaigngroup.get("rejectreasoncampaigngroup_id")})
+#             for rejectreasoncampaigngroup in campaign_groups:
+#                 # Check if the record already exists
+#                 existing_rejectreasoncampaigngroup = frappe.db.exists("ATS_RejectReasonCampaignGroup", {"rejectreasoncampaigngroup_id": rejectreasoncampaigngroup.get("rejectreasoncampaigngroup_id")})
 
-                if existing_rejectreasoncampaigngroup:
-                    # Update the existing record
-                    doc = frappe.get_doc("ATS_RejectReasonCampaignGroup", existing_rejectreasoncampaigngroup)
-                    doc.update(rejectreasoncampaigngroup)
-                    doc.save()
-                else:
-                    # Insert a new record
-                    doc = frappe.get_doc({
-                        "doctype": "ATS_RejectReasonCampaignGroup",
-                        **rejectreasoncampaigngroup
-                    })
-                    doc.insert()
+#                 if existing_rejectreasoncampaigngroup:
+#                     # Update the existing record
+#                     doc = frappe.get_doc("ATS_RejectReasonCampaignGroup", existing_rejectreasoncampaigngroup)
+#                     doc.update(rejectreasoncampaigngroup)
+#                     doc.save()
+#                 else:
+#                     # Insert a new record
+#                     doc = frappe.get_doc({
+#                         "doctype": "ATS_RejectReasonCampaignGroup",
+#                         **rejectreasoncampaigngroup
+#                     })
+#                     doc.insert()
 
-            frappe.db.commit()
-            return "Reject Reason Campaign Group synchronization completed successfully."
-        else:
-            return f"Failed to fetch reject reason campaign group data: {response_data_message.get('message')}"
+#             frappe.db.commit()
+#             return "Reject Reason Campaign Group synchronization completed successfully."
+#         else:
+#             return f"Failed to fetch reject reason campaign group data: {response_data_message.get('message')}"
 
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreasoncampaigngroup Error")
-        return f"An error occurred: {str(e)}"
+#     except Exception as e:
+#         frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreasoncampaigngroup Error")
+#         return f"An error occurred: {str(e)}"
 
 @frappe.whitelist(allow_guest=True)
 def sync_hiring_committee():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_hiring_committees"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -534,217 +553,11 @@ def sync_hiring_committee():
         return f"An error occurred: {str(e)}"
 
 @frappe.whitelist(allow_guest=True)
-def sync_candidate_stages():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_stages"
-        api_url, headers = get_ats_api_config(endpoint)
-        
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
-        
-        if response_data_message.get("status") == "success":
-            stages = response_data_message.get("data", [])
-
-            for stage in stages:
-                # Since this is a child table, we need to handle it differently
-                # We'll check if the parent record exists first
-                if stage.get("parent") and stage.get("parenttype") and stage.get("parentfield"):
-                    parent_doc = frappe.get_doc(stage["parenttype"], stage["parent"])
-                    
-                    # Check if this stage already exists in the parent
-                    existing = False
-                    for existing_stage in parent_doc.get(stage["parentfield"] or "candidate_stages", []):
-                        if (existing_stage.job_opening == stage["job_opening"] and 
-                            existing_stage.status == stage["status"]):
-                            # Update existing stage
-                            existing_stage.rejected = stage["rejected"]
-                            existing = True
-                            break
-                    
-                    # If not found, add new stage
-                    if not existing:
-                        parent_doc.append(stage["parentfield"] or "candidate_stages", {
-                            "job_opening": stage["job_opening"],
-                            "status": stage["status"],
-                            "rejected": stage["rejected"]
-                        })
-                    
-                    parent_doc.save()
-
-            frappe.db.commit()
-            return "Synchronization of Candidate Stages completed successfully."
-        else:
-            return f"Failed to fetch candidate stages data: {response_data_message.get('message')}"
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_candidate_stages Error")
-        return f"An error occurred: {str(e)}"
-
-@frappe.whitelist(allow_guest=True)
-def sync_ats_candidateroundhistory():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_round_histories"
-        api_url, headers = get_ats_api_config(endpoint)
-        
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
-        
-        if response_data_message.get("status") == "success":
-            round_histories = response_data_message.get("data", [])
-
-            for round_history in round_histories:
-                # Since this is a child table, we need to handle it differently
-                # We'll check if the parent record exists first
-                if round_history.get("parent") and round_history.get("parenttype") and round_history.get("parentfield"):
-                    parent_doc = frappe.get_doc(round_history["parenttype"], round_history["parent"])
-                    
-                    # Check if this round history already exists in the parent
-                    existing = False
-                    for existing_history in parent_doc.get(round_history["parentfield"] or "round_history", []):
-                        if (existing_history.round_name == round_history["round_name"] and 
-                            existing_history.change_date == round_history["change_date"]):
-                            # Already exists, no need to update as it's historical data
-                            existing = True
-                            break
-                    
-                    # If not found, add new round history
-                    if not existing:
-                        parent_doc.append(round_history["parentfield"] or "round_history", {
-                            "round_name": round_history["round_name"],
-                            "change_date": round_history["change_date"]
-                        })
-                    
-                    parent_doc.save()
-
-            frappe.db.commit()
-            return "Synchronization of ATS_CandidateRoundHistory completed successfully."
-        else:
-            return f"Failed to fetch candidate round history data: {response_data_message.get('message')}"
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_ats_candidateroundhistory Error")
-        return f"An error occurred: {str(e)}"
-
-@frappe.whitelist(allow_guest=True)
-def sync_candidate_work_experience():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_work_experiences"
-        api_url, headers = get_ats_api_config(endpoint)
-        
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
-        
-        if response_data_message.get("status") == "success":
-            work_experiences = response_data_message.get("data", [])
-
-            for work_experience in work_experiences:
-                # Since this is a child table, we need to handle it differently
-                # We'll check if the parent record exists first
-                if work_experience.get("parent") and work_experience.get("parenttype") and work_experience.get("parentfield"):
-                    parent_doc = frappe.get_doc(work_experience["parenttype"], work_experience["parent"])
-                    
-                    # Check if this work experience already exists in the parent
-                    existing = False
-                    for existing_work_exp in parent_doc.get(work_experience["parentfield"] or "candidate_work_experience", []):
-                        if (existing_work_exp.work_experience_place == work_experience["work_experience_place"] and 
-                            existing_work_exp.work_experience_role == work_experience["work_experience_role"] and
-                            existing_work_exp.work_experience_start == work_experience["work_experience_start"]):
-                            # Update existing work experience
-                            existing_work_exp.work_experience_end = work_experience["work_experience_end"]
-                            existing_work_exp.work_experience_detail = work_experience["work_experience_detail"]
-                            existing = True
-                            break
-                    
-                    # If not found, add new work experience
-                    if not existing:
-                        parent_doc.append(work_experience["parentfield"] or "candidate_work_experience", {
-                            "work_experience_place": work_experience["work_experience_place"],
-                            "work_experience_role": work_experience["work_experience_role"],
-                            "work_experience_start": work_experience["work_experience_start"],
-                            "work_experience_end": work_experience["work_experience_end"],
-                            "work_experience_detail": work_experience["work_experience_detail"]
-                        })
-                    
-                    parent_doc.save()
-
-            frappe.db.commit()
-            return "Synchronization of Candidate_Work_Experience completed successfully."
-        else:
-            return f"Failed to fetch candidate work experience data: {response_data_message.get('message')}"
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_candidate_work_experience Error")
-        return f"An error occurred: {str(e)}"
-
-@frappe.whitelist(allow_guest=True)
-def sync_candidate_project():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_projects"
-        api_url, headers = get_ats_api_config(endpoint)
-        
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
-        
-        if response_data_message.get("status") == "success":
-            projects = response_data_message.get("data", [])
-
-            for project in projects:
-                # Since this is a child table, we need to handle it differently
-                # We'll check if the parent record exists first
-                if project.get("parent") and project.get("parenttype") and project.get("parentfield"):
-                    parent_doc = frappe.get_doc(project["parenttype"], project["parent"])
-                    
-                    # Check if this project already exists in the parent
-                    existing = False
-                    for existing_project in parent_doc.get(project["parentfield"] or "candidate_project", []):
-                        if (existing_project.project_name == project["project_name"] and 
-                            existing_project.project_start_date == project["project_start_date"]):
-                            # Update existing project
-                            existing_project.project_role = project["project_role"]
-                            existing_project.project_end_date = project["project_end_date"]
-                            existing_project.project_description = project["project_description"]
-                            existing = True
-                            break
-                    
-                    # If not found, add new project
-                    if not existing:
-                        parent_doc.append(project["parentfield"] or "candidate_project", {
-                            "project_name": project["project_name"],
-                            "project_role": project["project_role"],
-                            "project_start_date": project["project_start_date"],
-                            "project_end_date": project["project_end_date"],
-                            "project_description": project["project_description"]
-                        })
-                    
-                    parent_doc.save()
-
-            frappe.db.commit()
-            return "Synchronization of Candidate_Project completed successfully."
-        else:
-            return f"Failed to fetch candidate project data: {response_data_message.get('message')}"
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_candidate_project Error")
-        return f"An error occurred: {str(e)}"
-
-@frappe.whitelist(allow_guest=True)
 def sync_candidate_certification():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_certifications"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -800,7 +613,7 @@ def sync_candidate_skill():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_skills"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -850,7 +663,7 @@ def sync_candidate_award():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_awards"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -904,7 +717,7 @@ def sync_candidate_course():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_courses"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -962,34 +775,112 @@ def sync_candidate_course():
 def sync_ats_unit():
     try:
         # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_units"
-        api_url, headers = get_ats_api_config(endpoint)
-        
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_ats_units"
+        api_url, headers = get_api_config(endpoint)
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
         response_data = response.json()
+        
         response_data_message = response_data.get("message")
         
         if response_data_message.get("status") == "success":
             units = response_data_message.get("data", [])
-
+            frappe.log_error(f"Fetched {len(units)} units from API", "sync_ats_unit")
+            
+            # Trước tiên, đồng bộ tất cả các đơn vị, bỏ qua mối quan hệ parent
+            # Sau đó, chúng ta sẽ cập nhật mối quan hệ parent sau
+            
+            # Đánh dấu các unit_id đã được xử lý
+            processed_units = {}
+            
+            # Bước 1: Tạo hoặc cập nhật tất cả các đơn vị, không thiết lập parent_ats_unit
             for unit in units:
-                # Check if the record already exists
-                existing_unit = frappe.db.exists("ATS_Unit_Cms", {"unit_id": unit.get("unit_id")})
-
-                if existing_unit:
-                    # Update the existing record
-                    doc = frappe.get_doc("ATS_Unit_Cms", existing_unit)
-                    doc.update(unit)
+                unit_id = unit.get("unit_id")
+                unit_name = unit.get("unit_name")
+                
+                # Lưu trữ thông tin parent để cập nhật sau
+                parent_ats_unit = unit.get("parent_ats_unit")
+                old_parent = unit.get("old_parent")
+                
+                # Tạm thời loại bỏ mối quan hệ parent để tránh lỗi
+                temp_unit = unit.copy()
+                temp_unit["parent_ats_unit"] = None
+                temp_unit["old_parent"] = None
+                
+                try:
+                    # Kiểm tra đơn vị đã tồn tại chưa
+                    existing_unit = frappe.db.exists("ATS_Unit", {"unit_id": unit_id})
+                    
+                    if existing_unit:
+                        # Cập nhật đơn vị đã tồn tại, không cập nhật parent
+                        doc = frappe.get_doc("ATS_Unit", existing_unit)
+                        
+                        # Cập nhật các trường ngoại trừ parent_ats_unit và old_parent
+                        for key, value in temp_unit.items():
+                            if key not in ["parent_ats_unit", "old_parent"]:
+                                doc.set(key, value)
+                        
+                        doc.save()
+                        frappe.log_error(f"Updated unit {unit_name} ({unit_id}) without parent", "sync_ats_unit")
+                    else:
+                        # Tạo mới đơn vị
+                        doc = frappe.get_doc({
+                            "doctype": "ATS_Unit",
+                            **temp_unit
+                        })
+                        doc.insert()
+                        frappe.log_error(f"Created new unit {unit_name} ({unit_id}) without parent", "sync_ats_unit")
+                    
+                    # Lưu thông tin đơn vị và parent của nó để cập nhật sau
+                    processed_units[unit_id] = {
+                        "name": doc.name,
+                        "unit_name": unit_name,
+                        "parent_ats_unit": parent_ats_unit,
+                        "old_parent": old_parent
+                    }
+                    
+                except Exception as e:
+                    frappe.log_error(f"Error in first pass for unit {unit_name} ({unit_id}): {str(e)}", "sync_ats_unit_error")
+            
+            # Bước 2: Cập nhật mối quan hệ parent cho tất cả các đơn vị
+            for unit_id, unit_info in processed_units.items():
+                parent_name = unit_info.get("parent_ats_unit")
+                old_parent_name = unit_info.get("old_parent")
+                
+                # Bỏ qua nếu không có parent
+                if not parent_name and not old_parent_name:
+                    continue
+                
+                try:
+                    # Lấy doc của đơn vị hiện tại
+                    doc = frappe.get_doc("ATS_Unit", unit_info.get("name"))
+                    
+                    # Cập nhật parent_ats_unit nếu có
+                    if parent_name:
+                        # Tìm parent unit trong cơ sở dữ liệu
+                        parent_doc = frappe.db.get_value("ATS_Unit", {"unit_name": parent_name}, "name")
+                        if parent_doc:
+                            doc.parent_ats_unit = parent_doc
+                            frappe.log_error(f"Updated parent for {unit_info.get('unit_name')}: {parent_name} -> {parent_doc}", "sync_ats_unit")
+                        else:
+                            frappe.log_error(f"Parent unit {parent_name} not found for {unit_info.get('unit_name')}", "sync_ats_unit_error")
+                    
+                    # Cập nhật old_parent nếu có
+                    if old_parent_name:
+                        # Tìm old parent unit trong cơ sở dữ liệu
+                        old_parent_doc = frappe.db.get_value("ATS_Unit", {"unit_name": old_parent_name}, "name")
+                        if old_parent_doc:
+                            doc.old_parent = old_parent_doc
+                            frappe.log_error(f"Updated old_parent for {unit_info.get('unit_name')}: {old_parent_name} -> {old_parent_doc}", "sync_ats_unit")
+                        else:
+                            frappe.log_error(f"Old parent unit {old_parent_name} not found for {unit_info.get('unit_name')}", "sync_ats_unit_error")
+                    
+                    # Lưu thay đổi
                     doc.save()
-                else:
-                    # Insert a new record
-                    doc = frappe.get_doc({
-                        "doctype": "ATS_Unit_Cms",
-                        **unit
-                    })
-                    doc.insert()
-
+                    
+                except Exception as e:
+                    frappe.log_error(f"Error updating parent for {unit_info.get('unit_name')}: {str(e)}", "sync_ats_unit_error")
+            
             frappe.db.commit()
             return "Unit synchronization completed successfully."
         else:
@@ -1003,14 +894,13 @@ def sync_ats_unit():
 def sync_ats_profession():
     try:
         # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_professions"
-        api_url, headers = get_ats_api_config(endpoint)
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_ats_professions"
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
         response_data = response.json()
         response_data_message = response_data.get("message")
-        
         if response_data_message.get("status") == "success":
             professions = response_data_message.get("data", [])
 
@@ -1044,8 +934,8 @@ def sync_ats_profession():
 def sync_ats_level():
     try:
         # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_levels"
-        api_url, headers = get_ats_api_config(endpoint)
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_ats_levels"
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -1085,8 +975,8 @@ def sync_ats_level():
 def sync_ats_location():
     try:
         # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_locations"
-        api_url, headers = get_ats_api_config(endpoint)
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_ats_locations"
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -1127,7 +1017,7 @@ def sync_ats_position():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_positions"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -1139,17 +1029,17 @@ def sync_ats_position():
 
             for position in positions:
                 # Check if the record already exists
-                existing_position = frappe.db.exists("ATS_Position_Cms", {"position_id": position.get("position_id")})
+                existing_position = frappe.db.exists("ATS_Position", {"position_id": position.get("position_id")})
 
                 if existing_position:
                     # Update the existing record
-                    doc = frappe.get_doc("ATS_Position_Cms", existing_position)
+                    doc = frappe.get_doc("ATS_Position", existing_position)
                     doc.update(position)
                     doc.save()
                 else:
                     # Insert a new record
                     doc = frappe.get_doc({
-                        "doctype": "ATS_Position_Cms",
+                        "doctype": "ATS_Position",
                         **position
                     })
                     doc.insert()
@@ -1168,7 +1058,7 @@ def sync_ats_candidatesource():
     try:
         # Get API URL and headers
         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_sources"
-        api_url, headers = get_ats_api_config(endpoint)
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -1204,95 +1094,95 @@ def sync_ats_candidatesource():
         frappe.log_error(frappe.get_traceback(), "sync_ats_candidatesource Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
-def sync_ats_rejectreasoncampaign():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_reject_reason_campaigns"
-        api_url, headers = get_ats_api_config(endpoint)
+# @frappe.whitelist(allow_guest=True)
+# def sync_ats_rejectreasoncampaign():
+#     try:
+#         # Get API URL and headers
+#         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_reject_reason_campaigns"
+#         api_url, headers = get_api_config(endpoint)
         
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
+#         # Fetch data from API
+#         response = requests.get(api_url, headers=headers)
+#         response_data = response.json()
+#         response_data_message = response_data.get("message")
         
-        if response_data_message.get("status") == "success":
-            reject_reason_campaigns = response_data_message.get("data", [])
+#         if response_data_message.get("status") == "success":
+#             reject_reason_campaigns = response_data_message.get("data", [])
 
-            for rejectreasoncampaign in reject_reason_campaigns:
-                # Check if the record already exists
-                existing_rejectreasoncampaign = frappe.db.exists("ATS_RejectReasonCampaign", {"rejectreasoncampaign_id": rejectreasoncampaign.get("rejectreasoncampaign_id")})
+#             for rejectreasoncampaign in reject_reason_campaigns:
+#                 # Check if the record already exists
+#                 existing_rejectreasoncampaign = frappe.db.exists("ATS_RejectReasonCampaign", {"rejectreasoncampaign_id": rejectreasoncampaign.get("rejectreasoncampaign_id")})
 
-                if existing_rejectreasoncampaign:
-                    # Update the existing record
-                    doc = frappe.get_doc("ATS_RejectReasonCampaign", existing_rejectreasoncampaign)
-                    doc.update(rejectreasoncampaign)
-                    doc.save()
-                else:
-                    # Insert a new record
-                    doc = frappe.get_doc({
-                        "doctype": "ATS_RejectReasonCampaign",
-                        **rejectreasoncampaign
-                    })
-                    doc.insert()
+#                 if existing_rejectreasoncampaign:
+#                     # Update the existing record
+#                     doc = frappe.get_doc("ATS_RejectReasonCampaign", existing_rejectreasoncampaign)
+#                     doc.update(rejectreasoncampaign)
+#                     doc.save()
+#                 else:
+#                     # Insert a new record
+#                     doc = frappe.get_doc({
+#                         "doctype": "ATS_RejectReasonCampaign",
+#                         **rejectreasoncampaign
+#                     })
+#                     doc.insert()
 
-            frappe.db.commit()
-            return "Reject Reason Campaign synchronization completed successfully."
-        else:
-            return f"Failed to fetch reject reason campaign data: {response_data_message.get('message')}"
+#             frappe.db.commit()
+#             return "Reject Reason Campaign synchronization completed successfully."
+#         else:
+#             return f"Failed to fetch reject reason campaign data: {response_data_message.get('message')}"
 
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreasoncampaign Error")
-        return f"An error occurred: {str(e)}"
+#     except Exception as e:
+#         frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreasoncampaign Error")
+#         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
-def sync_ats_rejectreason():
-    try:
-        # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_reject_reasons"
-        api_url, headers = get_ats_api_config(endpoint)
+# @frappe.whitelist(allow_guest=True)
+# def sync_ats_rejectreason():
+#     try:
+#         # Get API URL and headers
+#         endpoint = "/api/method/mbw_ats.api.sync_return_data.get_reject_reasons"
+#         api_url, headers = get_api_config(endpoint)
         
-        # Fetch data from API
-        response = requests.get(api_url, headers=headers)
-        response_data = response.json()
-        response_data_message = response_data.get("message")
+#         # Fetch data from API
+#         response = requests.get(api_url, headers=headers)
+#         response_data = response.json()
+#         response_data_message = response_data.get("message")
         
-        if response_data_message.get("status") == "success":
-            reject_reasons = response_data_message.get("data", [])
+#         if response_data_message.get("status") == "success":
+#             reject_reasons = response_data_message.get("data", [])
 
-            for rejectreason in reject_reasons:
-                # Check if the record already exists
-                existing_rejectreason = frappe.db.exists("ATS_RejectReason", {"rejectionreason_id": rejectreason.get("rejectionreason_id")})
+#             for rejectreason in reject_reasons:
+#                 # Check if the record already exists
+#                 existing_rejectreason = frappe.db.exists("ATS_RejectReason", {"rejectionreason_id": rejectreason.get("rejectionreason_id")})
 
-                if existing_rejectreason:
-                    # Update the existing record
-                    doc = frappe.get_doc("ATS_RejectReason", existing_rejectreason)
-                    doc.update(rejectreason)
-                    doc.save()
-                else:
-                    # Insert a new record
-                    doc = frappe.get_doc({
-                        "doctype": "ATS_RejectReason",
-                        **rejectreason
-                    })
-                    doc.insert()
+#                 if existing_rejectreason:
+#                     # Update the existing record
+#                     doc = frappe.get_doc("ATS_RejectReason", existing_rejectreason)
+#                     doc.update(rejectreason)
+#                     doc.save()
+#                 else:
+#                     # Insert a new record
+#                     doc = frappe.get_doc({
+#                         "doctype": "ATS_RejectReason",
+#                         **rejectreason
+#                     })
+#                     doc.insert()
 
-            frappe.db.commit()
-            return "Reject Reason synchronization completed successfully."
-        else:
-            return f"Failed to fetch reject reason data: {response_data_message.get('message')}"
+#             frappe.db.commit()
+#             return "Reject Reason synchronization completed successfully."
+#         else:
+#             return f"Failed to fetch reject reason data: {response_data_message.get('message')}"
 
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreason Error")
-        return f"An error occurred: {str(e)}"
+#     except Exception as e:
+#         frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreason Error")
+#         return f"An error occurred: {str(e)}"
 
 # Danh Mục cần đồng bộ thứ ba
 @frappe.whitelist(allow_guest=True)
 def sync_ats_jobopening():
     try:
         # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_job_openings"
-        api_url, headers = get_ats_api_config(endpoint)
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_ats_jobopenings"
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -1332,8 +1222,8 @@ def sync_ats_jobopening():
 def sync_ats_candidate():
     try:
         # Get API URL and headers
-        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidates"
-        api_url, headers = get_ats_api_config(endpoint)
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_ats_candidates"
+        api_url, headers = get_api_config(endpoint)
         
         # Fetch data from API
         response = requests.get(api_url, headers=headers)
@@ -1342,8 +1232,8 @@ def sync_ats_candidate():
         
         if response_data_message.get("status") == "success":
             candidates = response_data_message.get("data", [])
-
             for candidate in candidates:
+                print("Test log candidate : >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",candidates)
                 # Check if the record already exists
                 existing_candidate = frappe.db.exists("ATS_Candidate", {"can_id": candidate.get("can_id")})
 
@@ -1369,5 +1259,211 @@ def sync_ats_candidate():
         frappe.log_error(frappe.get_traceback(), "sync_ats_candidate Error")
         return f"An error occurred: {str(e)}"
 
+
+@frappe.whitelist(allow_guest=True)
+def sync_candidate_stages():
+    try:
+        # Get API URL and headers
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_stages"
+        api_url, headers = get_api_config(endpoint)
+        
+        # Fetch data from API
+        response = requests.get(api_url, headers=headers)
+        response_data = response.json()
+        response_data_message = response_data.get("message")
+        
+        if response_data_message.get("status") == "success":
+            stages = response_data_message.get("data", [])
+
+            for stage in stages:
+                # Since this is a child table, we need to handle it differently
+                # We'll check if the parent record exists first
+                if stage.get("parent") and stage.get("parenttype") and stage.get("parentfield"):
+                    parent_doc = frappe.get_doc(stage["parenttype"], stage["parent"])
+                    
+                    # Check if this stage already exists in the parent
+                    existing = False
+                    for existing_stage in parent_doc.get(stage["parentfield"] or "candidate_stages", []):
+                        if (existing_stage.job_opening == stage["job_opening"] and 
+                            existing_stage.status == stage["status"]):
+                            # Update existing stage
+                            existing_stage.rejected = stage["rejected"]
+                            existing = True
+                            break
+                    
+                    # If not found, add new stage
+                    if not existing:
+                        parent_doc.append(stage["parentfield"] or "candidate_stages", {
+                            "job_opening": stage["job_opening"],
+                            "status": stage["status"],
+                            "rejected": stage["rejected"]
+                        })
+                    
+                    parent_doc.save()
+
+            frappe.db.commit()
+            return "Synchronization of Candidate Stages completed successfully."
+        else:
+            return f"Failed to fetch candidate stages data: {response_data_message.get('message')}"
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "sync_candidate_stages Error")
+        return f"An error occurred: {str(e)}"
+
+@frappe.whitelist(allow_guest=True)
+def sync_ats_candidateroundhistory():
+    try:
+        # Get API URL and headers
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_round_histories"
+        api_url, headers = get_api_config(endpoint)
+        
+        # Fetch data from API
+        response = requests.get(api_url, headers=headers)
+        response_data = response.json()
+        response_data_message = response_data.get("message")
+        
+        if response_data_message.get("status") == "success":
+            round_histories = response_data_message.get("data", [])
+
+            for round_history in round_histories:
+                # Since this is a child table, we need to handle it differently
+                # We'll check if the parent record exists first
+                if round_history.get("parent") and round_history.get("parenttype") and round_history.get("parentfield"):
+                    parent_doc = frappe.get_doc(round_history["parenttype"], round_history["parent"])
+                    
+                    # Check if this round history already exists in the parent
+                    existing = False
+                    for existing_history in parent_doc.get(round_history["parentfield"] or "round_history", []):
+                        if (existing_history.round_name == round_history["round_name"] and 
+                            existing_history.change_date == round_history["change_date"]):
+                            # Already exists, no need to update as it's historical data
+                            existing = True
+                            break
+                    
+                    # If not found, add new round history
+                    if not existing:
+                        parent_doc.append(round_history["parentfield"] or "round_history", {
+                            "round_name": round_history["round_name"],
+                            "change_date": round_history["change_date"]
+                        })
+                    
+                    parent_doc.save()
+
+            frappe.db.commit()
+            return "Synchronization of ATS_CandidateRoundHistory completed successfully."
+        else:
+            return f"Failed to fetch candidate round history data: {response_data_message.get('message')}"
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "sync_ats_candidateroundhistory Error")
+        return f"An error occurred: {str(e)}"
+
+@frappe.whitelist(allow_guest=True)
+def sync_candidate_work_experience():
+    try:
+        # Get API URL and headers
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_work_experiences"
+        api_url, headers = get_api_config(endpoint)
+        
+        # Fetch data from API
+        response = requests.get(api_url, headers=headers)
+        response_data = response.json()
+        response_data_message = response_data.get("message")
+        
+        if response_data_message.get("status") == "success":
+            work_experiences = response_data_message.get("data", [])
+
+            for work_experience in work_experiences:
+                # Since this is a child table, we need to handle it differently
+                # We'll check if the parent record exists first
+                if work_experience.get("parent") and work_experience.get("parenttype") and work_experience.get("parentfield"):
+                    parent_doc = frappe.get_doc(work_experience["parenttype"], work_experience["parent"])
+                    
+                    # Check if this work experience already exists in the parent
+                    existing = False
+                    for existing_work_exp in parent_doc.get(work_experience["parentfield"] or "candidate_work_experience", []):
+                        if (existing_work_exp.work_experience_place == work_experience["work_experience_place"] and 
+                            existing_work_exp.work_experience_role == work_experience["work_experience_role"] and
+                            existing_work_exp.work_experience_start == work_experience["work_experience_start"]):
+                            # Update existing work experience
+                            existing_work_exp.work_experience_end = work_experience["work_experience_end"]
+                            existing_work_exp.work_experience_detail = work_experience["work_experience_detail"]
+                            existing = True
+                            break
+                    
+                    # If not found, add new work experience
+                    if not existing:
+                        parent_doc.append(work_experience["parentfield"] or "candidate_work_experience", {
+                            "work_experience_place": work_experience["work_experience_place"],
+                            "work_experience_role": work_experience["work_experience_role"],
+                            "work_experience_start": work_experience["work_experience_start"],
+                            "work_experience_end": work_experience["work_experience_end"],
+                            "work_experience_detail": work_experience["work_experience_detail"]
+                        })
+                    
+                    parent_doc.save()
+
+            frappe.db.commit()
+            return "Synchronization of Candidate_Work_Experience completed successfully."
+        else:
+            return f"Failed to fetch candidate work experience data: {response_data_message.get('message')}"
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "sync_candidate_work_experience Error")
+        return f"An error occurred: {str(e)}"
+
+@frappe.whitelist(allow_guest=True)
+def sync_candidate_project():
+    try:
+        # Get API URL and headers
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_candidate_projects"
+        api_url, headers = get_api_config(endpoint)
+        
+        # Fetch data from API
+        response = requests.get(api_url, headers=headers)
+        response_data = response.json()
+        response_data_message = response_data.get("message")
+        
+        if response_data_message.get("status") == "success":
+            projects = response_data_message.get("data", [])
+
+            for project in projects:
+                # Since this is a child table, we need to handle it differently
+                # We'll check if the parent record exists first
+                if project.get("parent") and project.get("parenttype") and project.get("parentfield"):
+                    parent_doc = frappe.get_doc(project["parenttype"], project["parent"])
+                    
+                    # Check if this project already exists in the parent
+                    existing = False
+                    for existing_project in parent_doc.get(project["parentfield"] or "candidate_project", []):
+                        if (existing_project.project_name == project["project_name"] and 
+                            existing_project.project_start_date == project["project_start_date"]):
+                            # Update existing project
+                            existing_project.project_role = project["project_role"]
+                            existing_project.project_end_date = project["project_end_date"]
+                            existing_project.project_description = project["project_description"]
+                            existing = True
+                            break
+                    
+                    # If not found, add new project
+                    if not existing:
+                        parent_doc.append(project["parentfield"] or "candidate_project", {
+                            "project_name": project["project_name"],
+                            "project_role": project["project_role"],
+                            "project_start_date": project["project_start_date"],
+                            "project_end_date": project["project_end_date"],
+                            "project_description": project["project_description"]
+                        })
+                    
+                    parent_doc.save()
+
+            frappe.db.commit()
+            return "Synchronization of Candidate_Project completed successfully."
+        else:
+            return f"Failed to fetch candidate project data: {response_data_message.get('message')}"
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "sync_candidate_project Error")
+        return f"An error occurred: {str(e)}"
 
 

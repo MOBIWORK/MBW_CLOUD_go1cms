@@ -2,6 +2,7 @@
  "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
+ "autoname": "format:{district_id} - {district_name}",
  "creation": "2025-01-10 13:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -28,7 +29,8 @@
    "fieldtype": "Data",
    "in_standard_filter": 1,
    "label": "District Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "province_id",
@@ -65,11 +67,11 @@
   }
  ],
  "links": [],
- "modified": "2025-04-16 15:10:55.651249",
+ "modified": "2025-04-28 15:53:28.511824",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_District",
- "naming_rule": "By script",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -84,7 +86,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []
