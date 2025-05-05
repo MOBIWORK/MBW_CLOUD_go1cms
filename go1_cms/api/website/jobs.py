@@ -21,6 +21,8 @@ import random
 import base64
 from frappe.utils import cint
 from frappe.utils import now, add_to_date
+import random
+import string
 
 
 @frappe.whitelist(allow_guest=True)
@@ -252,6 +254,7 @@ def upload_cv(name_job, **kwargs):
 
     if frappe.db.exists("ATS_JobOpening", name_job):
         new_doc = frappe.new_doc('ATS_Candidate')
+        new_doc.can_id = generate_random_id()
         new_doc.can_full_name = applicant_name
         new_doc.can_email = email
         new_doc.can_phone = phone_number
@@ -340,3 +343,11 @@ def upload_cv(name_job, **kwargs):
     else:
         frappe.throw(_('Không tìm thấy công việc ứng tuyển'),
                      frappe.DoesNotExistError)
+
+def generate_random_id(length=16):
+    characters = string.ascii_uppercase + string.digits
+    while True:
+        random_id = ''.join(random.choices(characters, k=length))
+        # Kiểm tra xem mã đã tồn tại trong ATS_Candidate chưa
+        if not frappe.db.exists('ATS_Candidate', {'can_id': random_id}):
+            return random_id
