@@ -17,6 +17,7 @@
   "jo_display_quantity",
   "jo_language_requirement",
   "publish_to_career_page",
+  "publish",
   "column_break_qxvs",
   "jo_internal_title",
   "jo_using_unit",
@@ -25,6 +26,7 @@
   "jo_application_deadline",
   "status",
   "applicants_applied",
+  "route",
   "description_section",
   "column_frqrqrqr",
   "jo_job_description",
@@ -258,11 +260,24 @@
    "fieldtype": "Table",
    "label": "Recruitment Process",
    "options": "Job_Opening_Rounds"
+  },
+  {
+   "default": "0",
+   "fieldname": "publish",
+   "fieldtype": "Check",
+   "label": "Publish"
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Data",
+   "label": "Route",
+   "unique": 1
   }
  ],
+ "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-16 15:18:03.758148",
+ "modified": "2025-04-26 16:55:06.746366",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",

@@ -123,7 +123,7 @@ def get_all_job(name_section, **kwargs):
         if q:
             m_query = m_query.where(q)
     q_data = m_query.select(JobOpening.name, JobOpening.jo_public_title, JobOpening.jo_application_deadline,
-                            JobOpening.jo_location, JobOpening.jo_work_form, JobOpening.jo_min_salary,
+                            JobOpening.jo_location, JobOpening.jo_work_form, JobOpening.jo_min_salary, JobOpening.route,
                             JobOpening.jo_max_salary, JobOpening.jo_position, JobOpening.applicants_applied, JobOpening.jo_position, JobOpening.jo_currency
                             ).offset(offset).limit(limit).orderby(JobOpening[sort_field], order=sort_by)
 
@@ -132,8 +132,9 @@ def get_all_job(name_section, **kwargs):
     
 
     for j in jobs:
-        dt = datetime.combine(j.jo_application_deadline, datetime.min.time())
-        j['pretty_posted_on'] = pretty_date(dt)
+        if j.jo_application_deadline:
+            dt = datetime.combine(j.jo_application_deadline, datetime.min.time())
+            j['pretty_posted_on'] = pretty_date(dt)
 
     q_count = m_query.select(fn.Count('*').as_('total'))
     rs_count = q_count.run(as_dict=True)
@@ -154,7 +155,7 @@ def get_all_job(name_section, **kwargs):
 def get_job_detail(name):
     if frappe.db.exists("ATS_JobOpening", name):
         doc = frappe.db.get_value('ATS_JobOpening', name, [
-                                  'name', 'jo_public_title', 'jo_position', 'status', 'jo_application_deadline', 'jo_work_form', 'jo_using_unit', 'jo_location', 'jo_job_description', 'jo_currency', 'jo_min_salary', 'jo_max_salary', 'applicants_applied'], as_dict=1)
+                                  'name', 'jo_public_title', 'jo_position', 'status', 'jo_application_deadline', 'jo_work_form', 'jo_using_unit', 'jo_location', 'jo_job_description', 'jo_currency', 'jo_min_salary', 'jo_max_salary', 'applicants_applied', 'route'], as_dict=1)
         return doc
     else:
         frappe.throw(_('Không tìm thấy công việc ứng tuyển'),
@@ -201,7 +202,7 @@ def get_job_related(name, **kwargs):
         if q:
             m_query = m_query.where(q)
         q_data = m_query.select(JobOpening.name, JobOpening.jo_public_title, JobOpening.jo_application_deadline,
-                                JobOpening.jo_location, JobOpening.jo_work_form, JobOpening.jo_min_salary,
+                                JobOpening.jo_location, JobOpening.jo_work_form, JobOpening.jo_min_salary, JobOpening.route,
                                 JobOpening.jo_max_salary, JobOpening.jo_using_unit, JobOpening.applicants_applied, JobOpening.jo_position, JobOpening.jo_currency
                                 ).limit(limit).orderby(JobOpening.jo_application_deadline, order=frappe.qb.desc)
 

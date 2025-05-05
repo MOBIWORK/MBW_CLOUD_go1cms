@@ -1629,8 +1629,8 @@ def get_page_html(doc, sections, html, source_doc, device_type, doc_name=None, a
                         'route': "#"
                     })
                     data_source['breadcrumb'] = breadcrumb
-            elif doc_name and frappe.db.exists("Job Opening", doc_name):
-                job_open = frappe.get_doc('Job Opening', doc_name).as_dict()
+            elif doc_name and frappe.db.exists("ATS_JobOpening", doc_name):
+                job_open = frappe.get_doc('ATS_JobOpening', doc_name).as_dict()
                 data_source['title_breadcrumb'] = job_open.job_title
                 data_source['job_opening'] = job_open
 

@@ -63,6 +63,8 @@ on_logout = "go1_cms.api.utils.clear_cookie_cart"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
+website_generators = ["ATS_JobOpening"]
+
 website_route_rules = [
     {"from_route": "/cms/<path:app_path>", "to_route": "cms"},
 ]
@@ -123,8 +125,8 @@ before_uninstall = "go1_cms.go1_cms.before_uninstall.before_uninstall"
 # }
 
 override_doctype_class = {
-    "Job Opening": "go1_cms.overrides.job_opening.CustomJobOpening",
-    "Website Item": "go1_cms.overrides.website_item.CustomWebsiteItem",
+    # "Job Opening": "go1_cms.overrides.job_opening.CustomJobOpening",
+    # "Website Item": "go1_cms.overrides.website_item.CustomWebsiteItem",
 }
 
 # Document Events
