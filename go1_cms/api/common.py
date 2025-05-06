@@ -562,9 +562,9 @@ def save_images_to_folder(files, path, destination_folder):
                         file.write(_file.get_content())
 
 
-def create_zip_archive_of_the_folder(path, folder_name, zip_name):
+def create_zip_archive_of_the_folder(path, folder_name, zip_name, prefix_name='ats_'):
     folder_name = slugify(text=folder_name, separator='_')
-    zip_name = "ats_" + slugify(text=zip_name, separator='_')
+    zip_name = prefix_name + slugify(text=zip_name, separator='_')
     folder_to_zip = os.path.join(path, folder_name)
     output_zip = os.path.join(path, zip_name)
     shutil.make_archive(output_zip, 'tar', folder_to_zip)
@@ -784,7 +784,7 @@ def handle_write_multiple_files_web_template():
     # save file image
     print("===>>: image")
     files_resource = [
-        'delete-input.svg', 'asc.svg', 'search.svg', 'vnd.svg', 'Sort-icon-up.svg', 'cancel.svg', 'kh1.png', 'clock.svg', 'ic-job.svg', 'Vectorlogo-breadcrumb.png', 'phone-alert.png', 'mail.png', 'outline.png', 'active-arrown.svg', 'no-active-arrown.svg', 'time.svg', 'location.svg', 'range-salary.svg'
+        'delete-input.svg', 'asc.svg', 'search.svg', 'vnd.svg', 'Sort-icon-up.svg', 'cancel.svg', 'kh1.png', 'clock.svg', 'ic-job.svg', 'Vectorlogo-breadcrumb.png', 'phone-alert.png', 'mail.png', 'outline.png', 'active-arrown.svg', 'no-active-arrown.svg', 'time.svg', 'location.svg', 'range-salary.svg', 'upload.png'
     ]
     for file in files_resource:
         if file not in files_attach:
@@ -800,7 +800,7 @@ def handle_write_multiple_files_web_template():
     # create file zip
     print("==================START: create file zip==================")
     path = frappe.get_module_path("go1_cms")
-    create_zip_archive_of_the_folder(path, 'section_images', 'section_images')
+    create_zip_archive_of_the_folder(path, 'section_images', 'section_images', prefix_name="")
     print("==================END: create file zip==================")
 
     print('=======================END: handle_write_multiple_files_web_template=======================')

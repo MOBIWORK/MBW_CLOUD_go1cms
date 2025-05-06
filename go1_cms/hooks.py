@@ -149,6 +149,10 @@ doc_events = {
     "Sales Order": {
         "on_change": "go1_cms.api.doc_events.send_mail_sale_order"
     },
+    "ATS_Candidate": {
+        "on_update": "go1_cms.api.synchronous_data.sync_send_candidate",
+        # "after_delete": "go1_cms.api.synchronous_data.send_delete",
+    }
 }
 
 # Scheduled Tasks
