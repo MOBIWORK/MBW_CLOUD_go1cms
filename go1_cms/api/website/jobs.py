@@ -351,3 +351,44 @@ def generate_random_id(length=16):
         # Kiểm tra xem mã đã tồn tại trong ATS_Candidate chưa
         if not frappe.db.exists('ATS_Candidate', {'can_id': random_id}):
             return random_id
+
+@frappe.whitelist(allow_guest=True)
+def get_info_candidate():
+	return {
+		"data": {
+			"can_full_name": "Trần Mạnh Mẽ",
+			"can_dob": "10/04/1999",
+			"can_phone": "09281818282",
+			"can_address": "Ba Đình, Hà Nội",
+			"can_avatar": "avar.png",
+			"recruitment_process": [
+				{
+					"label": "Phỏng vấn vòng 1",
+					"status": "done",
+					"detail": {
+						"status": "Đã hoàn thành",
+						"interviewer": "Chu Quỳnh Anh, Phạm Thị Hạnh",
+						"time": "Thứ 3, ngày 06 tháng 05 năm 2025, 10:00 - 11:30",
+					},
+				},
+				{
+					"label": "Phỏng vấn vòng 2",
+					"status": "active",
+					"detail": {
+						"status": "Đang thực hiện",
+						"interviewer": "Chu Quỳnh Anh, Phạm Thị Hạnh",
+						"time": "Thứ 3, ngày 13 tháng 05 năm 2025, 10:00 - 11:30",
+					},
+				},
+				{
+					"label": "Làm bài test",
+					"status": "pending",
+					"detail": {
+						"status": "Chưa thực hiện",
+						"interviewer": "-",
+						"time": "-",
+					},
+				},
+			]
+		}
+	}
