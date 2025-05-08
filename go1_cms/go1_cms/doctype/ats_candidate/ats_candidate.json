@@ -18,6 +18,7 @@
   "can_region",
   "sync_id",
   "sync_source",
+  "is_upload_cv",
   "column_break_2",
   "can_phone",
   "can_email",
@@ -311,11 +312,17 @@
    "fieldtype": "Check",
    "label": "Sync Source",
    "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_upload_cv",
+   "fieldtype": "Check",
+   "label": "Is Upload CV"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-06 13:40:52.249420",
+ "modified": "2025-05-08 11:21:28.662724",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Candidate",

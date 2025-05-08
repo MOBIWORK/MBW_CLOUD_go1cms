@@ -1,8 +1,10 @@
-import requests
 import frappe
+import requests
 from frappe import _
 import json
 import base64
+import filetype
+import time
 
 
 """########################### Begin Sync ATS_Candidate ###########################"""
@@ -28,12 +30,23 @@ def sync_send_candidate(doc, method):
 						"file_type": doc_file.file_type,
 						"content": base64.b64encode(doc_file.get_content()).decode('utf-8')
 					}
-			
+			file_avt = {}
+			if doc.can_avatar:
+				file_avt_name = frappe.db.get_value('File', {'file_url': doc.can_avatar, 'attached_to_name': doc.name, 'attached_to_doctype': doc.doctype, 'attached_to_field': 'can_avatar'}, ['name'])
+				if file_avt_name:
+					doc_file = frappe.get_doc('File', file_avt_name)
+					file_avt = {
+						"file_name": doc_file.file_name,
+						"file_type": doc_file.file_type,
+						"content": base64.b64encode(doc_file.get_content()).decode('utf-8')
+					}
+
 			res = requests.post(
 				api_endpoint,
 				data=frappe.as_json({
 					"doc": json_data,
-					"file_cv": file_cv
+					"file_cv": file_cv,
+     				"file_avt": file_avt
 				}),
 				headers={
 					"Content-Type": "application/json",
@@ -47,6 +60,13 @@ def sync_send_candidate(doc, method):
 		else:
 			# Làm mới lại field sync_source để cho lần sau gửi đi
 			frappe.db.set_value(doc.doctype, doc.name, 'sync_source', 0)
+		
+		# Gọi hàm extract_cv_url để xử lý file CV
+		if doc.is_upload_cv and doc.can_cv:
+			file_cv = frappe.db.get_value('File', {'file_url': doc.can_cv, 'attached_to_name': doc.name, 'attached_to_doctype': doc.doctype, 'attached_to_field': 'can_cv'}, ['name'])
+			if file_cv:
+				frappe.enqueue(handle_extract_cv, file_cv_name=file_cv, candidate_name=doc.name)
+
 	except Exception as e:
 		frappe.log_error(f"Sync send candidate failed: {e}")
 
@@ -54,7 +74,6 @@ def sync_send_candidate(doc, method):
 @frappe.whitelist()
 def sync_receive_candidate(**kwargs):
 	try:
-		file_avt = frappe._dict(kwargs.get('file_avt') or {})
 		data = frappe._dict(kwargs.get('doc') or {})
 		
 		candidate_name = frappe.db.get_value(data.doctype, {'name': data.sync_id}, ['name'])
@@ -77,29 +96,6 @@ def sync_receive_candidate(**kwargs):
 			doc_update.candidate_stages = data.candidate_stages or []
 			doc_update.round_history = data.round_history or []
 			doc_update.save(ignore_permissions=True)
-			
-			# xóa file đính kèm cũ
-			if doc_update.can_avatar:
-				file_old = frappe.db.get_value('File', {'file_url': doc_update.can_avatar, 'attached_to_name': doc_update.name, 'attached_to_doctype': doc_update.doctype, 'attached_to_field': 'can_avatar'}, ['name'])
-				if file_old:
-					frappe.get_doc('File', file_old)
-					frappe.db.set_value(doc_update.doctype, doc_update.name, 'can_avatar', '')
-
-			# Lưu file đính kèm mới
-			if file_avt.content:
-				file_doc = frappe.get_doc({
-					"doctype": "File",
-					"file_name": file_avt.file_name,
-					"is_private": 0,
-					"attached_to_doctype": doc_update.doctype,
-					"attached_to_name": doc_update.name,
-					"attached_to_field": 'can_avatar',
-					"content": base64.b64decode(file_avt.content),
-					"folder": "Home",
-					"file_url": "",
-				})
-				file_doc.save()
-				frappe.db.set_value(doc_update.doctype, doc_update.name, 'can_avatar', file_doc.file_url)
 
 		return {
 			'code': '00',
@@ -112,6 +108,144 @@ def sync_receive_candidate(**kwargs):
 			'code': '1',
 			'status': 'Error',
 			'msg': "Candidate data synchronized failed",
+		}
+
+
+def handle_extract_cv(file_cv_name, candidate_name):
+	try:
+		data_extract = extract_cv_url(file_cv_name)
+		if data_extract.get('error'):
+			frappe.log_error("Extract CV Error", f"{data_extract}")
+		else:
+			data = data_extract.get('data') or {}
+			if data.get('can_avatar'):
+				can_avatar = data.get('can_avatar')
+				# Giải mã base64 thành bytes
+				file_content = base64.b64decode(can_avatar)
+				# Đoán file type từ nội dung
+				kind = filetype.guess(file_content)
+				if kind:
+					extension = kind.extension  # vd: 'pdf', 'docx'
+				else:
+					extension = "bin"
+
+				# xóa file đính kèm cũ
+				doc_update = frappe.get_doc("ATS_Candidate", candidate_name)
+				if doc_update.can_avatar:
+					file_avt_old = frappe.db.get_value('File', {'file_url': doc_update.can_avatar, 'attached_to_name': doc_update.name, 'attached_to_doctype': doc_update.doctype, 'attached_to_field': 'can_avatar'}, ['name'])
+					if file_avt_old:
+						frappe.delete_doc('File', file_avt_old)
+						frappe.db.set_value("ATS_Candidate", candidate_name, 'can_avatar', '')
+
+				file_name = f"cv_extracted_{int(time.time())}.{extension}"
+				file_doc = frappe.get_doc({
+					"doctype": "File",
+					"file_name": file_name,
+					"is_private": 0,
+					"attached_to_doctype": "ATS_Candidate",
+					"attached_to_name": candidate_name,
+					"attached_to_field": 'can_avatar',
+					"content": file_content,
+					"folder": "Home",
+					"file_url": "",
+				})
+				file_doc.save()
+				frappe.db.set_value("ATS_Candidate", candidate_name, {
+					'can_avatar': file_doc.file_url,
+					'is_upload_cv': 0
+				})
+				doc_update.reload()
+				doc_update.save(ignore_permissions=True)
+
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "Handle extract cv Error")
+
+
+def rename_keys(data, rename_map):
+    return {rename_map.get(k, k): v for k, v in data.items()}
+def rename_keys_in_list(data_list, rename_map):
+    return [{rename_map.get(k, k): v for k, v in item.items()} for item in data_list]
+
+def extract_cv_url(file_cv_name):
+	url_extract_ai = "https://taskingai.mbwcloud.com/v2/genai/hr-assistants/cv-extraction/pdf-upload"
+
+	headers = {
+		"Authorization": "Bearer tkoBjKTFTNfFDzkmGe0z9ppUusIeexVy",
+		"topcv_assistant_id": "X5lMjLOTtqJ0v14yj8zix3vT",
+		"other_assistant_id": "X5lMoK7W2Q87cb1sYg3liuXY",
+	}
+
+	try:
+		file_doc = frappe.get_doc("File", file_cv_name)
+		files = {
+			"file": (file_doc.file_name, file_doc.get_content(), "application/pdf")
+		}
+		response = requests.post(url_extract_ai, files=files, headers=headers)
+
+		if response.status_code == 200:
+			data = frappe.parse_json(response.json())
+
+			if "personal_info" in data.data:
+				personal_info = {
+					"name": "can_full_name",
+					"email": "can_email",
+					"phone": "can_phone"
+				}
+				data.data["personal_info"] = rename_keys(data.data["personal_info"], personal_info)
+
+			if "work_experience" in data.data:
+				work_experience = {
+					"company": "work_experience_place",
+					"position": "work_experience_role",
+					"start_date": "work_experience_start",
+					"end_date": "work_experience_end",
+					"descriptions": "work_experience_detail"
+				}
+				data.data["work_experience"] = rename_keys_in_list(data.data["work_experience"], work_experience)
+
+			if "projects" in data.data:
+				projects = {
+					"name": "projects_name",
+					"tasks": "project_description",
+					"start_date": "project_start_date",
+					"end_date": "project_end_date",
+					"position": "project_role"
+				}
+				data.data["projects"] = rename_keys_in_list(data.data["projects"], projects)
+
+			if "skills" in data.data:
+				skill = {
+					"name": "can_skill_name",
+				}
+				data.data["skills"] = rename_keys_in_list(data.data["skills"], skill)
+
+			# Xử lý ảnh avatar nếu có
+			if "list_imgs_base64" in data and data["list_imgs_base64"]:
+				data.data['can_avatar'] = data['list_imgs_base64'][0]
+				del data['list_imgs_base64']
+			else:
+				data.data['can_avatar'] = None
+
+			return data
+		else:
+			frappe.log_error(f"CV Upload API Error {response.status_code}: {response.text}", "CV Upload API")
+			return {
+				"error": "CV extraction failed",
+				"status_code": response.status_code,
+				"response": response.text
+			}
+
+	except frappe.DoesNotExistError:
+		return {
+			"error": "File not found",
+			"file_name": file_cv_name
+		}
+
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "CV Upload API")
+		return {
+			"error": "Unhandled error occurred while processing the CV.",
+			"details": str(e)
 		}
 
 """########################### End Sync ATS_Candidate ###########################"""
