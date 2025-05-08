@@ -15,6 +15,12 @@ class ATS_Candidate(Document):
 				"width": "16rem"
 			},
 			{
+				"label": "Status",
+				"type": "Check",
+				"key": "status",
+				"width": "12rem"
+			},
+			{
 				"label": "Phone Number",
 				"type": "Data",
 				"key": "can_phone",

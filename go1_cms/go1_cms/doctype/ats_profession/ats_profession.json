@@ -14,7 +14,9 @@
   "cat_status",
   "cat_order",
   "cat_color",
-  "cat_icon"
+  "cat_icon",
+  "sync_id",
+  "sync_source"
  ],
  "fields": [
   {
@@ -70,10 +72,24 @@
    "fieldname": "cat_icon",
    "fieldtype": "Icon",
    "label": "Cat Icon"
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "label": "Sync ID",
+   "unique": 1,
+   "description": "ID used for synchronization with mbw_ats"
+  },
+  {
+   "default": "0",
+   "fieldname": "sync_source",
+   "fieldtype": "Check",
+   "label": "Sync Source",
+   "description": "Indicates whether this record was synced from another system"
   }
  ],
  "links": [],
- "modified": "2025-04-16 15:05:10.386148",
+ "modified": "2025-05-08 11:10:00.000000",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Profession",

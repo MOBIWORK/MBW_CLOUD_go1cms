@@ -2,63 +2,114 @@
     "actions": [],
     "allow_import": 1,
     "allow_rename": 1,
-    "autoname": "field:position_name",
-    "creation": "2025-01-10 14:00:00",
+    "autoname": "field:recruitment_name",
+    "creation": "2025-01-09 10:18:49.389247",
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [
+        "recruitment_id",
+        "recruitment_name",
         "position_id",
-        "position_name",
-        "unit_id",
-        "profession_id",
-        "position_description",
+        "level_id",
+        "quantity",
+        "from_date",
+        "to_date",
+        "locations",
+        "status",
+        "prerequisites",
+        "benefits",
+        "job_descriptions",
         "required_skills",
-        "position_benefits",
-        "recruitment_process_id",
+        "unit_id",
         "cat_status",
         "cat_order",
         "cat_color",
         "cat_icon",
-        "job_position_rounds",
+        "recruitment_rounds",
         "sync_id",
         "sync_source"
     ],
     "fields": [
         {
-            "fieldname": "position_id",
+            "fieldname": "recruitment_id",
             "fieldtype": "Data",
             "in_list_view": 1,
-            "label": "Position ID",
+            "label": "Recruitment ID",
             "reqd": 1,
             "unique": 1
         },
         {
-            "fieldname": "position_name",
+            "fieldname": "recruitment_name",
             "fieldtype": "Data",
             "in_standard_filter": 1,
-            "label": "Position Name",
+            "label": "Recruitment Name",
             "reqd": 1,
             "unique": 1
         },
         {
-            "fieldname": "unit_id",
+            "fieldname": "position_id",
             "fieldtype": "Link",
             "in_list_view": 1,
-            "label": "Using Unit",
-            "options": "ATS_Unit",
+            "label": "Position",
+            "options": "ATS_Position",
             "reqd": 1
         },
         {
-            "fieldname": "profession_id",
+            "fieldname": "level_id",
             "fieldtype": "Link",
-            "label": "Profession ID",
-            "options": "ATS_Profession",
+            "in_list_view": 1,
+            "label": "Level",
+            "options": "ATS_Level",
             "reqd": 1
         },
         {
-            "fieldname": "position_description",
+            "fieldname": "quantity",
+            "fieldtype": "Int",
+            "label": "Quantity",
+            "non_negative": 1,
+            "reqd": 1
+        },
+        {
+            "fieldname": "from_date",
+            "fieldtype": "Date",
+            "label": "From Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "to_date",
+            "fieldtype": "Date",
+            "label": "To Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "locations",
+            "fieldtype": "Table",
+            "label": "Locations",
+            "options": "ATS_Recruitment_Location"
+        },
+        {
+            "default": "Draft",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_standard_filter": 1,
+            "label": "Status",
+            "options": "Draft\nOpen\nOn Hold\nClosed\nCancelled",
+            "reqd": 1
+        },
+        {
+            "fieldname": "prerequisites",
             "fieldtype": "Text Editor",
-            "label": "Position Description"
+            "label": "Prerequisites"
+        },
+        {
+            "fieldname": "benefits",
+            "fieldtype": "Text Editor",
+            "label": "Benefits"
+        },
+        {
+            "fieldname": "job_descriptions",
+            "fieldtype": "Text Editor",
+            "label": "Job Descriptions"
         },
         {
             "fieldname": "required_skills",
@@ -66,14 +117,11 @@
             "label": "Required Skills"
         },
         {
-            "fieldname": "position_benefits",
-            "fieldtype": "Text Editor",
-            "label": "Position Benefits"
-        },
-        {
-            "fieldname": "recruitment_process_id",
-            "fieldtype": "Data",
-            "label": "Recruitment Process ID"
+            "fieldname": "unit_id",
+            "fieldtype": "Link",
+            "label": "Unit",
+            "options": "ATS_Unit",
+            "reqd": 1
         },
         {
             "default": "Active",
@@ -101,10 +149,10 @@
             "label": "Cat Icon"
         },
         {
-            "fieldname": "job_position_rounds",
+            "fieldname": "recruitment_rounds",
             "fieldtype": "Table",
-            "label": "Job_Position_Rounds",
-            "options": "Job_Position_Rounds"
+            "label": "Recruitment Rounds",
+            "options": "Recruitment_Rounds"
         },
         {
             "fieldname": "sync_id",
@@ -122,10 +170,10 @@
         }
     ],
     "links": [],
-    "modified": "2025-05-08 11:25:00.000000",
+    "modified": "2025-05-08 11:35:00.000000",
     "modified_by": "Administrator",
     "module": "Go1 CMS",
-    "name": "ATS_Position",
+    "name": "ATS_Recruitment",
     "naming_rule": "By fieldname",
     "owner": "Administrator",
     "permissions": [
@@ -141,8 +189,7 @@
             "write": 1
         }
     ],
-    "row_format": "Dynamic",
-    "sort_field": "creation",
+    "sort_field": "modified",
     "sort_order": "DESC",
     "states": []
 }

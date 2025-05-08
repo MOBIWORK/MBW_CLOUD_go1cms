@@ -249,3 +249,259 @@ def extract_cv_url(file_cv_name):
 		}
 
 """########################### End Sync ATS_Candidate ###########################"""
+
+"""########################### Begin Sync ATS_JobOpening ###########################"""
+def sync_send_jobopening(doc, method):
+	try:
+		if not doc.sync_source:
+			base_url = frappe.conf.get("mbw_ats_site_name") or ''
+			api_key = frappe.conf.get("mbw_ats_api_key") or ''
+			api_secret = frappe.conf.get("mbw_ats_api_secret") or ''
+			if not base_url or not api_key or not api_secret:
+				frappe.log_error(f"Sync send job opening failed", "Base URL, api_key, api_secret is not configured.")
+				return
+			api_endpoint = base_url + "/api/method/mbw_ats.api.synchronous_data.sync_receive_jobopening"
+			json_data = doc.as_dict()
+
+			# Gửi dữ liệu bao gồm cả thông tin bảng con
+			res = requests.post(
+				api_endpoint,
+				data=frappe.as_json({
+					"doc": json_data
+				}),
+				headers={
+					"Content-Type": "application/json",
+					"Authorization": f"Token {api_key}:{api_secret}"
+				}
+			)
+
+			if res.status_code != 200:
+				frappe.log_error(f"Sync send job opening failed", f"Response: {res.status_code} - {res.text}")
+				return
+		else:
+			# Làm mới lại field sync_source để cho lần sau gửi đi
+			frappe.db.set_value(doc.doctype, doc.name, 'sync_source', 0)
+
+	except Exception as e:
+		frappe.log_error(f"Sync send job opening failed: {e}")
+
+@frappe.whitelist()
+def sync_receive_jobopening(**kwargs):
+	try:
+		# Extract data and operation from kwargs
+		data = frappe._dict(kwargs.get('doc') or {})
+		operation = kwargs.get('operation', 'update')  # Default to update if not specified
+		
+		 # Debug logging
+		frappe.logger("sync").debug(f"Received sync request for job opening {data.get('name')} with operation {operation}")
+		
+		# Check if we have valid data
+		if not data or not data.get('name'):
+			error_msg = "Missing required data for job opening sync"
+			frappe.logger("sync").error(error_msg)
+			frappe.log_error(error_msg, "Sync Receive JobOpening Error")
+			return {
+				'code': '1',
+				'status': 'Error',
+				'msg': error_msg,
+			}
+		
+		frappe.logger("sync").info(f"Processing {operation} for job opening {data.get('name')} from mbw_ats")
+		
+		# Handle deletion operation
+		if operation == 'delete':
+			job_opening_name = frappe.db.get_value('ATS_JobOpening', {'sync_id': data.name}, ['name'])
+			if job_opening_name:
+				try:
+					doc = frappe.get_doc('ATS_JobOpening', job_opening_name)
+					# Set flag to prevent triggering sync back
+					doc.flags.ignore_sync = True
+					doc.delete(ignore_permissions=True)
+					frappe.logger("sync").info(f"Successfully deleted job opening {job_opening_name}")
+					return {
+						'code': '00',
+						'status': 'Success',
+						'msg': f'Job opening {job_opening_name} deleted successfully',
+					}
+				except Exception as e:
+					error_msg = f"Failed to delete job opening {job_opening_name}: {str(e)}"
+					frappe.logger("sync").error(error_msg)
+					frappe.log_error(frappe.get_traceback(), error_msg)
+					return {
+						'code': '1',
+						'status': 'Error',
+						'msg': error_msg,
+					}
+			else:
+				return {
+					'code': '00',
+					'status': 'Success',
+					'msg': 'Job opening not found, nothing to delete',
+				}
+		
+		# For insert or update operations
+		job_opening_name = frappe.db.get_value('ATS_JobOpening', {'sync_id': data.name}, ['name'])
+		
+		# Set sync_source to mark this as coming from mbw_ats (prevents sync loops)
+		data.sync_source = 1
+		
+		if not job_opening_name:
+			# Create new job opening
+			try:
+				job_fields = [
+					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"jo_profession_id", "jo_work_form", "jo_display_quantity",
+					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
+					"jo_position", "jo_location", "jo_application_deadline", "status", 
+					"applicants_applied", "jo_job_description", "jo_job_requirement", 
+					"jo_job_benefits", "jo_contact_phone", "jo_contact_email",
+					"jo_contact_person", "jo_currency", "jo_salary_display_option", 
+					"jo_min_salary", "jo_max_salary"
+				]
+				
+				# Create a new document
+				new_doc = frappe.new_doc("ATS_JobOpening")
+				
+				# Set the sync ID and sync source flag
+				new_doc.sync_id = data.name
+				new_doc.sync_source = 1
+				
+				# Set other fields
+				for field in job_fields:
+					if hasattr(data, field) and getattr(data, field) is not None:
+						setattr(new_doc, field, getattr(data, field))
+				
+				# Process child tables
+				if hasattr(data, "job_position_rounds") and data.job_position_rounds:
+					for round_data in data.job_position_rounds:
+						if isinstance(round_data, dict):
+							new_doc.append("job_position_rounds", {
+								"round_name": round_data.get("round_name"),
+								"round_type": round_data.get("round_type"),
+								"position": round_data.get("position"),
+								"default": round_data.get("default")
+							})
+				
+				if hasattr(data, "hiring_committee") and data.hiring_committee:
+					for member_data in data.hiring_committee:
+						if isinstance(member_data, dict):
+							new_doc.append("hiring_committee", {
+								"user": member_data.get("user"),
+								"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
+								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
+							})
+				
+				# Set flag to prevent triggering sync back
+				new_doc.flags.ignore_sync = True
+				
+				# Insert the document
+				new_doc.insert(ignore_permissions=True)
+				
+				frappe.logger("sync").info(f"Created new job opening {new_doc.name} from sync_id {data.name}")
+				
+				return {
+					'code': '00',
+					'status': 'Success',
+					'msg': 'Job opening created successfully',
+					'job_opening_name': new_doc.name
+				}
+			except Exception as e:
+				error_msg = f"Failed to create new job opening: {str(e)}"
+				frappe.logger("sync").error(error_msg)
+				frappe.log_error(frappe.get_traceback(), error_msg)
+				return {
+					'code': '1',
+					'status': 'Error',
+					'msg': error_msg,
+				}
+		else:
+			# Update existing job opening
+			try:
+				doc_update = frappe.get_doc("ATS_JobOpening", job_opening_name)
+				
+				# Fields to update
+				fields_to_sync = [
+					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"jo_profession_id", "jo_work_form", "jo_display_quantity",
+					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
+					"jo_position", "jo_location", "jo_application_deadline", "status", 
+					"applicants_applied", "jo_job_description", "jo_job_requirement", 
+					"jo_job_benefits", "jo_contact_phone", "jo_contact_email",
+					"jo_contact_person", "jo_currency", "jo_salary_display_option", 
+					"jo_min_salary", "jo_max_salary"
+				]
+				
+				# Update fields
+				for field in fields_to_sync:
+					if hasattr(data, field) and getattr(data, field) is not None:
+						setattr(doc_update, field, getattr(data, field))
+				
+				# Keep sync flags
+				doc_update.sync_id = data.name
+				doc_update.sync_source = 1
+				
+				# Handle child tables
+				# Job Position Rounds
+				if hasattr(data, "job_position_rounds") and data.job_position_rounds:
+					# Clear existing rows
+					doc_update.job_position_rounds = []
+					
+					# Add new rows
+					for round_data in data.job_position_rounds:
+						if isinstance(round_data, dict):
+							doc_update.append("job_position_rounds", {
+								"round_name": round_data.get("round_name"),
+								"round_type": round_data.get("round_type"),
+								"position": round_data.get("position"),
+								"default": round_data.get("default")
+							})
+				
+				# Hiring Committee
+				if hasattr(data, "hiring_committee") and data.hiring_committee:
+					# Clear existing rows
+					doc_update.hiring_committee = []
+					
+					# Add new rows
+					for member_data in data.hiring_committee:
+						if isinstance(member_data, dict):
+							doc_update.append("hiring_committee", {
+								"user": member_data.get("user"),
+								"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
+								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
+							})
+				
+				# Set flag to prevent triggering sync back
+				doc_update.flags.ignore_sync = True
+				
+				# Save the document
+				doc_update.save(ignore_permissions=True)
+				
+				frappe.logger("sync").info(f"Updated job opening {doc_update.name} from sync operation")
+				
+				return {
+					'code': '00',
+					'status': 'Success',
+					'msg': 'Job opening updated successfully',
+					'job_opening_name': doc_update.name
+				}
+			except Exception as e:
+				error_msg = f"Failed to update job opening {job_opening_name}: {str(e)}"
+				frappe.logger("sync").error(error_msg)
+				frappe.log_error(frappe.get_traceback(), error_msg)
+				return {
+					'code': '1',
+					'status': 'Error',
+					'msg': error_msg,
+				}
+
+	except Exception as e:
+		error_msg = f"Sync receive job opening error: {str(e)}"
+		frappe.logger("sync").error(error_msg)
+		frappe.log_error(frappe.get_traceback(), error_msg)
+		return {
+			'code': '1',
+			'status': 'Error',
+			'msg': error_msg,
+		}
+
+"""########################### End Sync ATS_JobOpening ###########################"""

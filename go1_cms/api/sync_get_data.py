@@ -6,7 +6,7 @@ from frappe import _
 def get_api_config(endpoint):
     
     # Base URL for the API
-    api_base_url = "https://ivan-ats.mbwnext.com"
+    api_base_url = frappe.conf.get("mbw_ats_site_name"),
     api_url = f"{api_base_url}{endpoint}"
     headers = {
         "X-API-Key": frappe.conf.get("mbw_ats_api_key"),

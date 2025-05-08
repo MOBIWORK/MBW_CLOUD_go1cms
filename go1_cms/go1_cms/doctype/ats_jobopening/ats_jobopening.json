@@ -27,6 +27,8 @@
   "status",
   "applicants_applied",
   "route",
+  "sync_id",
+  "sync_source",
   "description_section",
   "column_frqrqrqr",
   "jo_job_description",
@@ -272,12 +274,25 @@
    "fieldtype": "Data",
    "label": "Route",
    "unique": 1
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Sync ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "sync_source",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Sync Source"
   }
  ],
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-26 16:55:06.746366",
+ "modified": "2025-05-08 19:53:27.152887",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",
