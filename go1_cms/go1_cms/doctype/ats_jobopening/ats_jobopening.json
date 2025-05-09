@@ -264,7 +264,7 @@
    "options": "Job_Opening_Rounds"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "publish",
    "fieldtype": "Check",
    "label": "Publish"
@@ -292,7 +292,7 @@
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-09 09:47:51.664495",
+ "modified": "2025-05-09 11:44:38.108699",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",
