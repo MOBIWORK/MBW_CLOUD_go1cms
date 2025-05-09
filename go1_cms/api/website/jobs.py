@@ -95,7 +95,7 @@ def get_all_job(name_section, **kwargs):
     m_query = (frappe.qb.from_(JobOpening))
     if text_search:
         m_query = m_query.where(
-            JobOpening.job_title.like('%' + text_search+'%'))
+            JobOpening.jo_public_title.like('%' + text_search+'%'))
     if job_location:
         m_query = m_query.where(JobOpening.jo_location.isin(job_location))
     if job_type:
