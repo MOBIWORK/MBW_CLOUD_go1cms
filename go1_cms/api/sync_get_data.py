@@ -6,11 +6,13 @@ from frappe import _
 def get_api_config(endpoint):
     
     # Base URL for the API
-    api_base_url = frappe.conf.get("mbw_ats_site_name"),
+    api_base_url = frappe.conf.get("mbw_ats_site_name")
     api_url = f"{api_base_url}{endpoint}"
+    api_key = frappe.conf.get("mbw_ats_api_key") or ''
+    api_secret = frappe.conf.get("mbw_ats_api_secret") or ''
     headers = {
-        "X-API-Key": frappe.conf.get("mbw_ats_api_key"),
-        "X-API-Secret": frappe.conf.get("mbw_ats_api_secret")
+        "Content-Type": "application/json",
+        "Authorization": f"Token {api_key}:{api_secret}"
     }
     
     return api_url, headers
@@ -1023,7 +1025,6 @@ def sync_ats_position():
         response = requests.get(api_url, headers=headers)
         response_data = response.json()
         response_data_message = response_data.get("message")
-        
         if response_data_message.get("status") == "success":
             positions = response_data_message.get("data", [])
 
