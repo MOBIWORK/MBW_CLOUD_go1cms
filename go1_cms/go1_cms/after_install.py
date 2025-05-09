@@ -66,7 +66,7 @@ def after_install():
 	# update_workspace_v14()
 
 	# sync data ats
-	sync_ats_categories()
+	frappe.enqueue(sync_ats_categories, enqueue_after_commit=True)
 
 
 def sync_ats_categories():
