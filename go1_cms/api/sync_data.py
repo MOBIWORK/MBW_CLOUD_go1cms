@@ -9,10 +9,11 @@ def check_sync_flags(doc, method):
     if hasattr(doc, 'flags') and getattr(doc.flags, 'ignore_sync', False):
         # If it is, we don't want to trigger any further sync operations
         return
-        
-    # If a document is being synced from the source system, don't sync back
+    
+    # If a document has sync_source flag, reset it for future syncs    
     if hasattr(doc, 'sync_source') and doc.sync_source:
-        # Reset the flag for future updates but don't trigger sync
+        # Reset the flag to allow syncing on next update
         frappe.db.set_value(doc.doctype, doc.name, 'sync_source', 0)
-        # Set the ignore_sync flag to prevent any sync operations during this save
-        doc.flags.ignore_sync = True
+        
+    # Always mark the document as needing sync unless ignore_sync is set
+    doc.flags.needs_sync = True
