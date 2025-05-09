@@ -1192,24 +1192,86 @@ def sync_ats_jobopening():
         
         if response_data_message.get("status") == "success":
             job_openings = response_data_message.get("data", [])
-
+            
+            # Log số lượng job openings cần đồng bộ
+            frappe.log_error(f"Syncing {len(job_openings)} job openings", "sync_ats_jobopening")
+            
             for jobopening in job_openings:
-                # Check if the record already exists
-                existing_jobopening = frappe.db.exists("ATS_JobOpening", {"jo_id": jobopening.get("jo_id")})
-
-                if existing_jobopening:
-                    # Update the existing record
-                    doc = frappe.get_doc("ATS_JobOpening", existing_jobopening)
-                    doc.update(jobopening)
-                    doc.save()
-                else:
-                    # Insert a new record
-                    doc = frappe.get_doc({
-                        "doctype": "ATS_JobOpening",
-                        **jobopening
-                    })
-                    doc.insert()
-
+                try:
+                    # Kiểm tra bản ghi tồn tại theo nhiều điều kiện khác nhau
+                    existing_by_jo_id = frappe.db.exists("ATS_JobOpening", {"jo_id": jobopening.get("jo_id")})
+                    existing_by_name = frappe.db.exists("ATS_JobOpening", jobopening.get("name"))
+                    existing_by_sync_id = frappe.db.exists("ATS_JobOpening", {"sync_id": jobopening.get("name")})
+                    
+                    # Xác định bản ghi hiện có dựa trên các điều kiện trên
+                    existing_jobopening = existing_by_jo_id or existing_by_name or existing_by_sync_id
+                    
+                    if existing_jobopening:
+                        # Cập nhật bản ghi hiện có
+                        doc = frappe.get_doc("ATS_JobOpening", existing_jobopening)
+                        
+                        # Lưu tên gốc để liên kết với bản ghi trong mbw_ats
+                        if not doc.sync_id:
+                            doc.sync_id = jobopening.get("name")
+                        
+                        # Cập nhật các trường khác
+                        for key, value in jobopening.items():
+                            if key not in ["name", "job_position_rounds", "hiring_committee"]:
+                                setattr(doc, key, value)
+                        
+                        # Đánh dấu để ngăn đồng bộ ngược lại
+                        doc.flags.ignore_sync = True
+                        doc.sync_source = 1
+                        
+                        # Lưu bản ghi
+                        doc.save()
+                        frappe.log_error(f"Updated job opening: {doc.name}", "sync_ats_jobopening")
+                    else:
+                        # Tạo bản ghi mới với tên (ID) chính xác từ mbw_ats
+                        doc = frappe.new_doc("ATS_JobOpening")
+                        
+                        # Sử dụng name chính xác từ bản ghi nguồn
+                        doc.name = jobopening.get("name")
+                        
+                        # Thiết lập sync_id giống name để đảm bảo tính nhất quán
+                        doc.sync_id = jobopening.get("name")
+                        doc.sync_source = 1
+                        
+                        # Thiết lập các trường khác
+                        for key, value in jobopening.items():
+                            if key not in ["name", "job_position_rounds", "hiring_committee"]:
+                                setattr(doc, key, value)
+                        
+                        # Đánh dấu để ngăn đồng bộ ngược lại
+                        doc.flags.ignore_sync = True
+                        
+                        try:
+                            # Chèn bản ghi với name chính xác từ mbw_ats
+                            doc.insert(ignore_permissions=True)
+                            frappe.log_error(f"Inserted new job opening with exact name: {doc.name}", "sync_ats_jobopening")
+                        except frappe.DuplicateEntryError:
+                            frappe.log_error(f"Duplicate entry for {doc.name}, updating existing record instead", "sync_ats_jobopening")
+                            
+                            # Nếu có lỗi trùng lặp, thử cập nhật bản ghi hiện có
+                            existing_doc = frappe.get_doc("ATS_JobOpening", jobopening.get("name"))
+                            
+                            # Cập nhật các trường
+                            for key, value in jobopening.items():
+                                if key not in ["name", "job_position_rounds", "hiring_committee"]:
+                                    setattr(existing_doc, key, value)
+                            
+                            # Đảm bảo sync_id và sync_source được thiết lập đúng
+                            existing_doc.sync_id = jobopening.get("name")
+                            existing_doc.sync_source = 1
+                            existing_doc.flags.ignore_sync = True
+                            
+                            # Lưu bản ghi
+                            existing_doc.save(ignore_permissions=True)
+                            frappe.log_error(f"Updated existing record with name: {existing_doc.name}", "sync_ats_jobopening")
+                        
+                except Exception as e:
+                    frappe.log_error(f"Error processing job opening {jobopening.get('name')}: {str(e)}", "sync_ats_jobopening_error")
+            
             frappe.db.commit()
             return "Job Opening synchronization completed successfully."
         else:
@@ -1234,7 +1296,6 @@ def sync_ats_candidate():
         if response_data_message.get("status") == "success":
             candidates = response_data_message.get("data", [])
             for candidate in candidates:
-                print("Test log candidate : >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",candidates)
                 # Check if the record already exists
                 existing_candidate = frappe.db.exists("ATS_Candidate", {"can_id": candidate.get("can_id")})
 

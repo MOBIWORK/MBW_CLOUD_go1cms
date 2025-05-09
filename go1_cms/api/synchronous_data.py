@@ -367,7 +367,7 @@ def sync_receive_jobopening(**kwargs):
 				
 				# Fields to update
 				fields_to_sync = [
-					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"name","jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
 					"jo_profession_id", "jo_work_form", "jo_display_quantity",
 					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
 					"jo_position", "jo_location", "jo_application_deadline", "status", 
@@ -470,7 +470,7 @@ def sync_receive_jobopening(**kwargs):
 				
 				# Set job opening fields
 				job_fields = [
-					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"name","jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
 					"jo_profession_id", "jo_work_form", "jo_display_quantity",
 					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
 					"jo_position", "jo_location", "jo_application_deadline", "status", 
