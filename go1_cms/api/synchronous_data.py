@@ -292,7 +292,7 @@ def sync_receive_jobopening(**kwargs):
 		data = frappe._dict(kwargs.get('doc') or {})
 		operation = kwargs.get('operation', 'update')  # Default to update if not specified
 		
-		 # Debug logging
+		# Debug logging
 		frappe.logger("sync").debug(f"Received sync request for job opening {data.get('name')} with operation {operation}")
 		
 		# Check if we have valid data
@@ -339,84 +339,30 @@ def sync_receive_jobopening(**kwargs):
 					'msg': 'Job opening not found, nothing to delete',
 				}
 		
-		# For insert or update operations
-		job_opening_name = frappe.db.get_value('ATS_JobOpening', {'sync_id': data.name}, ['name'])
-		
 		# Set sync_source to mark this as coming from mbw_ats (prevents sync loops)
 		data.sync_source = 1
 		
-		if not job_opening_name:
-			# Create new job opening
-			try:
-				job_fields = [
-					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
-					"jo_profession_id", "jo_work_form", "jo_display_quantity",
-					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
-					"jo_position", "jo_location", "jo_application_deadline", "status", 
-					"applicants_applied", "jo_job_description", "jo_job_requirement", 
-					"jo_job_benefits", "jo_contact_phone", "jo_contact_email",
-					"jo_contact_person", "jo_currency", "jo_salary_display_option", 
-					"jo_min_salary", "jo_max_salary"
-				]
-				
-				# Create a new document
-				new_doc = frappe.new_doc("ATS_JobOpening")
-				
-				# Set the sync ID and sync source flag
-				new_doc.sync_id = data.name
-				new_doc.sync_source = 1
-				
-				# Set other fields
-				for field in job_fields:
-					if hasattr(data, field) and getattr(data, field) is not None:
-						setattr(new_doc, field, getattr(data, field))
-				
-				# Process child tables
-				if hasattr(data, "job_position_rounds") and data.job_position_rounds:
-					for round_data in data.job_position_rounds:
-						if isinstance(round_data, dict):
-							new_doc.append("job_position_rounds", {
-								"round_name": round_data.get("round_name"),
-								"round_type": round_data.get("round_type"),
-								"position": round_data.get("position"),
-								"default": round_data.get("default")
-							})
-				
-				if hasattr(data, "hiring_committee") and data.hiring_committee:
-					for member_data in data.hiring_committee:
-						if isinstance(member_data, dict):
-							new_doc.append("hiring_committee", {
-								"user": member_data.get("user"),
-								"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
-								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
-							})
-				
-				# Set flag to prevent triggering sync back
-				new_doc.flags.ignore_sync = True
-				
-				# Insert the document
-				new_doc.insert(ignore_permissions=True)
-				
-				frappe.logger("sync").info(f"Created new job opening {new_doc.name} from sync_id {data.name}")
-				
-				return {
-					'code': '00',
-					'status': 'Success',
-					'msg': 'Job opening created successfully',
-					'job_opening_name': new_doc.name
-				}
-			except Exception as e:
-				error_msg = f"Failed to create new job opening: {str(e)}"
-				frappe.logger("sync").error(error_msg)
-				frappe.log_error(frappe.get_traceback(), error_msg)
-				return {
-					'code': '1',
-					'status': 'Error',
-					'msg': error_msg,
-				}
-		else:
+		# Better searching for existing records using multiple criteria
+		# Check if job opening exists by sync_id (primary way to find record)
+		job_opening_by_sync_id = frappe.db.get_value('ATS_JobOpening', {'sync_id': data.name}, ['name'])
+		
+		 # Check if job opening exists by name (direct ID match)
+		job_opening_by_name = None
+		if frappe.db.exists("ATS_JobOpening", data.name):
+			job_opening_by_name = data.name
+		
+		 # Check if job opening exists by jo_id
+		job_opening_by_jo_id = None
+		if data.get('jo_id'):
+			job_opening_by_jo_id = frappe.db.get_value('ATS_JobOpening', {'jo_id': data.jo_id}, ['name'])
+		
+		# Determine which record to update based on all checks
+		job_opening_name = job_opening_by_sync_id or job_opening_by_name or job_opening_by_jo_id
+		
+		if job_opening_name:
 			# Update existing job opening
 			try:
+				frappe.logger("sync").info(f"Found existing job opening {job_opening_name}, updating it")
 				doc_update = frappe.get_doc("ATS_JobOpening", job_opening_name)
 				
 				# Fields to update
@@ -486,6 +432,136 @@ def sync_receive_jobopening(**kwargs):
 				}
 			except Exception as e:
 				error_msg = f"Failed to update job opening {job_opening_name}: {str(e)}"
+				frappe.logger("sync").error(error_msg)
+				frappe.log_error(frappe.get_traceback(), error_msg)
+				return {
+					'code': '1',
+					'status': 'Error',
+					'msg': error_msg,
+				}
+		else:
+			# No existing record found, create new
+			try:
+				# Check if name already exists and generate a new unique name if needed
+				original_name = data.name
+				need_new_name = False
+				
+				if frappe.db.exists("ATS_JobOpening", original_name):
+					need_new_name = True
+					frappe.logger("sync").warning(f"Name {original_name} already exists but wasn't found by our criteria. Generating a new name.")
+				
+				if need_new_name:
+					# Generate a unique name with timestamp
+					import time
+					import hashlib
+					timestamp = int(time.time())
+					hash_suffix = hashlib.md5(f"{original_name}-{timestamp}".encode()).hexdigest()[:8]
+					new_unique_name = f"{original_name}-{hash_suffix}"
+					frappe.logger("sync").info(f"Generated new unique name: {new_unique_name} for {original_name}")
+				else:
+					new_unique_name = original_name
+				
+				# Create new document
+				new_doc = frappe.new_doc("ATS_JobOpening")
+				
+				# Set new name if needed
+				if need_new_name:
+					new_doc.name = new_unique_name
+				
+				# Set job opening fields
+				job_fields = [
+					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"jo_profession_id", "jo_work_form", "jo_display_quantity",
+					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
+					"jo_position", "jo_location", "jo_application_deadline", "status", 
+					"applicants_applied", "jo_job_description", "jo_job_requirement", 
+					"jo_job_benefits", "jo_contact_phone", "jo_contact_email",
+					"jo_contact_person", "jo_currency", "jo_salary_display_option", 
+					"jo_min_salary", "jo_max_salary"
+				]
+				
+				# Set the sync ID and sync source flag
+				new_doc.sync_id = original_name
+				new_doc.sync_source = 1
+				
+				# Set other fields
+				for field in job_fields:
+					if hasattr(data, field) and getattr(data, field) is not None:
+						setattr(new_doc, field, getattr(data, field))
+				
+				# Process child tables
+				if hasattr(data, "job_position_rounds") and data.job_position_rounds:
+					for round_data in data.job_position_rounds:
+						if isinstance(round_data, dict):
+							new_doc.append("job_position_rounds", {
+								"round_name": round_data.get("round_name"),
+								"round_type": round_data.get("round_type"),
+								"position": round_data.get("position"),
+								"default": round_data.get("default")
+							})
+				
+				if hasattr(data, "hiring_committee") and data.hiring_committee:
+					for member_data in data.hiring_committee:
+						if isinstance(member_data, dict):
+							new_doc.append("hiring_committee", {
+								"user": member_data.get("user"),
+								"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
+								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
+							})
+				
+				# Set flag to prevent triggering sync back
+				new_doc.flags.ignore_sync = True
+				
+				try:
+					# Try to insert with our predefined name
+					new_doc.insert(ignore_permissions=True)
+				except frappe.DuplicateEntryError:
+					# If still encountering duplicate, create with autoname and update sync_id
+					frappe.logger("sync").warning(f"Duplicate entry error still occurred with {new_doc.name}, falling back to autoname")
+					new_doc = frappe.new_doc("ATS_JobOpening")
+					
+					# Set the sync ID and sync source flag
+					new_doc.sync_id = original_name
+					new_doc.sync_source = 1
+					
+					# Set other fields
+					for field in job_fields:
+						if hasattr(data, field) and getattr(data, field) is not None:
+							setattr(new_doc, field, getattr(data, field))
+					
+					# Process child tables again
+					if hasattr(data, "job_position_rounds") and data.job_position_rounds:
+						for round_data in data.job_position_rounds:
+							if isinstance(round_data, dict):
+								new_doc.append("job_position_rounds", {
+									"round_name": round_data.get("round_name"),
+									"round_type": round_data.get("round_type"),
+									"position": round_data.get("position"),
+									"default": round_data.get("default")
+								})
+					
+					if hasattr(data, "hiring_committee") and data.hiring_committee:
+						for member_data in data.hiring_committee:
+							if isinstance(member_data, dict):
+								new_doc.append("hiring_committee", {
+									"user": member_data.get("user"),
+									"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
+									"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
+								})
+					
+					# Let system generate name automatically
+					new_doc.insert(ignore_permissions=True)
+				
+				frappe.logger("sync").info(f"Created new job opening {new_doc.name} from sync_id {data.name}")
+				
+				return {
+					'code': '00',
+					'status': 'Success',
+					'msg': 'Job opening created successfully',
+					'job_opening_name': new_doc.name
+				}
+			except Exception as e:
+				error_msg = f"Failed to create job opening: {str(e)}"
 				frappe.logger("sync").error(error_msg)
 				frappe.log_error(frappe.get_traceback(), error_msg)
 				return {
