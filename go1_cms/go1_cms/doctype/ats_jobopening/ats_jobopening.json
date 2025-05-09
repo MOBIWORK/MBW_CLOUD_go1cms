@@ -77,14 +77,14 @@
   },
   {
    "fieldname": "jo_level_id",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Level ID",
    "options": "ATS_Level"
   },
   {
    "fieldname": "jo_profession_id",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Profession ID",
    "options": "ATS_Profession"
   },
@@ -133,15 +133,16 @@
   },
   {
    "fieldname": "jo_position",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Position",
+   "options": "ATS_Position",
    "reqd": 1
   },
   {
    "fieldname": "jo_location",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Location",
    "options": "ATS_Location"
   },
@@ -291,7 +292,7 @@
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-09 08:23:21.314171",
+ "modified": "2025-05-09 09:47:51.664495",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",
