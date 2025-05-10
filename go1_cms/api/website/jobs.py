@@ -252,6 +252,8 @@ def upload_cv(name_job, **kwargs):
         frappe.throw('Họ tên không được để trống')
     if not email:
         frappe.throw('Email không được để trống')
+    if frappe.db.exists('ATS_Candidate', {'can_email': email}):
+        frappe.throw('Email đã gửi CV từ trước')
     if not phone_number:
         frappe.throw('Số điện thoại không được để trống')
 
