@@ -367,7 +367,7 @@ def sync_receive_jobopening(**kwargs):
 				
 				# Fields to update
 				fields_to_sync = [
-					"name","jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
 					"jo_profession_id", "jo_work_form", "jo_display_quantity",
 					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
 					"jo_position", "jo_location", "jo_application_deadline", "status", 
@@ -442,35 +442,18 @@ def sync_receive_jobopening(**kwargs):
 		else:
 			# No existing record found, create new
 			try:
-				# Check if name already exists and generate a new unique name if needed
+				 # Preserve original name from mbw_ats
 				original_name = data.name
-				need_new_name = False
-				
-				if frappe.db.exists("ATS_JobOpening", original_name):
-					need_new_name = True
-					frappe.logger("sync").warning(f"Name {original_name} already exists but wasn't found by our criteria. Generating a new name.")
-				
-				if need_new_name:
-					# Generate a unique name with timestamp
-					import time
-					import hashlib
-					timestamp = int(time.time())
-					hash_suffix = hashlib.md5(f"{original_name}-{timestamp}".encode()).hexdigest()[:8]
-					new_unique_name = f"{original_name}-{hash_suffix}"
-					frappe.logger("sync").info(f"Generated new unique name: {new_unique_name} for {original_name}")
-				else:
-					new_unique_name = original_name
 				
 				# Create new document
 				new_doc = frappe.new_doc("ATS_JobOpening")
 				
-				# Set new name if needed
-				if need_new_name:
-					new_doc.name = new_unique_name
+				# IMPORTANT: Directly set the name to preserve the original ID
+				new_doc.name = original_name
 				
 				# Set job opening fields
 				job_fields = [
-					"name","jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
+					"jo_id", "jo_public_title", "jo_internal_title", "jo_level_id", 
 					"jo_profession_id", "jo_work_form", "jo_display_quantity",
 					"jo_language_requirement", "publish_to_career_page", "jo_using_unit", 
 					"jo_position", "jo_location", "jo_application_deadline", "status", 
@@ -509,59 +492,36 @@ def sync_receive_jobopening(**kwargs):
 								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
 							})
 				
-				# Set flag to prevent triggering sync back
+				# Set flag to prevent triggering sync back and autoname
 				new_doc.flags.ignore_sync = True
+				# IMPORTANT: Prevent autoname from running
+				new_doc.flags.name_set = True
 				
 				try:
 					# Try to insert with our predefined name
 					new_doc.insert(ignore_permissions=True)
-				except frappe.DuplicateEntryError:
-					# If still encountering duplicate, create with autoname and update sync_id
-					frappe.logger("sync").warning(f"Duplicate entry error still occurred with {new_doc.name}, falling back to autoname")
-					new_doc = frappe.new_doc("ATS_JobOpening")
 					
-					# Set the sync ID and sync source flag
-					new_doc.sync_id = original_name
-					new_doc.sync_source = 1
+					frappe.logger("sync").info(f"Created new job opening {new_doc.name} from sync operation, preserving original ID")
 					
-					# Set other fields
-					for field in job_fields:
-						if hasattr(data, field) and getattr(data, field) is not None:
-							setattr(new_doc, field, getattr(data, field))
-					
-					# Process child tables again
-					if hasattr(data, "job_position_rounds") and data.job_position_rounds:
-						for round_data in data.job_position_rounds:
-							if isinstance(round_data, dict):
-								new_doc.append("job_position_rounds", {
-									"round_name": round_data.get("round_name"),
-									"round_type": round_data.get("round_type"),
-									"position": round_data.get("position"),
-									"default": round_data.get("default")
-								})
-					
-					if hasattr(data, "hiring_committee") and data.hiring_committee:
-						for member_data in data.hiring_committee:
-							if isinstance(member_data, dict):
-								new_doc.append("hiring_committee", {
-									"user": member_data.get("user"),
-									"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
-									"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
-								})
-					
-					# Let system generate name automatically
-					new_doc.insert(ignore_permissions=True)
+					return {
+						'code': '00',
+						'status': 'Success',
+						'msg': 'Job opening created successfully with original ID',
+						'job_opening_name': new_doc.name
+					}
+				except frappe.DuplicateEntryError as e:
+					# If still encountering duplicate, log the error and return
+					error_msg = f"Duplicate entry error for job opening with ID {original_name}: {str(e)}"
+					frappe.logger("sync").error(error_msg)
+					frappe.log_error(error_msg, "Sync Receive JobOpening Error")
+					return {
+						'code': '1',
+						'status': 'Error',
+						'msg': error_msg,
+					}
 				
-				frappe.logger("sync").info(f"Created new job opening {new_doc.name} from sync_id {data.name}")
-				
-				return {
-					'code': '00',
-					'status': 'Success',
-					'msg': 'Job opening created successfully',
-					'job_opening_name': new_doc.name
-				}
 			except Exception as e:
-				error_msg = f"Failed to create job opening: {str(e)}"
+				error_msg = f"Failed to create new job opening: {str(e)}"
 				frappe.logger("sync").error(error_msg)
 				frappe.log_error(frappe.get_traceback(), error_msg)
 				return {
