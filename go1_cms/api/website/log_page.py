@@ -53,7 +53,7 @@ def log_page_access(session_id, path_url, page=""):
             site_type = 'Tin tức'
             site_title = blog[0]
     if not site_title:
-        job = frappe.db.get_all("Job Opening", filters=[
+        job = frappe.db.get_all("ATS_JobOpening", filters=[
             ['route', '=', page]], pluck='job_title', page_length=1)
         if job:
             site_type = 'Tìm việc'
