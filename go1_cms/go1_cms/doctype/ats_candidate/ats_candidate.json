@@ -127,7 +127,9 @@
   {
    "fieldname": "can_email",
    "fieldtype": "Data",
-   "label": "Email"
+   "label": "Email",
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "can_address",
@@ -189,7 +191,7 @@
   {
    "depends_on": "eval:doc.job_opening_id\n",
    "fieldname": "status",
-   "fieldtype": "Select",
+   "fieldtype": "Data",
    "label": "Status Process"
   },
   {
@@ -322,7 +324,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-08 11:21:28.662724",
+ "modified": "2025-05-10 08:48:55.996323",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Candidate",

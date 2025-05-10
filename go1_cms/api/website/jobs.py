@@ -137,6 +137,7 @@ def get_all_job(name_section, **kwargs):
         if j.jo_application_deadline:
             dt = datetime.combine(j.jo_application_deadline, datetime.min.time())
             j['pretty_posted_on'] = pretty_date(dt)
+            j.jo_application_deadline = j.jo_application_deadline.strftime("%d-%m-%Y")
 
     q_count = m_query.select(fn.Count('*').as_('total'))
     rs_count = q_count.run(as_dict=True)
@@ -210,8 +211,10 @@ def get_job_related(name, **kwargs):
 
         jobs = q_data.run(as_dict=True)
         for j in jobs:
-            dt = datetime.combine(j.jo_application_deadline, datetime.min.time())
-            j['pretty_posted_on'] = pretty_date(dt)
+            if j.jo_application_deadline:
+                dt = datetime.combine(j.jo_application_deadline, datetime.min.time())
+                j['pretty_posted_on'] = pretty_date(dt)
+                j.jo_application_deadline = j.jo_application_deadline.strftime("%d-%m-%Y")
 
     return {"jobs": jobs}
 

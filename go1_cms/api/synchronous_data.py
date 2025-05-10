@@ -65,7 +65,7 @@ def sync_send_candidate(doc, method):
 		if doc.is_upload_cv and doc.can_cv:
 			file_cv = frappe.db.get_value('File', {'file_url': doc.can_cv, 'attached_to_name': doc.name, 'attached_to_doctype': doc.doctype, 'attached_to_field': 'can_cv'}, ['name'])
 			if file_cv:
-				frappe.enqueue(handle_extract_cv, file_cv_name=file_cv, candidate_name=doc.name)
+				frappe.db.after_commit.add(lambda: frappe.enqueue(handle_extract_cv, file_cv_name=file_cv, candidate_name=doc.name))
 
 	except Exception as e:
 		frappe.log_error(f"Sync send candidate failed: {e}")
