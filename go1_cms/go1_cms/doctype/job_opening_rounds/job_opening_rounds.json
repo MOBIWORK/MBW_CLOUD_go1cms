@@ -7,7 +7,13 @@
  "engine": "InnoDB",
  "field_order": [
   "round_name",
-  "round_type"
+  "round_type",
+  "position",
+  "default",
+  "test_link",
+  "automation_rules",
+  "sync_id",
+  "sync_source"
  ],
  "fields": [
   {
@@ -23,12 +29,49 @@
    "in_list_view": 1,
    "label": "Round Type",
    "options": "ATS_Round_Type"
+  },
+  {
+   "fieldname": "position",
+   "fieldtype": "Int",
+   "label": "Position"
+  },
+  {
+   "default": "0",
+   "fieldname": "default",
+   "fieldtype": "Check",
+   "label": "Default"
+  },
+  {
+   "fieldname": "test_link",
+   "fieldtype": "Data",
+   "label": "Test Link"
+  },
+  {
+   "fieldname": "automation_rules",
+   "fieldtype": "JSON",
+   "label": "Automation Rules"
+  },
+  {
+   "description": "ID used for synchronization with mbw_ats",
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Sync ID",
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "description": "Indicates whether this record was synced from another system",
+   "fieldname": "sync_source",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Sync Source"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-16 15:14:31.826105",
+ "modified": "2025-05-12 10:54:43.942522",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "Job_Opening_Rounds",

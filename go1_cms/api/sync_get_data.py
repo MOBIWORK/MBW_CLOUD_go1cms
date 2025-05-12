@@ -17,7 +17,7 @@ def get_api_config(endpoint):
     
     return api_url, headers
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_company():
     try:
         # Get API URL and headers
@@ -59,7 +59,7 @@ def sync_ats_company():
 
 # Danh mục đơn cần đồng bộ đầu tiên
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_country():
     try:
         # Get API URL and headers
@@ -100,7 +100,7 @@ def sync_ats_country():
         frappe.log_error(frappe.get_traceback(), "sync_ats_country Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_province():
     try:
         # Get API URL and headers
@@ -141,7 +141,7 @@ def sync_ats_province():
         frappe.log_error(frappe.get_traceback(), "sync_ats_province Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_district():
     try:
         # Get API URL and headers
@@ -212,7 +212,7 @@ def sync_ats_district():
         frappe.log_error(frappe.get_traceback()[:500], "sync_ats_district Error")
         return f"An error occurred: {str(e)[:100]}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_ward():
     try:
         # Get API URL and headers
@@ -253,7 +253,7 @@ def sync_ats_ward():
         frappe.log_error(frappe.get_traceback(), "sync_ats_ward Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_round_type():
     try:
         # Get API URL and headers
@@ -294,7 +294,7 @@ def sync_ats_round_type():
         frappe.log_error(frappe.get_traceback(), "sync_ats_round_type Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_educationlevel():
     try:
         # Get API URL and headers
@@ -335,7 +335,7 @@ def sync_ats_educationlevel():
         frappe.log_error(frappe.get_traceback(), "sync_ats_educationlevel Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_institution():
     try:
         # Get API URL and headers
@@ -376,7 +376,7 @@ def sync_ats_institution():
         frappe.log_error(frappe.get_traceback(), "sync_ats_institution Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_major():
     try:
         # Get API URL and headers
@@ -417,7 +417,7 @@ def sync_ats_major():
         frappe.log_error(frappe.get_traceback(), "sync_ats_major Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_job_position_rounds():
     try:
         # Get API URL and headers
@@ -463,7 +463,7 @@ def sync_job_position_rounds():
         frappe.log_error(frappe.get_traceback(), "sync_job_position_rounds Error")
         return f"An error occurred: {str(e)}"
 
-# @frappe.whitelist(allow_guest=True)
+# @frappe.whitelist()
 # def sync_ats_rejectreasoncampaigngroup():
 #     try:
 #         # Get API URL and headers
@@ -504,7 +504,7 @@ def sync_job_position_rounds():
 #         frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreasoncampaigngroup Error")
 #         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_hiring_committee():
     try:
         # Get API URL and headers
@@ -554,7 +554,7 @@ def sync_hiring_committee():
         frappe.log_error(frappe.get_traceback(), "sync_hiring_committee Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_certification():
     try:
         # Get API URL and headers
@@ -610,7 +610,7 @@ def sync_candidate_certification():
         frappe.log_error(frappe.get_traceback(), "sync_candidate_certification Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_skill():
     try:
         # Get API URL and headers
@@ -660,7 +660,7 @@ def sync_candidate_skill():
         frappe.log_error(frappe.get_traceback(), "sync_candidate_skill Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_award():
     try:
         # Get API URL and headers
@@ -714,7 +714,7 @@ def sync_candidate_award():
         frappe.log_error(frappe.get_traceback(), "sync_candidate_award Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_course():
     try:
         # Get API URL and headers
@@ -892,7 +892,7 @@ def sync_ats_unit():
         frappe.log_error(frappe.get_traceback(), "sync_ats_unit Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_profession():
     try:
         # Get API URL and headers
@@ -932,7 +932,7 @@ def sync_ats_profession():
         frappe.log_error(frappe.get_traceback(), "sync_ats_profession Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_level():
     try:
         # Get API URL and headers
@@ -973,7 +973,7 @@ def sync_ats_level():
         frappe.log_error(frappe.get_traceback(), "sync_ats_level Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_location():
     try:
         # Get API URL and headers
@@ -1014,7 +1014,7 @@ def sync_ats_location():
         frappe.log_error(frappe.get_traceback(), "sync_ats_location Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_position():
     try:
         # Get API URL and headers
@@ -1054,7 +1054,7 @@ def sync_ats_position():
         frappe.log_error(frappe.get_traceback(), "sync_ats_position Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_candidatesource():
     try:
         # Get API URL and headers
@@ -1095,7 +1095,7 @@ def sync_ats_candidatesource():
         frappe.log_error(frappe.get_traceback(), "sync_ats_candidatesource Error")
         return f"An error occurred: {str(e)}"
 
-# @frappe.whitelist(allow_guest=True)
+# @frappe.whitelist()
 # def sync_ats_rejectreasoncampaign():
 #     try:
 #         # Get API URL and headers
@@ -1136,7 +1136,7 @@ def sync_ats_candidatesource():
 #         frappe.log_error(frappe.get_traceback(), "sync_ats_rejectreasoncampaign Error")
 #         return f"An error occurred: {str(e)}"
 
-# @frappe.whitelist(allow_guest=True)
+# @frappe.whitelist()
 # def sync_ats_rejectreason():
 #     try:
 #         # Get API URL and headers
@@ -1178,7 +1178,7 @@ def sync_ats_candidatesource():
 #         return f"An error occurred: {str(e)}"
 
 # Danh Mục cần đồng bộ thứ ba
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_jobopening():
     try:
         # Get API URL and headers
@@ -1227,11 +1227,14 @@ def sync_ats_jobopening():
                         doc.save()
                         frappe.log_error(f"Updated job opening: {doc.name}", "sync_ats_jobopening")
                     else:
+                        frappe.log_error(f"Inserting new jobopening: {jobopening.get('name')}", "sync_ats_jobopening")
                         # Tạo bản ghi mới với tên (ID) chính xác từ mbw_ats
                         doc = frappe.new_doc("ATS_JobOpening")
                         
-                        # Sử dụng name chính xác từ bản ghi nguồn
+                        # Sử dụng name chính xác từ bản ghi nguồn và đặt cờ để giữ nguyên name
                         doc.name = jobopening.get("name")
+                        # ĐẶT CỜ ĐỂ GIỮ NGUYÊN NAME - rất quan trọng!
+                        doc.flags.name_set = True
                         
                         # Thiết lập sync_id giống name để đảm bảo tính nhất quán
                         doc.sync_id = jobopening.get("name")
@@ -1281,7 +1284,7 @@ def sync_ats_jobopening():
         frappe.log_error(frappe.get_traceback(), "sync_ats_jobopening Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_candidate():
     try:
         # Get API URL and headers
@@ -1322,7 +1325,7 @@ def sync_ats_candidate():
         return f"An error occurred: {str(e)}"
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_stages():
     try:
         # Get API URL and headers
@@ -1372,7 +1375,7 @@ def sync_candidate_stages():
         frappe.log_error(frappe.get_traceback(), "sync_candidate_stages Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_ats_candidateroundhistory():
     try:
         # Get API URL and headers
@@ -1420,7 +1423,7 @@ def sync_ats_candidateroundhistory():
         frappe.log_error(frappe.get_traceback(), "sync_ats_candidateroundhistory Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_work_experience():
     try:
         # Get API URL and headers
@@ -1474,7 +1477,7 @@ def sync_candidate_work_experience():
         frappe.log_error(frappe.get_traceback(), "sync_candidate_work_experience Error")
         return f"An error occurred: {str(e)}"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def sync_candidate_project():
     try:
         # Get API URL and headers
@@ -1526,6 +1529,62 @@ def sync_candidate_project():
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "sync_candidate_project Error")
+        return f"An error occurred: {str(e)}"
+
+@frappe.whitelist()
+def sync_job_opening_rounds():
+    try:
+        # Get API URL and headers
+        endpoint = "/api/method/mbw_ats.api.sync_return_data.get_job_opening_rounds"
+        api_url, headers = get_api_config(endpoint)
+        
+        # Fetch data from API
+        response = requests.get(api_url, headers=headers)
+        response_data = response.json()
+        response_data_message = response_data.get("message")
+        
+        if response_data_message.get("status") == "success":
+            rounds = response_data_message.get("data", [])
+
+            for job_round in rounds:
+                # Since this is a child table, we need to handle it differently
+                # We'll check if the parent record exists first
+                if job_round.get("parent") and job_round.get("parenttype") and job_round.get("parentfield"):
+                    parent_doc = frappe.get_doc(job_round["parenttype"], job_round["parent"])
+                    
+                    # Check if this round already exists in the parent
+                    existing = False
+                    for existing_round in parent_doc.get(job_round["parentfield"] or "job_opening_rounds", []):
+                        if (existing_round.round_name == job_round["round_name"] and 
+                            existing_round.position == job_round["position"]):
+                            # Update existing round
+                            existing_round.round_type = job_round["round_type"]
+                            existing_round.default = job_round["default"]
+                            existing_round.test_link = job_round["test_link"]
+                            existing_round.automation_rules = job_round["automation_rules"]
+                            existing = True
+                            break
+                    
+                    # If not found, add new round
+                    if not existing:
+                        parent_doc.append(job_round["parentfield"] or "job_opening_rounds", {
+                            "round_name": job_round["round_name"],
+                            "round_type": job_round["round_type"],
+                            "position": job_round["position"],
+                            "default": job_round["default"],
+                            "test_link": job_round["test_link"],
+                            "automation_rules": job_round["automation_rules"]
+                        })
+                    
+                    parent_doc.save()
+
+            frappe.db.commit()
+            return "Synchronization of Job Opening Rounds completed successfully."
+        else:
+            return f"Failed to fetch job opening rounds data: {response_data_message.get('message')}"
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "sync_job_opening_rounds Error")
         return f"An error occurred: {str(e)}"
 
 

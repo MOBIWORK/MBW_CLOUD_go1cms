@@ -295,6 +295,12 @@ def sync_receive_jobopening(**kwargs):
 		# Debug logging
 		frappe.logger("sync").debug(f"Received sync request for job opening {data.get('name')} with operation {operation}")
 		
+		# Ghi log chi tiết dữ liệu nhận được cho debug
+		frappe.log_error(
+			message=f"Received job opening data: {data.get('name')}, recruitment_process: {len(data.get('recruitment_process', []))}, hiring_committee: {len(data.get('hiring_committee', []))}",
+			title="Sync Debug - Received JobOpening"
+		)
+		
 		# Check if we have valid data
 		if not data or not data.get('name'):
 			error_msg = "Missing required data for job opening sync"
@@ -346,12 +352,12 @@ def sync_receive_jobopening(**kwargs):
 		# Check if job opening exists by sync_id (primary way to find record)
 		job_opening_by_sync_id = frappe.db.get_value('ATS_JobOpening', {'sync_id': data.name}, ['name'])
 		
-		 # Check if job opening exists by name (direct ID match)
+		# Check if job opening exists by name (direct ID match)
 		job_opening_by_name = None
 		if frappe.db.exists("ATS_JobOpening", data.name):
 			job_opening_by_name = data.name
 		
-		 # Check if job opening exists by jo_id
+		# Check if job opening exists by jo_id
 		job_opening_by_jo_id = None
 		if data.get('jo_id'):
 			job_opening_by_jo_id = frappe.db.get_value('ATS_JobOpening', {'jo_id': data.jo_id}, ['name'])
@@ -386,28 +392,42 @@ def sync_receive_jobopening(**kwargs):
 				doc_update.sync_id = data.name
 				doc_update.sync_source = 1
 				
-				# Handle child tables
-				# Job Position Rounds
-				if hasattr(data, "job_position_rounds") and data.job_position_rounds:
-					# Clear existing rows
-					doc_update.job_position_rounds = []
-					
-					# Add new rows
-					for round_data in data.job_position_rounds:
+				# Debug log child table data
+				frappe.logger("sync").debug(f"Child tables in received data: recruitment_process={len(data.get('recruitment_process', []))}, hiring_committee={len(data.get('hiring_committee', []))}")
+				
+				# LƯU Ý QUAN TRỌNG: Sử dụng đúng tên bảng con "recruitment_process" (không phải job_opening_rounds)
+				
+				# Xử lý bảng recruitment_process - xóa và thêm lại từ dữ liệu mới
+				if hasattr(doc_update, "recruitment_process"):
+					frappe.logger("sync").debug(f"Clearing recruitment_process table for {doc_update.name}")
+					doc_update.recruitment_process = []
+				
+				if hasattr(data, "recruitment_process") and isinstance(data.recruitment_process, list) and data.recruitment_process:
+					frappe.logger("sync").debug(f"Adding {len(data.recruitment_process)} recruitment process records")
+					for round_data in data.recruitment_process:
 						if isinstance(round_data, dict):
-							doc_update.append("job_position_rounds", {
+							# Xử lý trường automation_rules để tránh lỗi giới hạn kích thước
+							automation_rules = round_data.get("automation_rules", "")
+							if automation_rules and len(automation_rules) > 255:  # Giả sử giới hạn là 255 ký tự
+								automation_rules = automation_rules[:255]
+								frappe.logger("sync").warning(f"Truncated automation_rules for round {round_data.get('round_name')} due to length constraints")
+							
+							doc_update.append("recruitment_process", {
 								"round_name": round_data.get("round_name"),
 								"round_type": round_data.get("round_type"),
 								"position": round_data.get("position"),
-								"default": round_data.get("default")
+								"default": round_data.get("default"),
+								"test_link": round_data.get("test_link", "")
+								# Không đồng bộ trường automation_rules
 							})
 				
-				# Hiring Committee
-				if hasattr(data, "hiring_committee") and data.hiring_committee:
-					# Clear existing rows
+				# Xử lý bảng hiring_committee - xóa và thêm lại từ dữ liệu mới
+				if hasattr(doc_update, "hiring_committee"):
+					frappe.logger("sync").debug(f"Clearing hiring_committee table for {doc_update.name}")
 					doc_update.hiring_committee = []
-					
-					# Add new rows
+				
+				if hasattr(data, "hiring_committee") and isinstance(data.hiring_committee, list) and data.hiring_committee:
+					frappe.logger("sync").debug(f"Adding {len(data.hiring_committee)} hiring_committee members")
 					for member_data in data.hiring_committee:
 						if isinstance(member_data, dict):
 							doc_update.append("hiring_committee", {
@@ -442,7 +462,7 @@ def sync_receive_jobopening(**kwargs):
 		else:
 			# No existing record found, create new
 			try:
-				 # Preserve original name from mbw_ats
+				# Preserve original name from mbw_ats
 				original_name = data.name
 				
 				# Create new document
@@ -472,18 +492,23 @@ def sync_receive_jobopening(**kwargs):
 					if hasattr(data, field) and getattr(data, field) is not None:
 						setattr(new_doc, field, getattr(data, field))
 				
-				# Process child tables
-				if hasattr(data, "job_position_rounds") and data.job_position_rounds:
-					for round_data in data.job_position_rounds:
+				# Process recruitment_process child table - LƯU Ý tên bảng con chính xác là recruitment_process
+				if hasattr(data, "recruitment_process") and isinstance(data.recruitment_process, list) and data.recruitment_process:
+					frappe.logger("sync").debug(f"Adding {len(data.recruitment_process)} recruitment process records to new record")
+					for round_data in data.recruitment_process:
 						if isinstance(round_data, dict):
-							new_doc.append("job_position_rounds", {
+							new_doc.append("recruitment_process", {
 								"round_name": round_data.get("round_name"),
 								"round_type": round_data.get("round_type"),
 								"position": round_data.get("position"),
-								"default": round_data.get("default")
+								"default": round_data.get("default"),
+								"test_link": round_data.get("test_link", ""),
+								"automation_rules": round_data.get("automation_rules", "")
 							})
 				
-				if hasattr(data, "hiring_committee") and data.hiring_committee:
+				# Process hiring_committee child table
+				if hasattr(data, "hiring_committee") and isinstance(data.hiring_committee, list) and data.hiring_committee:
+					frappe.logger("sync").debug(f"Adding {len(data.hiring_committee)} hiring_committee members to new record")
 					for member_data in data.hiring_committee:
 						if isinstance(member_data, dict):
 							new_doc.append("hiring_committee", {

@@ -92,7 +92,7 @@ email_css = ["/assets/go1_cms/email/email.css"]
 # before_install = "go1_cms.install.before_install"
 # after_install = "go1_cms.install.after_install"
 after_install = "go1_cms.go1_cms.after_install.after_install"
-
+# after_migrate = "go1_cms.go1_cms.after_install.sync_ats_categories"
 # Uninstallation
 # before_uninstall = "go1_cms.uninstall.before_uninstall"
 # after_uninstall = "go1_cms.uninstall.after_uninstall"
@@ -206,6 +206,11 @@ doc_events = {
     },
     "ATS_RejectReasonCampaignGroup": {
         "before_save": "go1_cms.api.sync_data.check_sync_flags",
+    },
+    "ATS_RejectReasonCampaignGroup": {
+        "on_update": "go1_cms.api.sync_data.check_sync_flags",
+        "before_save": "go1_cms.api.sync_data.check_sync_flags",
+        "before_delete": "go1_cms.api.sync_data.check_sync_flags"
     }
 }
 

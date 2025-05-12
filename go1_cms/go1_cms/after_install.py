@@ -117,6 +117,7 @@ def sync_ats_categories():
 		sync_get_data.sync_ats_candidateroundhistory()
 		sync_get_data.sync_candidate_work_experience()
 		sync_get_data.sync_candidate_project()
+		sync_get_data.sync_job_opening_rounds()
 		
 		frappe.log_error("==ATS categories synchronization completed", "after_migrate")
 	except Exception as e:

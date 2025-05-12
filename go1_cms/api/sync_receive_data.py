@@ -65,7 +65,10 @@ def receive_category_data():
         else:
             # Tạo bản ghi mới
             doc = frappe.new_doc(doctype)
-            
+            # Nếu có trường name thì giữ nguyên name gốc
+            if item_data.get('name'):
+                doc.name = item_data['name']
+                doc.flags.name_set = True
             # Thiết lập các trường từ dữ liệu
             for field, value in item_data.items():
                 if frappe.get_meta(doctype).has_field(field):
