@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { userResource } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
+import { viewsStore } from '@/stores/views'
 
 const routes = [
   {
@@ -39,11 +40,11 @@ const routes = [
     name: 'Website Setup',
     component: () => import('@/pages/WebsiteSetup.vue'),
   },
-  // {
-  //   path: '/setup-file-template',
-  //   name: 'Setup File Template',
-  //   component: () => import('@/pages/SetupFileTemplate.vue'),
-  // },
+  {
+    path: '/setup-file-template',
+    name: 'Setup File Template',
+    component: () => import('@/pages/SetupFileTemplate.vue'),
+  },
   // {
   //   path: '/form-setup',
   //   name: 'Form Setup',
@@ -220,6 +221,14 @@ router.beforeEach(async (to, from, next) => {
 
   if (from.meta?.scrollPos) {
     from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop
+  }
+
+  if(to.name == 'Setup File Template' && isLoggedIn){
+    const { views } = viewsStore()
+    const data = await views.fetch()
+    if(!data?.developer_mode){
+      next({ name: 'Interface Repository' })
+    }
   }
 
   if (to.name === 'Login' && isLoggedIn) {
