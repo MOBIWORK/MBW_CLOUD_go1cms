@@ -299,7 +299,7 @@ def upload_cv(name_job, **kwargs):
                     "doctype": "File",
                     "attached_to_doctype": "ATS_Candidate",
                     "attached_to_name": new_doc.name,
-                    "attached_to_field": "resume_attachment",
+                    "attached_to_field": "can_cv",
                     "folder": "Home",
                     "file_name": filename,
                     "file_url": "",
@@ -308,7 +308,7 @@ def upload_cv(name_job, **kwargs):
                 }
             )
             new_file.save(ignore_permissions=True)
-            new_doc.resume_attachment = new_file.file_url
+            new_doc.can_cv = new_file.file_url
 
         new_doc.save(ignore_permissions=True)
 
