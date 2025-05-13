@@ -4,6 +4,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe.website.website_generator import WebsiteGenerator
+from slugify import slugify
 
 
 class ATS_JobOpening(WebsiteGenerator):
@@ -100,7 +101,7 @@ class ATS_JobOpening(WebsiteGenerator):
 
 	def validate(self):
 		if not self.route or not self.route.startswith('tuyen-dung/'):
-			self.route = f"tuyen-dung/{frappe.scrub(self.jo_public_title).replace('_', '-')}"
+			self.route = f"tuyen-dung/{slugify(self.jo_public_title).replace('_', '-')}"
 
 		super().validate()
 
