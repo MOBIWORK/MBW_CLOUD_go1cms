@@ -46,7 +46,7 @@ def sync_send_candidate(doc, method):
 				data=frappe.as_json({
 					"doc": json_data,
 					"file_cv": file_cv,
-     				"file_avt": file_avt
+	 				"file_avt": file_avt
 				}),
 				headers={
 					"Content-Type": "application/json",
@@ -113,6 +113,85 @@ def sync_receive_candidate(**kwargs):
 		}
 
 
+# @frappe.whitelist()
+# def sync_receive_candidate_process(**kwargs):
+# 	"""
+# 	API để nhận cập nhật tiến trình tuyển dụng của ứng viên từ mbw_ats
+# 	"""
+# 	try:
+# 		candidate_data = frappe._dict(kwargs.get('candidate_data') or {})
+		
+# 		if not candidate_data.get('candidate_id'):
+# 			return {
+# 				'code': '1',
+# 				'status': 'Error',
+# 				'msg': "Missing candidate_id"
+# 			}
+		
+# 		# Tìm kiếm ứng viên dựa trên ID đồng bộ
+# 		candidate_name = frappe.db.get_value('ATS_Candidate', 
+# 			{'sync_id': candidate_data.candidate_id}, ['name'])
+		
+# 		if not candidate_name:
+# 			# Tìm kiếm trực tiếp theo name
+# 			if frappe.db.exists('ATS_Candidate', candidate_data.candidate_id):
+# 				candidate_name = candidate_data.candidate_id
+		
+# 		if not candidate_name:
+# 			return {
+# 				'code': '1',
+# 				'status': 'Error',
+# 				'msg': f"Candidate not found: {candidate_data.candidate_id}"
+# 			}
+		
+# 		# Cập nhật thông tin cơ bản của ứng viên
+# 		doc_update = frappe.get_doc('ATS_Candidate', candidate_name)
+		
+# 		# Chỉ cập nhật các trường nếu có trong dữ liệu nhận được
+# 		if candidate_data.get('status'):
+# 			doc_update.status = candidate_data.status
+		
+# 		# Cập nhật lịch sử vòng tuyển dụng
+# 		if candidate_data.get('round_history') and isinstance(candidate_data.round_history, list):
+# 			# Xóa lịch sử vòng cũ nếu cần thiết
+# 			if doc_update.get('round_history'):
+# 				doc_update.round_history = []
+			
+# 			# Thêm lịch sử vòng mới
+# 			for history in candidate_data.round_history:
+# 				doc_update.append('round_history', {
+# 					'round_name': history.get('round_name'),
+# 					'status': history.get('status'),
+# 					'start_date': history.get('start_date'),
+# 					'end_date': history.get('end_date'),
+# 					'score': history.get('score'),
+# 					'comment': history.get('comment')
+# 				})
+		
+# 		# Đánh dấu để tránh đồng bộ ngược lại
+# 		doc_update.sync_source = 1
+# 		doc_update.save(ignore_permissions=True)
+		
+# 		# Reset flag sau khi lưu
+# 		frappe.db.set_value('ATS_Candidate', candidate_name, 'sync_source', 0)
+		
+# 		return {
+# 			'code': '00',
+# 			'status': 'Success',
+# 			'msg': 'Candidate process updated successfully',
+# 			'candidate_name': candidate_name
+# 		}
+	
+# 	except Exception as e:
+# 		error_msg = f"Sync receive candidate process error: {str(e)}"
+# 		frappe.log_error(frappe.get_traceback(), error_msg)
+# 		return {
+# 			'code': '1',
+# 			'status': 'Error',
+# 			'msg': error_msg
+# 		}
+
+
 def handle_extract_cv(file_cv_name, candidate_name):
 	try:
 		data_extract = extract_cv_url(file_cv_name)
@@ -164,9 +243,9 @@ def handle_extract_cv(file_cv_name, candidate_name):
 
 
 def rename_keys(data, rename_map):
-    return {rename_map.get(k, k): v for k, v in data.items()}
+	return {rename_map.get(k, k): v for k, v in data.items()}
 def rename_keys_in_list(data_list, rename_map):
-    return [{rename_map.get(k, k): v for k, v in item.items()} for item in data_list]
+	return [{rename_map.get(k, k): v for k, v in item.items()} for item in data_list]
 
 def extract_cv_url(file_cv_name):
 	url_extract_ai = "https://taskingai.mbwcloud.com/v2/genai/hr-assistants/cv-extraction/pdf-upload"
@@ -408,19 +487,14 @@ def sync_receive_jobopening(**kwargs):
 					frappe.logger("sync").debug(f"Adding {len(data.recruitment_process)} recruitment process records")
 					for round_data in data.recruitment_process:
 						if isinstance(round_data, dict):
-							# Xử lý trường automation_rules để tránh lỗi giới hạn kích thước
-							automation_rules = round_data.get("automation_rules", "")
-							if automation_rules and len(automation_rules) > 255:  # Giả sử giới hạn là 255 ký tự
-								automation_rules = automation_rules[:255]
-								frappe.logger("sync").warning(f"Truncated automation_rules for round {round_data.get('round_name')} due to length constraints")
 							
 							doc_update.append("recruitment_process", {
 								"round_name": round_data.get("round_name"),
 								"round_type": round_data.get("round_type"),
 								"position": round_data.get("position"),
 								"default": round_data.get("default"),
-								"test_link": round_data.get("test_link", "")
-								# Không đồng bộ trường automation_rules
+								"test_link": round_data.get("test_link", ""),
+								"automation_rules": ""
 							})
 				
 				# Xử lý bảng hiring_committee - xóa và thêm lại từ dữ liệu mới
@@ -505,7 +579,7 @@ def sync_receive_jobopening(**kwargs):
 								"position": round_data.get("position"),
 								"default": round_data.get("default"),
 								"test_link": round_data.get("test_link", ""),
-								"automation_rules": round_data.get("automation_rules", "")
+								"automation_rules": ""
 							})
 				
 				# Process hiring_committee child table
