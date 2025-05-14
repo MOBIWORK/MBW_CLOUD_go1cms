@@ -93,6 +93,8 @@ def sync_receive_candidate(**kwargs):
 			doc_update.can_address = data.can_address
 			doc_update.can_other_links = data.can_other_links
 			doc_update.status = data.status
+			doc_update.publish = data.publish_to_career_page
+			doc_update.publish_to_career_page = data.publish_to_career_page
 			doc_update.candidate_stages = data.candidate_stages or []
 			doc_update.round_history = data.round_history or []
 			doc_update.save(ignore_permissions=True)

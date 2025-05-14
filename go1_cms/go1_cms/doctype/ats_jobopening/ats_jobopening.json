@@ -18,7 +18,6 @@
   "jo_display_quantity",
   "jo_language_requirement",
   "publish_to_career_page",
-  "publish",
   "column_break_qxvs",
   "jo_internal_title",
   "jo_using_unit",
@@ -265,12 +264,6 @@
    "options": "Job_Opening_Rounds"
   },
   {
-   "default": "1",
-   "fieldname": "publish",
-   "fieldtype": "Check",
-   "label": "Publish"
-  },
-  {
    "fieldname": "route",
    "fieldtype": "Data",
    "label": "Route",
@@ -293,7 +286,7 @@
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-13 11:09:39.006088",
+ "modified": "2025-05-14 09:18:58.033191",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",
@@ -313,7 +306,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []

@@ -95,7 +95,7 @@ class ATS_JobOpening(WebsiteGenerator):
 
 	website = frappe._dict(
 		template="go1_cms/templates/generators/job_opening.html",
-		condition_field="publish",
+		condition_field="publish_to_career_page",
 		page_title_field="jo_public_title",
 	)
 

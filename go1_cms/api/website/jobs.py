@@ -93,6 +93,7 @@ def get_all_job(name_section, **kwargs):
 
     # get data
     m_query = (frappe.qb.from_(JobOpening))
+    m_query = m_query.where(JobOpening.publish_to_career_page == 1)
     if text_search:
         m_query = m_query.where(
             JobOpening.jo_public_title.like('%' + text_search+'%'))
@@ -186,7 +187,7 @@ def get_job_related(name, **kwargs):
 
         JobOpening = frappe.qb.DocType('ATS_JobOpening')
         m_query = (frappe.qb.from_(JobOpening).where(
-            (JobOpening.name != name)))
+            (JobOpening.name != name) & (JobOpening.publish_to_career_page == 1)))
         q = None
 
         if doc.jo_location:
@@ -221,133 +222,138 @@ def get_job_related(name, **kwargs):
 
 @frappe.whitelist(methods=['POST'], allow_guest=True)
 def upload_cv(name_job, **kwargs):
-    applicant_name = kwargs.get('full_name', None)
-    email = kwargs.get('email', None)
-    phone_number = kwargs.get('phone_number', None)
-    files = frappe.request.files
-    captcha_text = kwargs.get('captcha_text', None)
-    form_name = kwargs.get('form_name', None)
-    ip = local.request.remote_addr
+    try:
+        applicant_name = kwargs.get('full_name', None)
+        email = kwargs.get('email', None)
+        phone_number = kwargs.get('phone_number', None)
+        files = frappe.request.files
+        captcha_text = kwargs.get('captcha_text', None)
+        form_name = kwargs.get('form_name', None)
+        ip = local.request.remote_addr
 
-    if not form_name or not frappe.db.exists("MBW Form", form_name):
-        frappe.throw('Mã biểu mẫu không đúng')
+        if not form_name or not frappe.db.exists("MBW Form", form_name):
+            frappe.throw('Mã biểu mẫu không đúng')
 
-    captcha = frappe.db.get_value('CMS Captcha', {
-        "ip": ip, 'captcha_text': captcha_text}, ['name', 'creation'], as_dict=1)
-    if not captcha_text or not captcha:
-        return {
-            'status': '0',
-            'msg': 'Mã captcha không đúng'
-        }
+        captcha = frappe.db.get_value('CMS Captcha', {
+            "ip": ip, 'captcha_text': captcha_text}, ['name', 'creation'], as_dict=1)
+        if not captcha_text or not captcha:
+            return {
+                'status': '0',
+                'msg': 'Mã captcha không đúng'
+            }
 
-    old_datetime = datetime.strptime(
-        add_to_date(now(), minutes=-10), "%Y-%m-%d %H:%M:%S.%f")
-    if old_datetime >= captcha.creation:
-        return {
-            'status': '1',
-            'msg': 'Mã captcha đã hết hạn'
-        }
+        old_datetime = datetime.strptime(
+            add_to_date(now(), minutes=-10), "%Y-%m-%d %H:%M:%S.%f")
+        if old_datetime >= captcha.creation:
+            return {
+                'status': '1',
+                'msg': 'Mã captcha đã hết hạn'
+            }
 
-    if not applicant_name:
-        frappe.throw('Họ tên không được để trống')
-    if not email:
-        frappe.throw('Email không được để trống')
-    if frappe.db.exists('ATS_Candidate', {'can_email': email}):
-        frappe.throw('Email đã gửi CV từ trước')
-    if not phone_number:
-        frappe.throw('Số điện thoại không được để trống')
+        if not applicant_name:
+            frappe.throw('Họ tên không được để trống')
+        if not email:
+            frappe.throw('Email không được để trống')
+        if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': ('is', 'set')}):
+            frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
+        if not phone_number:
+            frappe.throw('Số điện thoại không được để trống')
 
-    if frappe.db.exists("ATS_JobOpening", name_job):
-        new_doc = frappe.new_doc('ATS_Candidate')
-        new_doc.can_id = generate_random_id()
-        new_doc.can_full_name = applicant_name
-        new_doc.can_email = email
-        new_doc.can_phone = phone_number
-        new_doc.job_opening_id = name_job
-        new_doc.save(ignore_permissions=True)
-        new_doc.reload()
+        if frappe.db.exists("ATS_JobOpening", name_job):
+            new_doc = frappe.new_doc('ATS_Candidate')
+            new_doc.can_id = generate_random_id()
+            new_doc.can_full_name = applicant_name
+            new_doc.can_email = email
+            new_doc.can_phone = phone_number
+            new_doc.job_opening_id = name_job
+            new_doc.save(ignore_permissions=True)
+            new_doc.reload()
 
-        filename = ''
-        if 'file_cv' in files:
-            file_cv = files["file_cv"]
-            content = file_cv.stream.read()
-            filename = file_cv.filename
-            ct = datetime.now()
+            filename = ''
+            if 'file_cv' in files:
+                file_cv = files["file_cv"]
+                content = file_cv.stream.read()
+                filename = file_cv.filename
+                ct = datetime.now()
 
-            file_cv.seek(0, 2)
-            size = file_cv.tell()
-            file_cv.seek(0)
+                file_cv.seek(0, 2)
+                size = file_cv.tell()
+                file_cv.seek(0)
 
-            str_ts = str(math.floor(ct.timestamp()))
-            sp_fn = filename.split('.')
-            if len(sp_fn) == 2:
-                filename = sp_fn[0] + '_' + str_ts + '.' + sp_fn[1]
+                str_ts = str(math.floor(ct.timestamp()))
+                sp_fn = filename.split('.')
+                if len(sp_fn) == 2:
+                    filename = sp_fn[0] + '_' + str_ts + '.' + sp_fn[1]
 
-            content_type = guess_type(filename)[0]
-            if content_type != "application/pdf":
-                frappe.throw('Tên tệp không đúng định dạng')
+                content_type = guess_type(filename)[0]
+                if content_type != "application/pdf":
+                    frappe.throw('Tên tệp không đúng định dạng')
 
-            form_fields = frappe.db.get_all("MBW Form Item", filters={"parent": form_name, "parentfield": "form_fields", "field_name": "file_cv"}, fields=[
-                'max_file_size'
-            ])
-            if not form_fields or form_fields[0].max_file_size*1024**2 < size:
-                frappe.throw(
-                    f'Tệp không vượt quá {form_fields[0].max_file_size}MB')
+                form_fields = frappe.db.get_all("MBW Form Item", filters={"parent": form_name, "parentfield": "form_fields", "field_name": "file_cv"}, fields=[
+                    'max_file_size'
+                ])
+                if not form_fields or form_fields[0].max_file_size*1024**2 < size:
+                    frappe.throw(
+                        f'Tệp không vượt quá {form_fields[0].max_file_size}MB')
 
-            new_file = frappe.get_doc(
-                {
-                    "doctype": "File",
-                    "attached_to_doctype": "ATS_Candidate",
-                    "attached_to_name": new_doc.name,
-                    "attached_to_field": "can_cv",
-                    "folder": "Home",
-                    "file_name": filename,
-                    "file_url": "",
-                    "is_private": 0,
-                    "content": content,
-                }
+                new_file = frappe.get_doc(
+                    {
+                        "doctype": "File",
+                        "attached_to_doctype": "ATS_Candidate",
+                        "attached_to_name": new_doc.name,
+                        "attached_to_field": "can_cv",
+                        "folder": "Home",
+                        "file_name": filename,
+                        "file_url": "",
+                        "is_private": 0,
+                        "content": content,
+                    }
+                )
+                new_file.save(ignore_permissions=True)
+                new_doc.can_cv = new_file.file_url
+
+            new_doc.save(ignore_permissions=True)
+
+            ### send email ###
+            domain = get_domain()
+            redirect_to = f'{domain}/app/job-applicant/{new_doc.name}'
+            job_open = frappe.db.get_value(
+                'ATS_JobOpening', name_job,
+                ['jo_public_title', 'jo_work_form', 'jo_location',
+                    'jo_using_unit', 'jo_position', 'jo_min_salary', 'jo_max_salary', 'jo_currency'],
+                as_dict=1
             )
-            new_file.save(ignore_permissions=True)
-            new_doc.can_cv = new_file.file_url
+            args = {
+                'time': new_doc.creation.strftime("%d/%m/%Y %H:%M:%S"),
+                'job_title': job_open.jo_public_title,
+                'designation': job_open.jo_position,
+                'location': job_open.jo_location,
+                'employment_type': job_open.jo_work_form,
+                'department': job_open.jo_using_unit,
+                'lower_range': job_open.jo_min_salary,
+                'upper_range': job_open.jo_max_salary,
+                'currency': job_open.jo_currency,
+                'salary_per': 'Tháng',
+                'full_name': applicant_name,
+                'email': email,
+                'phone_number': phone_number,
+                'redirect_to': redirect_to,
+            }
+            send_email_manage(None, 'email_apply_cv_manage', args)
 
-        new_doc.save(ignore_permissions=True)
+            frappe.enqueue(log_page_view, queue='default', ip=ip,
+                        form_type="Recruitment form")
+            # delete captcha
+            frappe.db.delete("CMS Captcha", {'name': captcha.name})
 
-        ### send email ###
-        domain = get_domain()
-        redirect_to = f'{domain}/app/job-applicant/{new_doc.name}'
-        job_open = frappe.db.get_value(
-            'ATS_JobOpening', name_job,
-            ['jo_public_title', 'jo_work_form', 'jo_location',
-                'jo_using_unit', 'jo_position', 'jo_min_salary', 'jo_max_salary', 'jo_currency'],
-            as_dict=1
-        )
-        args = {
-            'time': new_doc.creation.strftime("%d/%m/%Y %H:%M:%S"),
-            'job_title': job_open.jo_public_title,
-            'designation': job_open.jo_position,
-            'location': job_open.jo_location,
-            'employment_type': job_open.jo_work_form,
-            'department': job_open.jo_using_unit,
-            'lower_range': job_open.jo_min_salary,
-            'upper_range': job_open.jo_max_salary,
-            'currency': job_open.jo_currency,
-            'salary_per': 'Tháng',
-            'full_name': applicant_name,
-            'email': email,
-            'phone_number': phone_number,
-            'redirect_to': redirect_to,
-        }
-        send_email_manage(None, 'email_apply_cv_manage', args)
-
-        frappe.enqueue(log_page_view, queue='default', ip=ip,
-                       form_type="Recruitment form")
-        # delete captcha
-        frappe.db.delete("CMS Captcha", {'name': captcha.name})
-
-        return {'status': '200', 'name': new_doc.name}
-    else:
-        frappe.throw(_('Không tìm thấy công việc ứng tuyển'),
-                     frappe.DoesNotExistError)
+            return {'status': '200', 'name': new_doc.name}
+        else:
+            frappe.throw(_('Không tìm thấy công việc ứng tuyển'))
+    except frappe.ValidationError as ex:
+        frappe.clear_last_message()
+        frappe.throw(str(ex))
+    except Exception as ex:
+        frappe.throw(_("Upload không thành công. Vui lòng thử lại!"))
 
 def generate_random_id(length=16):
     characters = string.ascii_uppercase + string.digits

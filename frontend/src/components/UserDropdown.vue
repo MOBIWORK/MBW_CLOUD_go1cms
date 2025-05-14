@@ -67,11 +67,11 @@ const { getUser } = usersStore()
 const user = computed(() => getUser() || {})
 
 const userDropdownOptions = [
-  {
-    icon: 'corner-up-left',
-    label: __('Switch to Desk'),
-    onClick: () => window.location.replace('/app'),
-  },
+  // {
+  //   icon: 'corner-up-left',
+  //   label: __('Switch to Desk'),
+  //   onClick: () => window.location.replace('/app'),
+  // },
   {
     icon: 'globe',
     label: __('Language'),
