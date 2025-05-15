@@ -494,7 +494,6 @@ def sync_receive_jobopening(**kwargs):
 								"position": round_data.get("position"),
 								"default": round_data.get("default"),
 								"test_link": round_data.get("test_link", ""),
-								"automation_rules": ""
 							})
 				
 				# Xử lý bảng hiring_committee - xóa và thêm lại từ dữ liệu mới
@@ -579,7 +578,6 @@ def sync_receive_jobopening(**kwargs):
 								"position": round_data.get("position"),
 								"default": round_data.get("default"),
 								"test_link": round_data.get("test_link", ""),
-								"automation_rules": ""
 							})
 				
 				# Process hiring_committee child table
