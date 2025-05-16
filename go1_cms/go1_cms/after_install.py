@@ -61,7 +61,8 @@ def after_install():
 
 	# update Website Settings
 	update_website_settings()
-
+	create_default_round_types()
+	create_default_recruitment_process()
 	# insert_webpage_builder()
 	# update_workspace_v14()
 
@@ -123,8 +124,51 @@ def sync_ats_categories():
 	except Exception as e:
 		frappe.log_error(f"Error in ATS categories synchronization: {str(e)}", "after_migrate")
 
+def create_default_round_types():
+	round_types = [
+		{"round_type_name": "Thi 1", "color": "#EC864B", "position": 5, "default": 0},
+		{"round_type_name": "Test", "color": "#CB2929", "position": 4, "default": 0},
+		{"round_type_name": "Đã tuyển", "color": "#29CD42", "position": 6, "default": 1},
+		{"round_type_name": "Offer", "color": "#39E4A5", "position": 3, "default": 1},
+		{"round_type_name": "Phỏng vấn", "color": "#449CF0", "position": 2, "default": 1},
+		{"round_type_name": "Thi tuyển", "color": "#4463F0", "position": 1, "default": 1},
+		{"round_type_name": "Ứng tuyển", "color": "#635e5e", "position": 0, "default": 1},
+	]
+
+	for round_type in round_types:
+		if not frappe.db.exists("ATS_Round_Type", {"round_type_name": round_type["round_type_name"]}):
+			doc = frappe.new_doc("ATS_Round_Type")
+			doc.round_type_name = round_type["round_type_name"]
+			doc.color = round_type["color"]
+			doc.position = round_type["position"]
+			doc.default = round_type["default"]
+			doc.insert(ignore_permissions=True)
+
+def create_default_recruitment_process():
+	recruitment_rounds = [
+		{"round_name": "Test", "round_type": "Ứng tuyển", "position": 3, "default": 0},
+		{"round_name": "Đã tuyển", "round_type": "Đã tuyển", "position": 5, "default": 1},
+		{"round_name": "Offer", "round_type": "Offer", "position": 4, "default": 1},
+		{"round_name": "Phỏng vấn", "round_type": "Phỏng vấn", "position": 1, "default": 0},
+		{"round_name": "Thi tuyển", "round_type": "Thi tuyển", "position": 2, "default": 0},
+		{"round_name": "Ứng tuyển", "round_type": "Ứng tuyển", "position": 0, "default": 1},
+	]
+
+	for round_info in recruitment_rounds:
+		if not frappe.db.exists("ATS_Recruitment_Process", {"round_name": round_info["round_name"]}):
+			doc = frappe.new_doc("ATS_Recruitment_Process")
+			doc.round_name = round_info["round_name"]
+			doc.round_type = round_info["round_type"]
+			doc.position = round_info["position"]
+			doc.default = round_info["default"]
+			doc.automation_rules = []
+			doc.insert(ignore_permissions=True)
+
+
+
 def update_cms_setting():
 	frappe.db.set_value('CMS Settings', 'CMS Settings', 'is_updated', 1)
+
 
 
 def update_website_settings():
