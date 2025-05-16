@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:round_name",
+ "creation": "2025-02-19 15:32:07.395149",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "round_name",
+  "round_type",
+  "position",
+  "default",
+  "automation_rules"
+ ],
+ "fields": [
+  {
+   "fieldname": "position",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Position"
+  },
+  {
+   "default": "0",
+   "fieldname": "default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Default"
+  },
+  {
+   "fieldname": "round_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Round Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "round_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Round Type",
+   "options": "ATS_Round_Type"
+  },
+  {
+   "fieldname": "automation_rules",
+   "fieldtype": "Table",
+   "label": "Automation Rules",
+   "options": "ATS_StageTrigger"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-04-28 14:51:00.136575",
+ "modified_by": "Administrator",
+ "module": "MBW ATS",
+ "name": "ATS_Recruitment_Process",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
