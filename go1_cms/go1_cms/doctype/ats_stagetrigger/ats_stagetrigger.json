@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-04-18 16:40:46.117394",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "trigger_event",
+  "action_type",
+  "targets",
+  "enabled",
+  "send_booking_email",
+  "order",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "trigger_event",
+   "fieldtype": "Select",
+   "label": "Trigger Event",
+   "options": "on_enter\non_exit\nscheduled\non_update\non_create_test"
+  },
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "label": "Action Type",
+   "options": "Send Email\nCreate Task\nUpdate Field\nAssign Permission\nCreate Document\nSend Notification\nWebhook"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "order",
+   "fieldtype": "Int",
+   "label": "Order"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "targets",
+   "fieldtype": "JSON",
+   "label": "Targets"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_booking_email",
+   "fieldtype": "Check",
+   "label": "Send Booking Email"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-28 11:09:37.603759",
+ "modified_by": "Administrator",
+ "module": "MBW ATS",
+ "name": "ATS_StageTrigger",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
