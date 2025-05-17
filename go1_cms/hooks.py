@@ -158,60 +158,6 @@ doc_events = {
         "before_save": "go1_cms.api.sync_data.check_sync_flags",
         "before_delete": "go1_cms.api.sync_data.check_sync_flags"
     },
-    # Add sync flag checks for all category doctypes
-    "ATS_Company": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Country": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Province": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_District": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Ward": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Round_Type": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_EducationLevel": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Institution": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Major": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Unit": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Profession": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Level": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Location": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_Position": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_CandidateSource": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_RejectReasonCampaignGroup": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-    },
-    "ATS_RejectReasonCampaignGroup": {
-        "on_update": "go1_cms.api.sync_data.check_sync_flags",
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-        "before_delete": "go1_cms.api.sync_data.check_sync_flags"
-    }
 }
 
 # Scheduled Tasks
