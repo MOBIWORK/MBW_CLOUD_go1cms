@@ -497,19 +497,19 @@ def sync_receive_jobopening(**kwargs):
 							})
 				
 				# Xử lý bảng hiring_committee - xóa và thêm lại từ dữ liệu mới
-				if hasattr(doc_update, "hiring_committee"):
-					frappe.logger("sync").debug(f"Clearing hiring_committee table for {doc_update.name}")
-					doc_update.hiring_committee = []
+				# if hasattr(doc_update, "hiring_committee"):
+				# 	frappe.logger("sync").debug(f"Clearing hiring_committee table for {doc_update.name}")
+				# 	doc_update.hiring_committee = []
 				
-				if hasattr(data, "hiring_committee") and isinstance(data.hiring_committee, list) and data.hiring_committee:
-					frappe.logger("sync").debug(f"Adding {len(data.hiring_committee)} hiring_committee members")
-					for member_data in data.hiring_committee:
-						if isinstance(member_data, dict):
-							doc_update.append("hiring_committee", {
-								"user": member_data.get("user"),
-								"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
-								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
-							})
+				# if hasattr(data, "hiring_committee") and isinstance(data.hiring_committee, list) and data.hiring_committee:
+				# 	frappe.logger("sync").debug(f"Adding {len(data.hiring_committee)} hiring_committee members")
+				# 	for member_data in data.hiring_committee:
+				# 		if isinstance(member_data, dict):
+				# 			doc_update.append("hiring_committee", {
+				# 				"user": member_data.get("user"),
+				# 				"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
+				# 				"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
+				# 			})
 				
 				# Set flag to prevent triggering sync back
 				doc_update.flags.ignore_sync = True
@@ -581,15 +581,15 @@ def sync_receive_jobopening(**kwargs):
 							})
 				
 				# Process hiring_committee child table
-				if hasattr(data, "hiring_committee") and isinstance(data.hiring_committee, list) and data.hiring_committee:
-					frappe.logger("sync").debug(f"Adding {len(data.hiring_committee)} hiring_committee members to new record")
-					for member_data in data.hiring_committee:
-						if isinstance(member_data, dict):
-							new_doc.append("hiring_committee", {
-								"user": member_data.get("user"),
-								"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
-								"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
-							})
+				# if hasattr(data, "hiring_committee") and isinstance(data.hiring_committee, list) and data.hiring_committee:
+				# 	frappe.logger("sync").debug(f"Adding {len(data.hiring_committee)} hiring_committee members to new record")
+				# 	for member_data in data.hiring_committee:
+				# 		if isinstance(member_data, dict):
+				# 			new_doc.append("hiring_committee", {
+				# 				"user": member_data.get("user"),
+				# 				"notify_on_new_candidate": member_data.get("notify_on_new_candidate"),
+				# 				"can_view_offer_letter_details": member_data.get("can_view_offer_letter_details")
+				# 			})
 				
 				# Set flag to prevent triggering sync back and autoname
 				new_doc.flags.ignore_sync = True
