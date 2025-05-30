@@ -7,7 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "round_name",
-  "change_date"
+  "change_date",
+  "sync_id"
  ],
  "fields": [
   {
@@ -19,6 +20,12 @@
    "fieldname": "change_date",
    "fieldtype": "Date",
    "label": "Change Date"
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "SyncID"
   }
  ],
  "index_web_pages_for_search": 1,
