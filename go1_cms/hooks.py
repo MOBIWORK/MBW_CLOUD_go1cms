@@ -92,7 +92,7 @@ email_css = ["/assets/go1_cms/email/email.css"]
 # before_install = "go1_cms.install.before_install"
 # after_install = "go1_cms.install.after_install"
 after_install = "go1_cms.go1_cms.after_install.after_install"
-# after_migrate = "go1_cms.go1_cms.after_install.sync_ats_categories"
+after_migrate = "go1_cms.go1_cms.after_migrate.after_migrate"
 # Uninstallation
 # before_uninstall = "go1_cms.uninstall.before_uninstall"
 # after_uninstall = "go1_cms.uninstall.after_uninstall"

@@ -15,7 +15,8 @@
   "cat_status",
   "cat_order",
   "cat_color",
-  "cat_icon"
+  "cat_icon",
+  "sync_id"
  ],
  "fields": [
   {
@@ -74,6 +75,12 @@
    "fieldname": "cat_icon",
    "fieldtype": "Icon",
    "label": "Cat Icon"
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "SyncID"
   }
  ],
  "index_web_pages_for_search": 1,

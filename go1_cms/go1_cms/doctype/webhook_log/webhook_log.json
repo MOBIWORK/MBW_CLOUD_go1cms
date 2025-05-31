@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-31 11:00:39.422893",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "ref_doctype",
+  "sync_id",
+  "action",
+  "direction",
+  "status",
+  "message",
+  "payload",
+  "timestamp",
+  "response_code",
+  "retry_count",
+  "is_retried",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "ref_doctype",
+   "fieldtype": "Data",
+   "label": "Reference Doctype"
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "label": "Sync ID"
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Select",
+   "label": "Action",
+   "options": "Insert\nUpdate\nDelete\nReceive\nSend"
+  },
+  {
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "label": "Direction",
+   "options": "Inbound\nOutbound"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Success\nError"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message"
+  },
+  {
+   "fieldname": "payload",
+   "fieldtype": "Long Text",
+   "label": "Payload"
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "label": "Timestamp"
+  },
+  {
+   "fieldname": "response_code",
+   "fieldtype": "Int",
+   "label": "Response Code"
+  },
+  {
+   "fieldname": "retry_count",
+   "fieldtype": "Int",
+   "label": "Retry Count"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_retried",
+   "fieldtype": "Check",
+   "label": "Is Retried"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-31 11:06:56.621627",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "Webhook Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

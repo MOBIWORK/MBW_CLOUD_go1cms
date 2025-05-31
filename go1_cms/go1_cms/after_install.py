@@ -9,7 +9,7 @@ import re
 import json
 import zipfile
 from frappe.utils import encode, get_files_path, getdate, to_timedelta,  flt
-
+from go1_cms.api.sync_setup import sync_from_external
 
 def get_all_folder_in_dir(version):
 	path = os.path.join(frappe.get_module_path("go1_cms"),
@@ -69,61 +69,36 @@ def after_install():
 	# sync data ats
 	frappe.enqueue(sync_ats_categories, enqueue_after_commit=True)
 
-
 def sync_ats_categories():
-	"""
-	Synchronize all ATS category data in the correct order
-	First tier categories need to be synced first, then second tier, then third tier
-	"""
-	try:
-		frappe.log_error("==Starting ATS categories synchronization", "after_migrate")
-		
-		# Import the sync_get_data module
-		from go1_cms.api import sync_get_data
-		
-		# First tier categories (basic data)
-		frappe.log_error("==Syncing first tier categories", "after_migrate")
-		sync_get_data.sync_ats_company()
-		sync_get_data.sync_ats_country()
-		sync_get_data.sync_ats_province()
-		sync_get_data.sync_ats_district()
-		sync_get_data.sync_ats_ward()
-		sync_get_data.sync_ats_round_type()
-		sync_get_data.sync_ats_educationlevel()
-		sync_get_data.sync_ats_institution()
-		sync_get_data.sync_ats_major()
-		
-		# Second tier categories (depend on first tier)
-		frappe.log_error("==Syncing second tier categories", "after_migrate")
-		sync_get_data.sync_ats_unit()
-		sync_get_data.sync_ats_profession()
-		sync_get_data.sync_ats_level()
-		sync_get_data.sync_ats_location()
-		sync_get_data.sync_ats_position()
-		sync_get_data.sync_ats_candidatesource()
-		
-		# Third tier categories (depend on second tier)
-		frappe.log_error("==Syncing third tier categories", "after_migrate")
-		sync_get_data.sync_job_position_rounds()
-		sync_get_data.sync_ats_jobopening()
-		
-		# Child tables
-		frappe.log_error("==Syncing child tables", "after_migrate")
-		sync_get_data.sync_hiring_committee()
-		sync_get_data.sync_candidate_certification()
-		sync_get_data.sync_candidate_skill()
-		sync_get_data.sync_candidate_award()
-		sync_get_data.sync_candidate_course()
-		sync_get_data.sync_candidate_stages()
-		sync_get_data.sync_ats_candidateroundhistory()
-		sync_get_data.sync_candidate_work_experience()
-		sync_get_data.sync_candidate_project()
-		sync_get_data.sync_job_opening_rounds()
-		
-		frappe.log_error("==ATS categories synchronization completed", "after_migrate")
-	except Exception as e:
-		frappe.log_error(f"Error in ATS categories synchronization: {str(e)}", "after_migrate")
-
+	sync_from_external("ATS_Company")
+	sync_from_external("ATS_Unit")
+	sync_from_external("ATS_Level")
+	sync_from_external("ATS_Location")
+	sync_from_external("ATS_Province")
+	sync_from_external("ATS_Country")
+	sync_from_external("ATS_Ward")
+	sync_from_external("ATS_EducationLevel")
+	sync_from_external("ATS_Education")
+	sync_from_external("ATS_Institution")
+	sync_from_external("ATS_Major")
+	sync_from_external("ATS_Recruitment_Process")
+	sync_from_external("ATS_Round_Type")
+	sync_from_external("ATS_CandidateSource")
+	sync_from_external("ATS_RejectReasonCampaignGroup")
+	sync_from_external("Hiring Committee")
+	sync_from_external("Hiring_Committee_Schedule")
+	sync_from_external("Job_Opening_Rounds")
+	sync_from_external("Job_Position_Rounds")
+	sync_from_external("Candidate_Award")
+	sync_from_external("Candidate_Certification")
+	sync_from_external("Candidate_Project")
+	sync_from_external("Candidate_Course")
+	sync_from_external("Candidate_Skill")
+	sync_from_external("Candidate_Work_Experience")
+	sync_from_external("ATS_CandidateRoundHistory")
+	sync_from_external("Candidate Stages")
+	sync_from_external("ATS_JobOpening")
+ 
 def create_default_round_types():
 	round_types = [
 		{"round_type_name": "Thi 1", "color": "#EC864B", "position": 5, "default": 0},
