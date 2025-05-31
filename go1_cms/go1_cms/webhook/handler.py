@@ -24,18 +24,21 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
             frappe.throw(f"Record with {key_field} '{sync_key}' already exists")
         doc = frappe.get_doc({ "doctype": doctype, **data })
         doc.insert(ignore_permissions=True)
+        frappe.db.commit()
 
     elif action == "update":
         if not exists:
             # fallback to insert
             doc = frappe.get_doc({ "doctype": doctype, **data })
             doc.insert(ignore_permissions=True)
+            frappe.db.commit()
         else:
             doc = frappe.get_doc(doctype, docname)
             for key, value in data.items():
                 if key != "doctype" and hasattr(doc, key):
                     setattr(doc, key, value)
             doc.save(ignore_permissions=True)
+            frappe.db.commit()
 
     elif action == "delete":
         if not exists:
@@ -45,7 +48,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
     else:
         frappe.throw(f"Unsupported action: {action}")
 
-    frappe.db.commit()
+    
 
 
 def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
@@ -91,6 +94,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' already exists")
                 doc = frappe.get_doc({ "doctype": doctype, **data })
                 doc.insert(ignore_permissions=True)
+                frappe.db.commit()
                 log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
                 results.append({ "status": "success", "action": "insert", "sync_id": sync_key })
 
@@ -98,6 +102,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 if not exists:
                     doc = frappe.get_doc({ "doctype": doctype, **data })
                     doc.insert(ignore_permissions=True)
+                    frappe.db.commit()
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
                     results.append({ "status": "success", "action": "insert (via update)", "sync_id": sync_key })
                 else:
@@ -106,6 +111,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                         if key not in ["doctype", "name"] and hasattr(doc, key):
                             setattr(doc, key, value)
                     doc.save(ignore_permissions=True)
+                    frappe.db.commit()
                     log_webhook_result(doctype, sync_key, "update", "success", "Updated", data)
                     results.append({ "status": "success", "action": "update", "sync_id": sync_key })
 
@@ -113,6 +119,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 if not exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' does not exist")
                 frappe.delete_doc(doctype, docname)
+                frappe.db.commit()
                 log_webhook_result(doctype, sync_key, "delete", "success", "Deleted", data)
                 results.append({ "status": "success", "action": "delete", "sync_id": sync_key })
 
@@ -123,7 +130,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
             log_webhook_result(doctype, sync_key, action, "error", str(e), data)
             results.append({ "status": "error", "action": action, "sync_id": sync_key, "message": str(e) })
 
-    frappe.db.commit()
+    
     return results
 
 def handle_doc_event(doc, method):
@@ -187,7 +194,7 @@ def fetch_linked_data(doctype: str, identifier: str):
     url = f"{api_base}/api/method/mbw_ats.integration.cms.{normalized_doctype}"
     api_token = frappe.conf.get("api_token")
     five_minutes_ago = datetime.now() - timedelta(minutes=6)
-    timestamp_int = str(five_minutes_ago.timestamp())
+    timestamp_int = str(int(five_minutes_ago.timestamp()))
     headers={
         "x-authenication":f"Bearer {api_token}",
         "x-timestamp": timestamp_int
@@ -221,9 +228,10 @@ def fetch_linked_data(doctype: str, identifier: str):
                 # Insert
                 doc = frappe.get_doc({ "doctype": doctype, **record })
                 doc.insert(ignore_permissions=True)
+                frappe.db.commit()
                 frappe.logger("Webhook").info(f"Inserted linked {doctype} ({sync_id})")
 
-        frappe.db.commit()
+        
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), f"fetch_linked_data: {doctype} ({identifier})")

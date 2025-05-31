@@ -47,14 +47,15 @@ def get_all_sync_ids_from_external(doctype: str) -> list:
     url = f"{api_base}/api/method/mbw_ats.integration.cms.{normalized_doctype}"
     api_token = frappe.conf.get("api_token")
     five_minutes_ago = datetime.now() - timedelta(minutes=6)
-    timestamp_int = str(five_minutes_ago.timestamp())
+    timestamp_int = str(int(five_minutes_ago.timestamp()))
     headers={
+        "Content-Type":"application/json",
         "x-authenication":f"Bearer {api_token}",
         "x-timestamp": timestamp_int
     }
 
     try:
-        res = requests.get(url,headers=headers, timeout=5)
+        res = requests.post(url,json={}, headers=headers, timeout=5)
         res.raise_for_status()
         return res.json()  # giả định trả về list sync_id
     except Exception as e:
