@@ -7,5 +7,23 @@ from frappe import _
 def ats_cate_parse():
     #Lấy dữ liệu từ request
     if frappe.request.method != "POST":
-        frappe.throw(_("Only POST method is allowed"))
-    
+            frappe.throw(_("Only POST method is allowed"))
+    data = frappe.request.data
+    if not data:
+        frappe.throw(_("No data received"))
+
+@secure_webhook()
+def ats_job_parse():
+    if frappe.request.method != "POST":
+            frappe.throw(_("Only POST method is allowed"))
+    data = frappe.request.data
+    if not data:
+        frappe.throw(_("No data received"))
+
+@secure_webhook()
+def ats_candidate_parse():
+    if frappe.request.method != "POST":
+            frappe.throw(_("Only POST method is allowed"))
+    data = frappe.request.data
+    if not data:
+        frappe.throw(_("No data received"))
