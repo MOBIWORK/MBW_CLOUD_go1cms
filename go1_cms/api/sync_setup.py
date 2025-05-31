@@ -53,10 +53,10 @@ def get_all_sync_ids_from_external(doctype: str) -> list:
         "x-authenication":f"Bearer {api_token}",
         "x-timestamp": timestamp_int
     }
-
+    
     try:
         res = requests.post(url,json={}, headers=headers, timeout=5)
-        res.raise_for_status()
-        return res.json()  # giả định trả về list sync_id
+        res.raise_for_status()        
+        return res.json().get("message")  # giả định trả về list sync_id
     except Exception as e:
         frappe.throw(f"Lỗi lấy danh sách {doctype}: {str(e)}")

@@ -48,9 +48,6 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
     else:
         frappe.throw(f"Unsupported action: {action}")
 
-    
-
-
 def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
     """
     Xử lý batch webhook data theo từng bản ghi:
@@ -199,15 +196,14 @@ def fetch_linked_data(doctype: str, identifier: str):
         "x-authenication":f"Bearer {api_token}",
         "x-timestamp": timestamp_int
     }
-    
     try:
         res = requests.post(url, json={ "sync_id": identifier },headers=headers, timeout=5)
         res.raise_for_status()
-        records = res.json()
-
+        
+        records = res.json().get("message")
         if not isinstance(records, list):
             records = [records]  # nếu chỉ trả về 1 bản ghi
-
+        print(f"Response from {url}: {records}")
         for record in records:
             sync_id = record.get("sync_id")
             if not sync_id:
