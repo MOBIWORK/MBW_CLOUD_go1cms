@@ -12,12 +12,23 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
     if not sync_key:
         frappe.throw(f"Missing key field '{key_field}' in webhook payload")
 
+    # Đồng bộ các trường Link nếu thiếu
     sync_linked_documents(data, doctype)
 
-    #  Kiểm tra tồn tại
+    # Kiểm tra tồn tại bản ghi
     existing = frappe.get_all(doctype, filters={key_field: sync_key}, limit=1)
     exists = bool(existing)
     docname = existing[0].name if exists else None
+
+    # Lấy metadata để xác định các field không nên update
+    meta = frappe.get_meta(doctype)
+    skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
+    skip_fieldnames = {'name', 'owner', 'creation', 'modified', 'modified_by', 'doctype'}
+
+    non_updatable_fields = {
+        df.fieldname for df in meta.fields
+        if df.read_only or df.unique or df.fieldtype in skip_fieldtypes or df.fieldname in skip_fieldnames
+    }
 
     if action == "insert":
         if exists:
@@ -25,32 +36,30 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
         doc = frappe.get_doc({ "doctype": doctype, **data })
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
-
+        log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
     elif action == "update":
         if not exists:
             # fallback to insert
             doc = frappe.get_doc({ "doctype": doctype, **data })
             doc.insert(ignore_permissions=True)
             frappe.db.commit()
+            log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
         else:
-            doc = frappe.get_doc(doctype, docname)
-            for key, value in data.items():
-                if key != "doctype" and hasattr(doc, key):
-                    setattr(doc, key, value)
-            doc.save(ignore_permissions=True)
-            frappe.db.commit()
+            safe_save(non_updatable_fields, data, doctype, docname)
+            log_webhook_result(doctype, sync_key, "update", "success", f"Updated field(s)", data)
 
     elif action == "delete":
         if not exists:
             frappe.throw(f"Record with {key_field} '{sync_key}' does not exist")
-        frappe.delete_doc(doctype, docname)
-
+        frappe.delete_doc(doctype, docname, ignore_permissions=True)
+        frappe.db.commit()
+        log_webhook_result(doctype, sync_key, "delete", "success", "Deleted", data)
     else:
         frappe.throw(f"Unsupported action: {action}")
 
 def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
     """
-    Xử lý batch webhook data theo từng bản ghi:
+    Xử lý batch webhook data:
     - Kiểm tra sync_id
     - Đồng bộ link liên kết
     - Thực hiện insert/update/delete
@@ -58,22 +67,30 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
     """
     doctype = payload.get("doctype")
     records = payload.get("records", [])
-    
+
     if not doctype or not records:
         frappe.throw("Missing 'doctype' or 'records' in payload")
 
     results = []
+    meta = frappe.get_meta(doctype)
+
+    # Các field không được update
+    skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
+    skip_fieldnames = {'name', 'owner', 'creation', 'modified', 'modified_by', 'doctype'}
+    non_updatable_fields = {
+        df.fieldname
+        for df in meta.fields
+        if df.read_only or df.unique or df.fieldtype in skip_fieldtypes or df.fieldname in skip_fieldnames
+    }
 
     for data in records:
         sync_key = data.get(key_field)
         action = data.get("action", "insert").lower()
 
         if not sync_key:
-            message = f"Missing '{key_field}' in record"
-            results.append({ "status": "error", "message": message, "data": data })
+            results.append({ "status": "error", "message": f"Missing '{key_field}'", "data": data })
             continue
 
-        # Đồng bộ trước các trường Link nếu thiếu
         try:
             sync_linked_documents(data, doctype)
         except Exception as sync_err:
@@ -83,7 +100,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
 
         existing = frappe.get_all(doctype, filters={key_field: sync_key}, limit=1)
         exists = bool(existing)
-        docname = sync_key if exists else None
+        docname = existing[0].name if exists else None
 
         try:
             if action == "insert":
@@ -103,22 +120,14 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
                     results.append({ "status": "success", "action": "insert (via update)", "sync_id": sync_key })
                 else:
-                    doc = frappe.get_doc(doctype, {"sync_id": sync_key})
-                    
-                    for key, value in data.items():
-                        if key not in ["doctype", "name"] and hasattr(doc, key):
-                            print(f"Updating {key} to {value} for {doctype} {sync_key}")
-                            setattr(doc, key, value)
-                    doc.save(ignore_permissions=True)
-                    
-                    frappe.db.commit()
-                    log_webhook_result(doctype, sync_key, "update", "success", "Updated", data)
+                    safe_save(non_updatable_fields, data, doctype, sync_key)
+                    log_webhook_result(doctype, sync_key, "update", "success", f"Updated field(s)", data)
                     results.append({ "status": "success", "action": "update", "sync_id": sync_key })
 
             elif action == "delete":
                 if not exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' does not exist")
-                frappe.delete_doc(doctype,{"sync_id": sync_key})
+                frappe.delete_doc(doctype, docname, ignore_permissions=True)
                 frappe.db.commit()
                 log_webhook_result(doctype, sync_key, "delete", "success", "Deleted", data)
                 results.append({ "status": "success", "action": "delete", "sync_id": sync_key })
@@ -127,10 +136,10 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 raise frappe.ValidationError(f"Unsupported action: {action}")
 
         except Exception as e:
+            print(frappe.get_traceback())
             log_webhook_result(doctype, sync_key, action, "error", str(e), data)
             results.append({ "status": "error", "action": action, "sync_id": sync_key, "message": str(e) })
 
-    
     return results
 
 def handle_doc_event(doc, method):
@@ -234,3 +243,15 @@ def fetch_linked_data(doctype: str, identifier: str):
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), f"fetch_linked_data: {doctype} ({identifier})")
+
+def safe_save(non_updatable_fields, data, doctype, sync_key):
+    frappe.db.rollback()  #    
+    
+    fresh_doc = frappe.get_doc(doctype, {"sync_id": sync_key})
+  
+    for key, value in data.items():
+        if key in non_updatable_fields or not hasattr(fresh_doc, key):
+            continue
+        if getattr(fresh_doc, key) != value:
+            frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value, update_modified=False)
+    frappe.db.commit()
