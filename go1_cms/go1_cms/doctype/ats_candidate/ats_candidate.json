@@ -305,7 +305,7 @@
    "fieldname": "sync_id",
    "fieldtype": "Data",
    "label": "Sync ID",
-   "read_only": 1
+   "unique": 1
   },
   {
    "default": "0",
