@@ -1,6 +1,6 @@
 import frappe
 from go1_cms.utlis.auth import secure_webhook
-from go1_cms.webhook.handler import parse_webhook_data_batch
+from go1_cms.go1_cms.webhook.handler import parse_webhook_data_batch
 from frappe import _
 import json
 #Sync lần đầu
@@ -17,7 +17,7 @@ def receive_webhook():
     """
     try:
         payload = frappe.request.get_json()
-
+        
         # Kiểm tra định dạng tối thiểu
         if not payload or "doctype" not in payload or "records" not in payload:
             frappe.throw(_("Invalid payload: require 'doctype' and 'records'"))

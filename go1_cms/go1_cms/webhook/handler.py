@@ -58,7 +58,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
     """
     doctype = payload.get("doctype")
     records = payload.get("records", [])
-
+    
     if not doctype or not records:
         frappe.throw("Missing 'doctype' or 'records' in payload")
 
@@ -83,7 +83,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
 
         existing = frappe.get_all(doctype, filters={key_field: sync_key}, limit=1)
         exists = bool(existing)
-        docname = existing[0].name if exists else None
+        docname = sync_key if exists else None
 
         try:
             if action == "insert":
@@ -103,11 +103,14 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
                     results.append({ "status": "success", "action": "insert (via update)", "sync_id": sync_key })
                 else:
-                    doc = frappe.get_doc(doctype, docname)
+                    doc = frappe.get_doc(doctype, {"sync_id": sync_key})
+                    
                     for key, value in data.items():
                         if key not in ["doctype", "name"] and hasattr(doc, key):
+                            print(f"Updating {key} to {value} for {doctype} {sync_key}")
                             setattr(doc, key, value)
                     doc.save(ignore_permissions=True)
+                    
                     frappe.db.commit()
                     log_webhook_result(doctype, sync_key, "update", "success", "Updated", data)
                     results.append({ "status": "success", "action": "update", "sync_id": sync_key })
@@ -115,7 +118,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
             elif action == "delete":
                 if not exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' does not exist")
-                frappe.delete_doc(doctype, docname)
+                frappe.delete_doc(doctype,{"sync_id": sync_key})
                 frappe.db.commit()
                 log_webhook_result(doctype, sync_key, "delete", "success", "Deleted", data)
                 results.append({ "status": "success", "action": "delete", "sync_id": sync_key })

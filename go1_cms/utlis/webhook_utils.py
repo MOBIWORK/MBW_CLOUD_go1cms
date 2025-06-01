@@ -8,7 +8,7 @@ from datetime import datetime
 def forward_webhook(doc_data):
     webhook_url = frappe.conf.get("external_webhook_url")
     secret = frappe.conf.get("webhook_secret", "default_secret")
-    signature = hmac.new(secret.encode(), doc_data.encode(), hashlib.sha256).hexdigest()
+    signature = hmac.new(secret.encode('utf-8'), json.dumps(doc_data).encode('utf-8'), hashlib.sha256).hexdigest()
     if not webhook_url:
         frappe.log_error("Missing external_webhook_url in config")
         return

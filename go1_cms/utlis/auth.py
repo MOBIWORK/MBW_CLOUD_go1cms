@@ -52,8 +52,8 @@ def secure_webhook(require_hmac=True, require_token=False):
                     frappe.throw("Missing HMAC signature")
 
                 computed_signature = hmac.new(
-                    key=secret.encode(),
-                    msg=body.encode(),
+                    key=secret.encode('utf-8'),
+                    msg=body.encode('utf-8'),
                     digestmod=hashlib.sha256
                 ).hexdigest()
 
