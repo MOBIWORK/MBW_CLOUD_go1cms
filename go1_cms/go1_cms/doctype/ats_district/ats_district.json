@@ -71,7 +71,6 @@
             "fieldname": "sync_id",
             "fieldtype": "Data",
             "label": "Sync ID",
-            "unique": 1,
             "description": "ID used for synchronization with mbw_ats"
         },
         {

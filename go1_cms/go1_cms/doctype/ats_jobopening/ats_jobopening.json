@@ -272,7 +272,7 @@
   {
    "fieldname": "sync_id",
    "fieldtype": "Data",
-   "hidden": 1,"unique": 1,
+   "hidden": 1,
    "label": "Sync ID"
   },
   {

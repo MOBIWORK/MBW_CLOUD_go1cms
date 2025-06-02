@@ -23,7 +23,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
     # Lấy metadata để xác định các field không nên update
     meta = frappe.get_meta(doctype)
     skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
-    skip_fieldnames = {'name', 'owner', 'creation', 'modified', 'modified_by', 'doctype'}
+    skip_fieldnames = {'name', 'owner', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
 
     non_updatable_fields = {
         df.fieldname for df in meta.fields
@@ -76,7 +76,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
 
     # Các field không được update
     skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
-    skip_fieldnames = {'name', 'owner', 'creation', 'modified', 'modified_by', 'doctype'}
+    skip_fieldnames = {'name', 'owner', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
     non_updatable_fields = {
         df.fieldname
         for df in meta.fields
