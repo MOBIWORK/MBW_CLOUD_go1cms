@@ -2,6 +2,7 @@ import frappe
 import hmac
 import time
 import hashlib
+import json
 from functools import wraps
 
 def secure_api():
@@ -37,7 +38,7 @@ def secure_api():
 
 def secure_webhook(require_hmac=True, require_token=False):
     def decorator(func):
-        @frappe.whitelist(allow_guest=True)  # 👈 Cho phép gọi từ bên ngoài
+        @frappe.whitelist(allow_guest=True)  #
         @wraps(func)
         def wrapper(*args, **kwargs):
             headers = frappe._dict({k.lower(): v for k, v in frappe.request.headers.items()})
@@ -45,7 +46,8 @@ def secure_webhook(require_hmac=True, require_token=False):
             # 1. HMAC signature (từ X-Signature)
             if require_hmac:
                 secret = frappe.conf.get("webhook_secret", "default_secret")
-                body = frappe.request.get_data(as_text=True)
+                body = json.loads(frappe.request.data)
+                payload_json = json.dumps({"name":body.get("name")})
                 received_signature = headers.get("x-signature")
 
                 if not received_signature:
@@ -53,7 +55,7 @@ def secure_webhook(require_hmac=True, require_token=False):
 
                 computed_signature = hmac.new(
                     key=secret.encode('utf-8'),
-                    msg=body.encode('utf-8'),
+                    msg=payload_json.encode('utf-8'),
                     digestmod=hashlib.sha256
                 ).hexdigest()
 

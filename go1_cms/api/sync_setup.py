@@ -41,7 +41,7 @@ def get_all_sync_ids_from_external(doctype: str) -> list:
     """
     import requests
     from datetime import datetime, timedelta
-
+    
     api_base = frappe.conf.get("webhook_base_url")
     normalized_doctype = doctype.replace(" ", "_") 
     url = f"{api_base}/api/method/mbw_ats.integration.cms.{normalized_doctype}"
@@ -59,4 +59,5 @@ def get_all_sync_ids_from_external(doctype: str) -> list:
         res.raise_for_status()        
         return res.json().get("message")  # giả định trả về list sync_id
     except Exception as e:
+        
         frappe.throw(f"Lỗi lấy danh sách {doctype}: {str(e)}")

@@ -101,7 +101,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
         existing = frappe.get_all(doctype, filters={key_field: sync_key}, limit=1)
         exists = bool(existing)
         docname = existing[0].name if exists else None
-
+        
         try:
             if action == "insert":
                 if exists:
