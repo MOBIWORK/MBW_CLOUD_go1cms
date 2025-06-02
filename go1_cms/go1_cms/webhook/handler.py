@@ -4,6 +4,7 @@ import requests
 from frappe.exceptions import ValidationError, DoesNotExistError
 from go1_cms.utlis.webhook_utils import log_webhook_result
 from datetime import datetime, timedelta
+from frappe.utils import nowdate, now_datetime
 import uuid
 
 def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
@@ -77,7 +78,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
 
     # Các field không được update
     skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
-    skip_fieldnames = {'name', 'owner', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
+    skip_fieldnames = {'name', 'owner','can_id', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
     non_updatable_fields = {
         df.fieldname
         for df in meta.fields
@@ -158,6 +159,12 @@ def handle_doc_event(doc, method):
         new_sync_id = str(uuid.uuid4())
         doc.db_set("sync_id", new_sync_id)
         doc.sync_id = new_sync_id
+    
+    #Kiểm tra xem có can_application_date
+    if not getattr(doc, "can_application_date", None):
+        can_application_date_new = nowdate()
+        doc.db_set("can_application_date", can_application_date_new)
+        doc.can_application_date = can_application_date_new
 
     # Tạo payload
     raw_record = doc.as_dict()
@@ -260,8 +267,7 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
     fresh_doc = frappe.get_doc(doctype, {"sync_id": sync_key})
   
     for key, value in data.items():
-        if key in non_updatable_fields or not hasattr(fresh_doc, key):
-            continue
-        if getattr(fresh_doc, key) != value:
-            frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value, update_modified=False)
+        if key not in non_updatable_fields and hasattr(fresh_doc, key):
+            if getattr(fresh_doc, key) != value:
+                frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value, update_modified=False)
     frappe.db.commit()
