@@ -10,7 +10,6 @@ from go1_cms.api.sync_setup import sync_from_external
 
 def after_migrate():
     try:
-        frappe.log_error("==Starting ATS categories synchronization", "after_migrate")
         sync_from_external("ATS_Company")
         sync_from_external("ATS_Unit")
         sync_from_external("ATS_Level")
@@ -40,8 +39,5 @@ def after_migrate():
         sync_from_external("Candidate Stages")
         sync_from_external("ATS_JobOpening")
 
-        frappe.log_error("==ATS categories synchronization completed", "after_migrate")
     except Exception as e:
-        frappe.log_error(
-            f"Error in ATS categories synchronization: {str(e)}", "after_migrate"
-        )
+        frappe.log_error("Error sync from get ", frappe.get_traceback())

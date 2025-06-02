@@ -215,7 +215,6 @@ def fetch_linked_data(doctype: str, identifier: str):
         records = res.json().get("message")
         if not isinstance(records, list):
             records = [records]  # nếu chỉ trả về 1 bản ghi
-        print(f"Response from {url}: {records}")
         for record in records:
             sync_id = record.get("sync_id")
             if not sync_id:
