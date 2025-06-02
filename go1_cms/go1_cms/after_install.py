@@ -69,8 +69,11 @@ def after_install():
 	update_site_config("webhook_base_url", "")#url base server nhận hook
 	update_site_config("webhook_secret", "CK_p9hGioqEdOuUS8b2-2G88T2aKq2-C-SnPYadKlY4=")
 	update_site_config("api_token", "9473bc87d2b7d951066b1fb73095f95c")
+	setup_candidate_permissions()
 	# sync data ats
-	frappe.enqueue(sync_ats_categories, enqueue_after_commit=True)
+	frappe.enqueue(sync_ats_categories,queue="short",
+        timeout=300,
+        now=True)
 
 def sync_ats_categories():
 	sync_from_external("ATS_Company")
@@ -793,3 +796,44 @@ def update_workspace_v14():
 										frappe.get_traceback(), "workspacev13.json")
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "update_workspace_v14")
+
+# khởi tạo role
+def setup_candidate_permissions():
+    role_name = "Candidate"
+    if not frappe.db.exists("Role", role_name):
+        frappe.get_doc({
+            "doctype": "Role",
+            "role_name": role_name,
+            "desk_access": 0
+        }).insert(ignore_permissions=True)
+
+    # Xóa quyền cũ (nếu cần làm sạch trước)
+    frappe.db.delete("Custom DocPerm", {"role": role_name})
+
+    # Cấu hình quyền cho Job Application
+    job_perm = frappe.get_doc({
+        "doctype": "Custom DocPerm",
+        "role": role_name,
+        "parent": "ATS_Candidate",
+        "permlevel": 0,
+        "read": 1,
+        "write": 1,
+        "apply_user_permissions": 1,
+        "if_owner": 1
+    })
+    job_perm.insert(ignore_permissions=True)
+
+    # Cấu hình quyền cho File
+    file_perm = frappe.get_doc({
+        "doctype": "Custom DocPerm",
+        "role": role_name,
+        "parent": "File",
+        "permlevel": 0,
+        "read": 1,
+        "apply_user_permissions": 1,
+        "if_owner": 1
+    })
+    file_perm.insert(ignore_permissions=True)
+
+    frappe.db.commit()
+    print("Candidate role & permissions set successfully.")
