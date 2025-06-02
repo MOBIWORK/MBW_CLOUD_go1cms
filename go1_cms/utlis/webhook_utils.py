@@ -26,7 +26,7 @@ def forward_webhook(doc_data):
     }
     url = f"{webhook_url}/api/method/mbw_ats.webhook.cms.receive_webhook"
     try:
-        res = requests.post(url, json=doc_data,headers=headers, timeout=5)
+        res = requests.post(url, json=json.loads(json.dumps(doc_data,default=str)),headers=headers, timeout=5)
         res.raise_for_status()
         frappe.logger("Webhook").info(f"Forwarded to external system: {res.status_code}")
     except Exception as e:

@@ -150,13 +150,13 @@ doc_events = {
         "on_change": "go1_cms.api.doc_events.send_mail_sale_order"
     },
     "ATS_Candidate": {
-        "on_update": "go1_cms.api.synchronous_data.sync_send_candidate",
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
+         "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event",
+         #"before_save": "go1_cms.api.sync_data.check_sync_flags",
         # "after_delete": "go1_cms.api.synchronous_data.send_delete",
     },
     "ATS_JobOpening": {
-        "before_save": "go1_cms.api.sync_data.check_sync_flags",
-        "before_delete": "go1_cms.api.sync_data.check_sync_flags"
+        # "before_save": "go1_cms.api.sync_data.check_sync_flags",
+        # "before_delete": "go1_cms.api.sync_data.check_sync_flags"
     },
 }
 

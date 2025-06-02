@@ -53,7 +53,9 @@
   "candidate_certification",
   "candidate_skill",
   "candidate_award",
-  "candidate_course"
+  "candidate_course",
+  "match_score",
+  "match_score_date"
  ],
  "fields": [
   {
@@ -109,11 +111,11 @@
    "options": "Nam\nN\u1eef"
   },
   {
-   "fieldname": "can_region",
-   "fieldtype": "Select",
-   "label": "Region",
-   "options": "H\u00e0 N\u1ed9i"
-  },
+    "fieldname": "can_region",
+    "fieldtype": "Link",
+    "label": "Region",
+    "options": "ATS_Province"
+   },
   {
    "fieldname": "column_break_2",
    "fieldtype": "Column Break"
@@ -318,6 +320,20 @@
    "fieldname": "is_upload_cv",
    "fieldtype": "Check",
    "label": "Is Upload CV"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "match_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Match Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "match_score_date",
+   "fieldtype": "Date",
+   "label": "Match Score Date"
   }
  ],
  "index_web_pages_for_search": 1,

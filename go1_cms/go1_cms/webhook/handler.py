@@ -4,6 +4,7 @@ import requests
 from frappe.exceptions import ValidationError, DoesNotExistError
 from go1_cms.utlis.webhook_utils import log_webhook_result
 from datetime import datetime, timedelta
+import uuid
 
 def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
     action = data.get("action", "insert").lower()
@@ -146,25 +147,35 @@ def handle_doc_event(doc, method):
     """
     Event hook xử lý CRUD cho DocType thông qua các sự kiện của Frappe
     """
-    action_map = {
-        "after_insert": "insert",
-        "on_update": "update",
-        "on_trash": "delete"
-    }
 
+    action_map = {"after_insert": "insert", "on_update": "update", "on_trash": "delete"}
     action = action_map.get(method)
     if not action:
         return
 
-    # Chuyển Doc thành dict
-    doc_data = doc.as_dict()
-    doc_data["action"] = action
-    doc_data["doctype"] = doc.doctype
+    # Đảm bảo doc có sync_id
+    if not getattr(doc, "sync_id", None):
+        new_sync_id = str(uuid.uuid4())
+        doc.db_set("sync_id", new_sync_id)
+        doc.sync_id = new_sync_id
 
-    # Log để kiểm tra (tuỳ chọn)
-    frappe.logger("Webhook").info(f"[EVENT] {action.upper()} - {doc.doctype} - {doc.name}")
+    # Tạo payload
+    raw_record = doc.as_dict()
+    raw_record["action"] = action
+    payload = {"doctype": doc.doctype, "records": [{**raw_record, "action": action}]}
+    
+    # Gửi webhook
+    frappe.enqueue(
+        "go1_cms.utlis.webhook_utils.forward_webhook",
+        queue="short",
+        timeout=300,
+        now=True,
+        doc_data=payload,
+    )
 
-    parse_webhook_data(doc_data, doc.doctype) 
+    frappe.logger("Webhook").info(
+        f"[EVENT] {action.upper()} - {doc.doctype} - {doc.name}"
+    )
 
 def sync_linked_documents(data: dict, parent_doctype: str):
     """
