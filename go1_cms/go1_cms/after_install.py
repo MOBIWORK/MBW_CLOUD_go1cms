@@ -10,6 +10,7 @@ import json
 import zipfile
 from frappe.utils import encode, get_files_path, getdate, to_timedelta,  flt
 from go1_cms.api.sync_setup import sync_from_external
+from frappe.installer import update_site_config
 
 def get_all_folder_in_dir(version):
 	path = os.path.join(frappe.get_module_path("go1_cms"),
@@ -65,7 +66,11 @@ def after_install():
 	create_default_recruitment_process()
 	# insert_webpage_builder()
 	# update_workspace_v14()
-
+	"""Khởi tạo biến cho webhook
+	"""	
+	update_site_config("webhook_base_url", "")#url base server nhận hook
+	update_site_config("webhook_secret", "CK_p9hGioqEdOuUS8b2-2G88T2aKq2-C-SnPYadKlY4=")
+	update_site_config("api_token", "9473bc87d2b7d951066b1fb73095f95c")
 	# sync data ats
 	frappe.enqueue(sync_ats_categories, enqueue_after_commit=True)
 

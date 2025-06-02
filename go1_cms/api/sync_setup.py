@@ -42,7 +42,7 @@ def get_all_sync_ids_from_external(doctype: str) -> list:
     import requests
     from datetime import datetime, timedelta
 
-    api_base = frappe.conf.get("ats_base_url")
+    api_base = frappe.conf.get("webhook_base_url")
     normalized_doctype = doctype.replace(" ", "_") 
     url = f"{api_base}/api/method/mbw_ats.integration.cms.{normalized_doctype}"
     api_token = frappe.conf.get("api_token")

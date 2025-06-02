@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 def forward_webhook(doc_data):
-    webhook_url = frappe.conf.get("external_webhook_url")
+    webhook_url = frappe.conf.get("webhook_base_url")
     secret = frappe.conf.get("webhook_secret", "default_secret")
     signature = hmac.new(secret.encode('utf-8'), json.dumps(doc_data).encode('utf-8'), hashlib.sha256).hexdigest()
     if not webhook_url:
