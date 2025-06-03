@@ -1,6 +1,7 @@
 
 import frappe
 import requests
+import json
 from frappe.exceptions import ValidationError, DoesNotExistError
 from go1_cms.utlis.webhook_utils import log_webhook_result
 from datetime import datetime, timedelta
@@ -75,7 +76,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
 
     results = []
     meta = frappe.get_meta(doctype)
-
+    
     # Các field không được update
     skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
     skip_fieldnames = {'name', 'owner','can_id', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
@@ -84,7 +85,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
         for df in meta.fields
         if df.read_only or df.unique or df.fieldtype in skip_fieldtypes or df.fieldname in skip_fieldnames
     }
-
+    
     for data in records:
         sync_key = data.get(key_field)
         action = data.get("action", "insert").lower()
@@ -99,7 +100,6 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
             log_webhook_result(doctype, sync_key, action, "error", f"Link sync failed: {sync_err}", data)
             results.append({ "status": "error", "action": action, "sync_id": sync_key, "message": str(sync_err) })
             continue
-
         existing = frappe.get_all(doctype, filters={key_field: sync_key}, limit=1)
         exists = bool(existing)
         docname = existing[0].name if exists else None
@@ -271,12 +271,38 @@ def fetch_linked_data(doctype: str, identifier: str):
         frappe.log_error(frappe.get_traceback(), f"fetch_linked_data: {doctype} ({identifier})")
 
 def safe_save(non_updatable_fields, data, doctype, sync_key):
-    frappe.db.rollback()  #    
-    
+    frappe.db.rollback()
     fresh_doc = frappe.get_doc(doctype, {"sync_id": sync_key})
-  
+    meta = frappe.get_meta(doctype)
+
     for key, value in data.items():
-        if key not in non_updatable_fields and hasattr(fresh_doc, key):
+        if key in non_updatable_fields or not hasattr(fresh_doc, key):
+            continue
+
+        field_meta = meta.get_field(key)
+        if not field_meta:
+            continue
+
+        fieldtype = field_meta.fieldtype
+
+        # Nếu là child table
+        if fieldtype == "Table" and isinstance(value, list):
+            child_doctype = field_meta.options
+            # Clear old children
+            fresh_doc.set(key, [])
+            # Thêm từng child record
+            for row in value:
+                child_doc = frappe.new_doc(child_doctype)
+                child_doc.update(row)
+                fresh_doc.append(key, child_doc)
+
+        elif isinstance(value, (list, dict)) and fieldtype in ["Data", "Small Text", "Text", "Code"]:
+            value_json = json.dumps(value)
+            frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value_json, update_modified=False)
+
+        elif not isinstance(value, (list, dict)):
             if getattr(fresh_doc, key) != value:
                 frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value, update_modified=False)
+
+    fresh_doc.save(ignore_permissions=True)
     frappe.db.commit()

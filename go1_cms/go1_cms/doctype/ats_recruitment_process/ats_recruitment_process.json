@@ -10,7 +10,8 @@
         "round_type",
         "position",
         "default",
-        "automation_rules"
+        "automation_rules",
+        "sync_id"
     ],
     "fields": [
         {
@@ -18,35 +19,41 @@
             "fieldtype": "Int",
             "in_list_view": 1,
             "label": "Position"
-        },
-        {
+           },
+           {
             "default": "0",
             "fieldname": "default",
             "fieldtype": "Check",
             "in_list_view": 1,
             "label": "Default"
-        },
-        {
+           },
+           {
             "fieldname": "round_name",
             "fieldtype": "Data",
             "in_list_view": 1,
             "label": "Round Name",
             "reqd": 1,
             "unique": 1
-        },
-        {
+           },
+           {
             "fieldname": "round_type",
             "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Round Type",
             "options": "ATS_Round_Type"
-        },
-        {
+           },
+           {
             "fieldname": "automation_rules",
             "fieldtype": "Table",
             "label": "Automation Rules",
             "options": "ATS_StageTrigger"
-        }
+           },
+           {
+            "fieldname": "sync_id",
+            "fieldtype": "Data",
+            "hidden": 1,
+            "label": "SyncID"
+           }
     ],
     "index_web_pages_for_search": 1,
     "links": [],
