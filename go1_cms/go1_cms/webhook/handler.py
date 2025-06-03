@@ -109,6 +109,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 if exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' already exists")
                 doc = frappe.get_doc({ "doctype": doctype, **data })
+                doc.flags.in_insert = True
                 doc.insert(ignore_permissions=True)
                 frappe.db.commit()
                 log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
@@ -117,6 +118,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
             elif action == "update":
                 if not exists:
                     doc = frappe.get_doc({ "doctype": doctype, **data })
+                    doc.flags.in_insert = True
                     doc.insert(ignore_permissions=True)
                     frappe.db.commit()
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
@@ -165,6 +167,13 @@ def handle_doc_event(doc, method):
         can_application_date_new = nowdate()
         doc.db_set("can_application_date", can_application_date_new)
         doc.can_application_date = can_application_date_new
+
+    if (doc.flags.in_insert or not doc.sync_id):
+        frappe.logger("Webhook").info(
+            f"[SKIP] Insert event for {doc.doctype} {doc.name} due to in_insert flag"
+        )
+        doc.flags.in_insert = False        
+        return
 
     # Tạo payload
     raw_record = doc.as_dict()
