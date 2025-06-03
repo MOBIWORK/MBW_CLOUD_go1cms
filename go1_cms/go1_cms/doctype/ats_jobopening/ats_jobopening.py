@@ -100,8 +100,9 @@ class ATS_JobOpening(WebsiteGenerator):
 	)
 
 	def validate(self):
+		jo_public_title =self.jo_public_title
 		if not self.route or not self.route.startswith('tuyen-dung/'):
-			self.route = f"tuyen-dung/{slugify(self.jo_public_title).replace('_', '-')}"
+			self.route = f"tuyen-dung/{slugify(jo_public_title).replace('_', '-')}"
 
 		super().validate()
 
@@ -134,3 +135,7 @@ class ATS_JobOpening(WebsiteGenerator):
 				doc_wpb = frappe.get_doc(
 					'Web Page Builder', web_test)
 				doc_wpb.get_context(context)
+    
+	def on_insert(sefl):
+		print(sefl.jo_public_title)
+		pass

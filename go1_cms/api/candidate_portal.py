@@ -25,7 +25,7 @@ def apply_cv(email, full_name, phone):
     expiry = add_to_date(now_datetime(), minutes=30)
 
     link_doc = frappe.get_doc({
-        "doctype": "Candidate Access Link",
+        "doctype": "Candidate_Access_Link",
         "email": email,
         "token": token,
         "expiry": expiry,
@@ -46,7 +46,7 @@ def set_password(token, password, confirm_password):
     if password != confirm_password:
         frappe.throw("Mật khẩu không khớp.")
 
-    link = frappe.db.get("Candidate Access Link", {"token": token, "used": 0})
+    link = frappe.db.get("Candidate_Access_Link", {"token": token, "used": 0})
     if not link:
         frappe.throw("Token không hợp lệ hoặc đã được sử dụng.")
 
@@ -64,7 +64,7 @@ def set_password(token, password, confirm_password):
         user.add_roles("Candidate")
 
     # Đánh dấu token đã dùng
-    frappe.db.set_value("Candidate Access Link", link.name, {
+    frappe.db.set_value("Candidate_Access_Link", link.name, {
         "used": 1
     })
 

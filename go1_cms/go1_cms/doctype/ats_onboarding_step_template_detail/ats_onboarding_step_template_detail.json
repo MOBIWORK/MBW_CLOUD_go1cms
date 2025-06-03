@@ -1,0 +1,65 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-03 13:05:22.570870",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "step_name",
+  "step_type",
+  "description",
+  "required_upload",
+  "requires_hr_approval",
+  "idx"
+ ],
+ "fields": [
+  {
+   "fieldname": "step_name",
+   "fieldtype": "Data",
+   "label": "Step Name"
+  },
+  {
+   "fieldname": "step_type",
+   "fieldtype": "Select",
+   "label": "Step Type",
+   "options": "Candidate Information\nUpload Resume\nParticipation Confirmation\nInterview\nContract Signing\nOther"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "default": "0",
+   "fieldname": "required_upload",
+   "fieldtype": "Check",
+   "label": "Required Upload Document"
+  },
+  {
+   "default": "0",
+   "fieldname": "requires_hr_approval",
+   "fieldtype": "Check",
+   "label": "Requires HR Approval"
+  },
+  {
+   "fieldname": "idx",
+   "fieldtype": "Int",
+   "label": "idx"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-03 13:18:15.125631",
+ "modified_by": "Administrator",
+ "module": "MBW ATS",
+ "name": "ATS_Onboarding_Step_Template_Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

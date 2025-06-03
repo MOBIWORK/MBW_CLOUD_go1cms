@@ -83,28 +83,12 @@ def upload_cv(filedata, filename):
 
 @frappe.whitelist()
 def get_onboarding_steps():
-    """
-    Trả về danh sách các bước onboarding dành cho ứng viên đang đăng nhập.
-    """
     email = frappe.session.user
     candidate = frappe.get_doc("ATS_Candidate", {"can_email": email})
-    return [step.as_dict() for step in candidate.candidate_onboarding_steps]
+    steps = frappe.get_all("Candidate Onboarding Step", 
+        filters={"candidate": candidate.name}, 
+        fields=["name", "step_name", "description", "is_completed", "completed_on"], 
+        order_by="creation asc")
+    return steps
 
-
-@frappe.whitelist()
-def mark_onboarding_step_complete(step_name):
-    """
-    Đánh dấu bước onboarding là hoàn thành đối với ứng viên hiện tại.
-    """
-    email = frappe.session.user
-    doc = frappe.get_doc("ATS_Candidate", {"can_email": email})
-
-    for step in doc.candidate_onboarding_steps:
-        if step.step_name == step_name:
-            step.is_completed = 1
-            step.completed_on = now_datetime()
-            doc.save(ignore_permissions=True)
-            return {"success": True, "message": f"Đã đánh dấu bước '{step_name}' là hoàn thành."}
-
-    frappe.throw(f"Không tìm thấy bước '{step_name}' trong onboarding.")
 

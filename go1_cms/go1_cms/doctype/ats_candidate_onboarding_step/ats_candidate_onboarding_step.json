@@ -1,0 +1,122 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-03 13:14:13.622231",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "candidate",
+  "step_name",
+  "step_type",
+  "description",
+  "required_upload",
+  "uploaded_file",
+  "is_completed",
+  "completed_on",
+  "completed_by_user",
+  "hr_note",
+  "requires_hr_approval",
+  "approved_by_hr",
+  "approved_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "candidate",
+   "fieldtype": "Link",
+   "label": "Candidate",
+   "options": "ATS_Candidate"
+  },
+  {
+   "fieldname": "step_name",
+   "fieldtype": "Data",
+   "label": "Step name"
+  },
+  {
+   "fieldname": "step_type",
+   "fieldtype": "Select",
+   "label": "Step type",
+   "options": "Candidate Information\nUpload Resume\nParticipation Confirmation\nInterview\nContract Signing\nOther"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "default": "0",
+   "fieldname": "required_upload",
+   "fieldtype": "Check",
+   "label": "Required Upload"
+  },
+  {
+   "fieldname": "uploaded_file",
+   "fieldtype": "Attach",
+   "label": "Uploaded File"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_completed",
+   "fieldtype": "Check",
+   "label": "Completed"
+  },
+  {
+   "fieldname": "completed_on",
+   "fieldtype": "Datetime",
+   "label": "Completed On"
+  },
+  {
+   "fieldname": "completed_by_user",
+   "fieldtype": "Link",
+   "label": "Completed By User",
+   "options": "User"
+  },
+  {
+   "fieldname": "hr_note",
+   "fieldtype": "Small Text",
+   "label": "HR Note"
+  },
+  {
+   "default": "0",
+   "fieldname": "requires_hr_approval",
+   "fieldtype": "Check",
+   "label": "Requires HR Approval"
+  },
+  {
+   "default": "0",
+   "fieldname": "approved_by_hr",
+   "fieldtype": "Check",
+   "label": "Approved By HR"
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved On"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-03 13:27:47.489248",
+ "modified_by": "Administrator",
+ "module": "MBW ATS",
+ "name": "ATS_Candidate_Onboarding_Step",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
