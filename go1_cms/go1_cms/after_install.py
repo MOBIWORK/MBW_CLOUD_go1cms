@@ -834,6 +834,19 @@ def setup_candidate_permissions():
         "if_owner": 1
     })
     file_perm.insert(ignore_permissions=True)
+    
+    # Cấu hình quyền cho ATS_Candidate_Onboarding_Step
+    onboard_perm = frappe.get_doc({
+        "doctype": "Custom DocPerm",
+        "role": role_name,
+        "parent": "ATS_Candidate_Onboarding_Step",
+        "permlevel": 0,
+        "read": 1,
+        "write": 1,
+        "apply_user_permissions": 1,
+        "if_owner": 1
+    })
+    onboard_perm.insert(ignore_permissions=True)
 
     frappe.db.commit()
     print("Candidate role & permissions set successfully.")
