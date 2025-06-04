@@ -98,7 +98,8 @@ class ATS_JobOpening(WebsiteGenerator):
 		condition_field="publish_to_career_page",
 		page_title_field="jo_public_title",
 	)
-
+	def before_rename(self, old, new, merge=False):
+		frappe.throw("Renaming Job Opening is not allowed.")
 	def validate(self):
 		jo_public_title =self.jo_public_title
 		if not self.route or not self.route.startswith('tuyen-dung/'):

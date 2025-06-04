@@ -25,7 +25,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
 
     # Lấy metadata để xác định các field không nên update
     meta = frappe.get_meta(doctype)
-    skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
+    skip_fieldtypes = {'Section Break', 'Column Break', 'Button'}
     skip_fieldnames = {'name', 'owner', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
 
     non_updatable_fields = {
@@ -78,7 +78,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
     meta = frappe.get_meta(doctype)
     
     # Các field không được update
-    skip_fieldtypes = {'Section Break', 'Column Break', 'Button', 'HTML', 'Table of Contents'}
+    skip_fieldtypes = {'Section Break', 'Column Break', 'Button'}
     skip_fieldnames = {'name', 'owner','can_id', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
     non_updatable_fields = {
         df.fieldname
@@ -270,6 +270,7 @@ def fetch_linked_data(doctype: str, identifier: str):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), f"fetch_linked_data: {doctype} ({identifier})")
 
+
 def safe_save(non_updatable_fields, data, doctype, sync_key):
     frappe.db.rollback()
     fresh_doc = frappe.get_doc(doctype, {"sync_id": sync_key})
@@ -285,24 +286,48 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
 
         fieldtype = field_meta.fieldtype
 
-        # Nếu là child table
+        # ✅ Trường kiểu Table
         if fieldtype == "Table" and isinstance(value, list):
             child_doctype = field_meta.options
-            # Clear old children
-            fresh_doc.set(key, [])
-            # Thêm từng child record
-            for row in value:
-                child_doc = frappe.new_doc(child_doctype)
-                child_doc.update(row)
-                fresh_doc.append(key, child_doc)
+            existing = [row.as_dict() for row in fresh_doc.get(key)]
 
+            if existing != value:
+                fresh_doc.set(key, [])
+                for row in value:
+                    child_doc = frappe.new_doc(child_doctype)
+                    child_doc.update(row)
+                    fresh_doc.append(key, child_doc)
+
+        # ✅ Trường kiểu Table MultiSelect
+        elif fieldtype == "Table MultiSelect" and isinstance(value, list):
+            existing_links = sorted([d.link for d in fresh_doc.get(key)])
+            incoming_links = sorted([d.get("link") for d in value if d.get("link")])
+
+            if existing_links != incoming_links:
+                fresh_doc.set(key, [])
+                for row in value:
+                    if row.get("link"):
+                        fresh_doc.append(key, {"link": row["link"]})
+
+        # Trường kiểu dict/list nhưng được lưu dưới dạng text
         elif isinstance(value, (list, dict)) and fieldtype in ["Data", "Small Text", "Text", "Code"]:
             value_json = json.dumps(value)
-            frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value_json, update_modified=False)
+            current_value = getattr(fresh_doc, key)
+            if current_value != value_json:
+                setattr(fresh_doc, key, value_json)
 
+        # Trường Check (bool/int 0/1)
+        elif fieldtype == "Check":
+            normalized_new = 1 if value in (1, "1", True, "true", "True") else 0
+            normalized_current = 1 if getattr(fresh_doc, key) in (1, "1", True, "true", "True") else 0
+
+            if normalized_new != normalized_current:
+                setattr(fresh_doc, key, normalized_new)
+
+        # Trường primitive thông thường
         elif not isinstance(value, (list, dict)):
             if getattr(fresh_doc, key) != value:
-                frappe.db.set_value(doctype, {"sync_id": sync_key}, key, value, update_modified=False)
+                setattr(fresh_doc, key, value)
 
     fresh_doc.save(ignore_permissions=True)
     frappe.db.commit()
