@@ -272,8 +272,10 @@ def upload_cv(name_job, **kwargs):
             new_doc.sync_id = str(uuid.uuid4())
             new_doc.flags.ignore_sync = False
             doc_saved = new_doc.save(ignore_permissions=True)
-            
+            frappe.db.commit()
             filename = ''
+            new_file=None
+
             if 'file_cv' in files:
                 file_cv = files["file_cv"]
                 content = file_cv.stream.read()
@@ -314,8 +316,13 @@ def upload_cv(name_job, **kwargs):
                     }
                 )
                 new_file.save(ignore_permissions=True)
-                frappe.db.set_value("ATS_Candidate",doc_saved.name,"can_cv",new_file.file_url)
-            frappe.db.commit()
+
+            if new_file:
+                can_doc = frappe.get_doc("ATS_Candidate",doc_saved.name)
+                can_doc.can_cv = new_file.file_url
+                can_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+            
             ### send email ###
             domain = get_domain()
             redirect_to = f'{domain}/app/job-applicant/{new_doc.name}'
@@ -326,7 +333,7 @@ def upload_cv(name_job, **kwargs):
                 as_dict=1
             )
             args = {
-                'time': format_creation(doc_saved.creation),
+                'time': format_creation(new_doc.creation),
                 'job_title': jo_public_title,
                 'designation': job_open.jo_position,
                 'location': job_open.jo_location,

@@ -39,6 +39,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
         doc = frappe.get_doc({ "doctype": doctype, **data })
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
+        doc.flags.ignore_sync = True
         log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
     elif action == "update":
         if not exists:
@@ -46,6 +47,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
             doc = frappe.get_doc({ "doctype": doctype, **data })
             doc.insert(ignore_permissions=True)
             frappe.db.commit()
+            doc.flags.ignore_sync = True
             log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
         else:
             safe_save(non_updatable_fields, data, doctype, docname)
@@ -109,18 +111,20 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 if exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' already exists")
                 doc = frappe.get_doc({ "doctype": doctype, **data })
-                doc.flags.ignore_sync = True
+                
                 doc.insert(ignore_permissions=True)
                 frappe.db.commit()
+                doc.flags.ignore_sync = True
                 log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
                 results.append({ "status": "success", "action": "insert", "sync_id": sync_key })
 
             elif action == "update":
                 if not exists:
                     doc = frappe.get_doc({ "doctype": doctype, **data })
-                    doc.flags.ignore_sync = True
+                    
                     doc.insert(ignore_permissions=True)
                     frappe.db.commit()
+                    doc.flags.ignore_sync = True
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
                     results.append({ "status": "success", "action": "insert (via update)", "sync_id": sync_key })
                 else:
@@ -335,3 +339,4 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
 
     fresh_doc.save(ignore_permissions=True)
     frappe.db.commit()
+    fresh_doc.flags.ignore_sync = True
