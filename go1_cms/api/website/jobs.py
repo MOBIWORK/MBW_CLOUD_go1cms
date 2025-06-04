@@ -1,5 +1,6 @@
 from mimetypes import guess_type
 import frappe
+import uuid
 from frappe import _, local
 from pypika import functions as fn
 from go1_cms.api.common import (
@@ -27,10 +28,10 @@ import string
 
 @frappe.whitelist(allow_guest=True)
 def get_filter_job():
-    # job_type = frappe.db.get_all('ATS_JobOpening', fields=[
+    # job_type = frappe.db.get_all('CMS_JobOpening', fields=[
     #                              'employee_type_name as label', 'employee_type_name as value'], order_by='creation')
     job_type = []
-    meta = frappe.get_meta('ATS_JobOpening')
+    meta = frappe.get_meta('CMS_JobOpening')
     field = meta.get_field('jo_work_form')
     if field.options:
         options = field.options.split('\n')
@@ -84,7 +85,7 @@ def get_all_job(name_section, **kwargs):
     if kwargs.get('sort_by', 'desc').lower() == "asc":
         sort_by = frappe.qb.asc
 
-    JobOpening = frappe.qb.DocType('ATS_JobOpening')
+    JobOpening = frappe.qb.DocType('CMS_JobOpening')
 
     doc_section = frappe.get_doc('Page Section', name_section)
     sort_field = doc_section.sort_field if doc_section.sort_field else 'jo_application_deadline'
@@ -157,8 +158,8 @@ def get_all_job(name_section, **kwargs):
 
 @frappe.whitelist(allow_guest=True)
 def get_job_detail(name):
-    if frappe.db.exists("ATS_JobOpening", name):
-        doc = frappe.db.get_value('ATS_JobOpening', name, [
+    if frappe.db.exists("CMS_JobOpening", name):
+        doc = frappe.db.get_value('CMS_JobOpening', name, [
                                   'name', 'jo_public_title', 'jo_position', 'status', 'jo_application_deadline', 'jo_work_form', 'jo_using_unit', 'jo_location', 'jo_job_description', 'jo_currency', 'jo_min_salary', 'jo_max_salary', 'applicants_applied', 'route'], as_dict=1)
         return doc
     else:
@@ -169,8 +170,8 @@ def get_job_detail(name):
 @frappe.whitelist(allow_guest=True)
 def get_job_related(name, **kwargs):
     jobs = []
-    if frappe.db.exists("ATS_JobOpening", name):
-        doc = frappe.db.get_value('ATS_JobOpening', name, [
+    if frappe.db.exists("CMS_JobOpening", name):
+        doc = frappe.db.get_value('CMS_JobOpening', name, [
             'name', 'jo_public_title', 'jo_position', 'status', 'jo_work_form', 'jo_location'], as_dict=1)
 
         name_section = kwargs.get('name_section', None)
@@ -185,7 +186,7 @@ def get_job_related(name, **kwargs):
             else:
                 limit = 4
 
-        JobOpening = frappe.qb.DocType('ATS_JobOpening')
+        JobOpening = frappe.qb.DocType('CMS_JobOpening')
         m_query = (frappe.qb.from_(JobOpening).where(
             (JobOpening.name != name) & (JobOpening.publish_to_career_page == 1)))
         q = None
@@ -259,16 +260,19 @@ def upload_cv(name_job, **kwargs):
         if not phone_number:
             frappe.throw('Số điện thoại không được để trống')
 
-        if frappe.db.exists("ATS_JobOpening", name_job):
+        if frappe.db.exists("CMS_JobOpening", name_job):
+            jo_public_title = frappe.db.get_value("CMS_JobOpening",name_job,"jo_public_title")
+            
             new_doc = frappe.new_doc('ATS_Candidate')
             new_doc.can_id = generate_random_id()
             new_doc.can_full_name = applicant_name
             new_doc.can_email = email
             new_doc.can_phone = phone_number
-            new_doc.job_opening_id = name_job
-            new_doc.save(ignore_permissions=True)
-            new_doc.reload()
-
+            new_doc.job_opening_id = jo_public_title
+            new_doc.sync_id = str(uuid.uuid4())
+            new_doc.flags.ignore_sync = False
+            doc_saved = new_doc.save(ignore_permissions=True)
+            
             filename = ''
             if 'file_cv' in files:
                 file_cv = files["file_cv"]
@@ -300,7 +304,7 @@ def upload_cv(name_job, **kwargs):
                     {
                         "doctype": "File",
                         "attached_to_doctype": "ATS_Candidate",
-                        "attached_to_name": new_doc.name,
+                        "attached_to_name": doc_saved.name,
                         "attached_to_field": "can_cv",
                         "folder": "Home",
                         "file_name": filename,
@@ -310,22 +314,20 @@ def upload_cv(name_job, **kwargs):
                     }
                 )
                 new_file.save(ignore_permissions=True)
-                new_doc.can_cv = new_file.file_url
-
-            new_doc.save(ignore_permissions=True)
-
+                frappe.db.set_value("ATS_Candidate",doc_saved.name,"can_cv",new_file.file_url)
+            frappe.db.commit()
             ### send email ###
             domain = get_domain()
             redirect_to = f'{domain}/app/job-applicant/{new_doc.name}'
             job_open = frappe.db.get_value(
-                'ATS_JobOpening', name_job,
+                'CMS_JobOpening', name_job,
                 ['jo_public_title', 'jo_work_form', 'jo_location',
                     'jo_using_unit', 'jo_position', 'jo_min_salary', 'jo_max_salary', 'jo_currency'],
                 as_dict=1
             )
             args = {
-                'time': new_doc.creation.strftime("%d/%m/%Y %H:%M:%S"),
-                'job_title': job_open.jo_public_title,
+                'time': format_creation(doc_saved.creation),
+                'job_title': jo_public_title,
                 'designation': job_open.jo_position,
                 'location': job_open.jo_location,
                 'employment_type': job_open.jo_work_form,
@@ -346,7 +348,7 @@ def upload_cv(name_job, **kwargs):
             # delete captcha
             frappe.db.delete("CMS Captcha", {'name': captcha.name})
 
-            return {'status': '200', 'name': new_doc.name}
+            return {'status': '200', 'name': doc_saved.name}
         else:
             frappe.throw(_('Không tìm thấy công việc ứng tuyển'))
     except frappe.ValidationError as ex:
@@ -354,6 +356,14 @@ def upload_cv(name_job, **kwargs):
         frappe.throw(str(ex))
     except Exception as ex:
         frappe.throw(_("Upload không thành công. Vui lòng thử lại!"))
+
+def format_creation(creation):
+    if isinstance(creation, str):
+        try:
+            creation = datetime.strptime(creation, "%Y-%m-%d %H:%M:%S.%f")
+        except ValueError:
+            creation = datetime.strptime(creation, "%Y-%m-%d %H:%M:%S")
+    return creation.strftime("%d/%m/%Y %H:%M:%S")
 
 def generate_random_id(length=16):
     characters = string.ascii_uppercase + string.digits

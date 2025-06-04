@@ -15,7 +15,7 @@
       :options="{
         hideColumnsButton: false,
       }"
-      doctype="ATS_JobOpening"
+      doctype="CMS_JobOpening"
     />
     <JobOpeningListView
       v-if="jobopenings.data && rows.length"

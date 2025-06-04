@@ -1,26 +1,25 @@
-# Copyright (c) 2025, Tridotstech and contributors
+# Copyright (c) 2025, mbwcloud.com and contributors
 # For license information, please see license.txt
 
 import frappe
 from frappe.model.document import Document
-from frappe.website.website_generator import WebsiteGenerator
-from slugify import slugify
+from frappe import _
+from go1_cms.go1_cms.webhook.handler import safe_save
 
-
-class ATS_JobOpening(WebsiteGenerator):
+class ATS_JobOpening(Document):
 	def default_list_data():
 		columns = [
 			{
 				"label": "Public Title",
 				"type": "Data",
 				"key": "jo_public_title",
-				"width": "20rem"
+				"width": "16rem"
 			},
 			{
 				"label": "Applicants Applied",
 				"type": "Int",
 				"key": "applicants_applied",
-				"width": "10rem"
+				"width": "12rem"
 			},
 			{
 				"label": "Publish to Career Page",
@@ -44,21 +43,20 @@ class ATS_JobOpening(WebsiteGenerator):
 				"label": "Position",
 				"type": "Link",
 				"key": "jo_position",
-				"width": "16rem"
+				"width": "10rem"
 			},
 			{
 				"label": "Work Form",
 				"type": "Select",
 				"key": "jo_work_form",
-				"width": "9rem"
+				"width": "12rem"
 			},
 			{
 				"label": "Application Deadline",
 				"type": "Date",
 				"key": "jo_application_deadline",
-				"width": "10rem"
+				"width": "14rem"
 			},
-		   
 		]
 
 		rows = [
@@ -87,56 +85,34 @@ class ATS_JobOpening(WebsiteGenerator):
 			"status",
 			"applicants_applied",
 			"publish_to_career_page",
-			"can_com_id",
+			"cal_com_id",
 			"name"
 		]
 
 		return {"columns": columns, "rows": rows}
 
-	website = frappe._dict(
-		template="go1_cms/templates/generators/job_opening.html",
-		condition_field="publish_to_career_page",
-		page_title_field="jo_public_title",
-	)
-	def before_rename(self, old, new, merge=False):
-		frappe.throw("Renaming Job Opening is not allowed.")
-	def validate(self):
-		jo_public_title =self.jo_public_title
-		if not self.route or not self.route.startswith('tuyen-dung/'):
-			self.route = f"tuyen-dung/{slugify(jo_public_title).replace('_', '-')}"
+	def on_update(self):
+		"""Forward data sang CMS_JobOpening sau khi sync từ ATS
+		"""
+		meta = frappe.get_meta("CMS_JobOpening")
+		skip_fieldtypes = {'Section Break', 'Column Break', 'Button'}
+		skip_fieldnames = {'name', 'owner', 'sync_id','creation', 'modified', 'modified_by', 'doctype'}
 
-		super().validate()
+		non_updatable_fields = {
+			df.fieldname for df in meta.fields
+			if df.read_only or df.unique or df.fieldtype in skip_fieldtypes or df.fieldname in skip_fieldnames
+		}
+		sync_id =self.sync_id
+		job_cms = frappe.db.get_value("CMS_JobOpening",{"sync_id":sync_id})
+		if job_cms:
+			safe_save(non_updatable_fields,self.as_dict(),"CMS_JobOpening",sync_id)
+	def after_insert(self):
+		data_insert = self.as_dict()
+		data_insert.pop("doctype",None)
+		cms_job = frappe.get_doc({ "doctype": "CMS_JobOpening", **data_insert })
+		cms_job.insert(ignore_permissions=True)
+		frappe.db.commit()
 
-	def get_context(self, context):
-		context.doc_name = self.name
-		context.meta_title = self.jo_public_title
-		context.metatags = frappe._dict({
-			"description": self.cms_meta_description or '',
-			"keywords": self.cms_meta_keywords or '',
-			"og:title": self.cms_meta_title or '',
-			"og:description": self.cms_meta_description or '',
-			"og:image": self.cms_meta_image or '',
-		})
-
-		if not self.route.endswith('jobs-123-jobs-456-jobs'):
-			web_client = frappe.db.get_value(
-				'MBW Client Website', {"type_web": "Live version"}, pluck='name', as_dict=1)
-			if web_client:
-				web_item = frappe.db.get_value('MBW Client Website Item', {
-					'parent': web_client, 'parentfield': 'page_websites', 'page_type': 'Trang chi tiết tuyển dụng'}, ['page_id'], as_dict=1)
-
-				if web_item and frappe.db.exists('Web Page Builder', web_item.page_id, cache=True):
-					doc_wpb = frappe.get_doc(
-						'Web Page Builder', web_item.page_id)
-					doc_wpb.get_context(context)
-		else:
-			web_test = frappe.db.exists('Web Page Builder', {
-				'route': 'jobs-123-jobs-456-jobs'}, cache=True)
-			if web_test:
-				doc_wpb = frappe.get_doc(
-					'Web Page Builder', web_test)
-				doc_wpb.get_context(context)
-    
-	def on_insert(sefl):
-		print(sefl.jo_public_title)
-		pass
+	def after_delete(self):
+		if self.sync_id:
+			frappe.db.delete("CMS_JobOpening",{"sync_id":self.sync_id})

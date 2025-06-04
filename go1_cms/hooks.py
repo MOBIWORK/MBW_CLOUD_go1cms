@@ -63,7 +63,7 @@ on_logout = "go1_cms.api.utils.clear_cookie_cart"
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
-website_generators = ["ATS_JobOpening"]
+website_generators = ["CMS_JobOpening"]
 
 website_route_rules = [
     {"from_route": "/cms/<path:app_path>", "to_route": "cms"},
@@ -92,7 +92,7 @@ email_css = ["/assets/go1_cms/email/email.css"]
 # before_install = "go1_cms.install.before_install"
 # after_install = "go1_cms.install.after_install"
 after_install = "go1_cms.go1_cms.after_install.after_install"
-after_migrate = "go1_cms.go1_cms.after_migrate.after_migrate"
+#after_migrate = "go1_cms.go1_cms.after_migrate.after_migrate"
 # Uninstallation
 # before_uninstall = "go1_cms.uninstall.before_uninstall"
 # after_uninstall = "go1_cms.uninstall.after_uninstall"

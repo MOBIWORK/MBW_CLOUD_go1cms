@@ -109,7 +109,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 if exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' already exists")
                 doc = frappe.get_doc({ "doctype": doctype, **data })
-                doc.flags.in_insert = True
+                doc.flags.ignore_sync = True
                 doc.insert(ignore_permissions=True)
                 frappe.db.commit()
                 log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
@@ -118,7 +118,7 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
             elif action == "update":
                 if not exists:
                     doc = frappe.get_doc({ "doctype": doctype, **data })
-                    doc.flags.in_insert = True
+                    doc.flags.ignore_sync = True
                     doc.insert(ignore_permissions=True)
                     frappe.db.commit()
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
@@ -150,7 +150,7 @@ def handle_doc_event(doc, method):
     """
     Event hook xử lý CRUD cho DocType thông qua các sự kiện của Frappe
     """
-
+    print("Nhận hook",doc.flags.ignore_sync, doc.sync_id)
     action_map = {"after_insert": "insert", "on_update": "update", "on_trash": "delete"}
     action = action_map.get(method)
     if not action:
@@ -168,11 +168,11 @@ def handle_doc_event(doc, method):
         doc.db_set("can_application_date", can_application_date_new)
         doc.can_application_date = can_application_date_new
 
-    if (doc.flags.in_insert or not doc.sync_id):
+    if (doc.flags.ignore_sync or not doc.sync_id):
         frappe.logger("Webhook").info(
-            f"[SKIP] Insert event for {doc.doctype} {doc.name} due to in_insert flag"
+            f"[SKIP] Insert event for {doc.doctype} {doc.name} due to ignore_sync flag"
         )
-        doc.flags.in_insert = False        
+        doc.flags.ignore_sync = False        
         return
 
     # Tạo payload
@@ -272,6 +272,7 @@ def fetch_linked_data(doctype: str, identifier: str):
 
 
 def safe_save(non_updatable_fields, data, doctype, sync_key):
+    
     frappe.db.rollback()
     fresh_doc = frappe.get_doc(doctype, {"sync_id": sync_key})
     meta = frappe.get_meta(doctype)
@@ -286,7 +287,7 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
 
         fieldtype = field_meta.fieldtype
 
-        # ✅ Trường kiểu Table
+        # Trường kiểu Table
         if fieldtype == "Table" and isinstance(value, list):
             child_doctype = field_meta.options
             existing = [row.as_dict() for row in fresh_doc.get(key)]
@@ -294,18 +295,21 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
             if existing != value:
                 fresh_doc.set(key, [])
                 for row in value:
+                    row.pop("name", None)  # Xoá name để tránh trùng key
                     child_doc = frappe.new_doc(child_doctype)
                     child_doc.update(row)
                     fresh_doc.append(key, child_doc)
 
-        # ✅ Trường kiểu Table MultiSelect
+        # Trường kiểu Table MultiSelect
         elif fieldtype == "Table MultiSelect" and isinstance(value, list):
+            # Normalize danh sách link hiện có
             existing_links = sorted([d.link for d in fresh_doc.get(key)])
             incoming_links = sorted([d.get("link") for d in value if d.get("link")])
 
             if existing_links != incoming_links:
                 fresh_doc.set(key, [])
                 for row in value:
+                    row.pop("name", None)  # Xoá name để tránh trùng key
                     if row.get("link"):
                         fresh_doc.append(key, {"link": row["link"]})
 

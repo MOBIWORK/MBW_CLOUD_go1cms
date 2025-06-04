@@ -11,7 +11,7 @@
     row-key="name"
   >
     <ListHeader @columnWidthUpdated="emit('columnWidthUpdated')" />
-    <ListRows id="list-rows" v-if="rows && rows.length" doctype="ATS_JobOpening" 	class="relative">
+    <ListRows id="list-rows" v-if="rows && rows.length" doctype="CMS_JobOpening" 	class="relative">
       <ListRow
         v-for="row in rows"
         :key="row.name_web"

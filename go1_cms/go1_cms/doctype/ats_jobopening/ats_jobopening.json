@@ -1,8 +1,8 @@
 {
  "actions": [],
- "allow_guest_to_view": 1,
  "allow_import": 1,
- "allow_rename": 0,
+ "allow_rename": 1,
+ "autoname": "field:jo_public_title",
  "creation": "2025-01-17 00:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -17,6 +17,9 @@
   "jo_display_quantity",
   "jo_language_requirement",
   "publish_to_career_page",
+  "cal_com_id",
+  "calcom_event_type_id",
+  "top_cv_id",
   "column_break_qxvs",
   "jo_internal_title",
   "jo_using_unit",
@@ -25,9 +28,9 @@
   "jo_application_deadline",
   "status",
   "applicants_applied",
-  "route",
-  "sync_id",
-  "sync_source",
+  "jo_department",
+  "jo_priority",
+  "job_url_cms",
   "description_section",
   "column_frqrqrqr",
   "jo_job_description",
@@ -46,18 +49,10 @@
   "jo_min_salary",
   "jo_max_salary",
   "recruitment_process_section",
-  "recruitment_process"
+  "recruitment_process",
+  "sync_id"
  ],
  "fields": [
-  {
-   "fieldname": "general_section",
-   "fieldtype": "Section Break",
-   "label": "General"
-  },
-  {
-   "fieldname": "column_gagqreqr",
-   "fieldtype": "Column Break"
-  },
   {
    "fieldname": "jo_id",
    "fieldtype": "Data",
@@ -65,6 +60,13 @@
    "label": "Job Opening ID",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "jo_internal_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Internal Title"
   },
   {
    "fieldname": "jo_public_title",
@@ -75,60 +77,17 @@
    "unique": 1
   },
   {
+   "fieldname": "jo_using_unit",
+   "fieldtype": "Link",
+   "label": "Using Unit",
+   "options": "ATS_Unit"
+  },
+  {
    "fieldname": "jo_level_id",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Level ID",
    "options": "ATS_Level"
-  },
-  {
-   "fieldname": "jo_profession_id",
-   "fieldtype": "Link",
-   "label": "Profession ID",
-   "options": "ATS_Profession"
-  },
-  {
-   "default": "Full-Time",
-   "fieldname": "jo_work_form",
-   "fieldtype": "Select",
-   "label": "Work Form",
-   "options": "Full-Time\nPart-Time\nTemporary Contract\nIntern\nCollaborator\nFreelance"
-  },
-  {
-   "default": "1",
-   "fieldname": "jo_display_quantity",
-   "fieldtype": "Int",
-   "label": "Display Quantity"
-  },
-  {
-   "default": "Vietnamese",
-   "fieldname": "jo_language_requirement",
-   "fieldtype": "Select",
-   "label": "Language Requirement",
-   "options": "Vietnamese\nEnglish"
-  },
-  {
-   "default": "0",
-   "fieldname": "publish_to_career_page",
-   "fieldtype": "Check",
-   "label": "Publish to career page"
-  },
-  {
-   "fieldname": "column_break_qxvs",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "jo_internal_title",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Internal Title"
-  },
-  {
-   "fieldname": "jo_using_unit",
-   "fieldtype": "Link",
-   "label": "Using Unit",
-   "options": "ATS_Unit"
   },
   {
    "fieldname": "jo_position",
@@ -140,10 +99,23 @@
    "reqd": 1
   },
   {
+   "fieldname": "jo_profession_id",
+   "fieldtype": "Link",
+   "label": "Profession ID",
+   "options": "ATS_Profession"
+  },
+  {
    "fieldname": "jo_location",
    "fieldtype": "Link",
    "label": "Location",
    "options": "ATS_Location"
+  },
+  {
+   "default": "Full-Time",
+   "fieldname": "jo_work_form",
+   "fieldtype": "Select",
+   "label": "Work Form",
+   "options": "Full-Time\nPart-Time\nTemporary Contract\nIntern\nCollaborator\nFreelance"
   },
   {
    "fieldname": "jo_application_deadline",
@@ -151,87 +123,10 @@
    "label": "Application Deadline"
   },
   {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "Draft\nOpen\nPaused\nClosed for Applications\nFilled"
-  },
-  {
-   "fieldname": "applicants_applied",
+   "default": "1",
+   "fieldname": "jo_display_quantity",
    "fieldtype": "Int",
-   "label": "Applicants Applied",
-   "read_only": 1
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "description_section",
-   "fieldtype": "Section Break",
-   "label": "Description"
-  },
-  {
-   "fieldname": "column_frqrqrqr",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "jo_job_description",
-   "fieldtype": "Text Editor",
-   "label": "Job Description"
-  },
-  {
-   "fieldname": "jo_job_requirement",
-   "fieldtype": "Text Editor",
-   "label": "Job Requirement"
-  },
-  {
-   "fieldname": "jo_job_benefits",
-   "fieldtype": "Text Editor",
-   "label": "Job Benefits"
-  },
-  {
-   "fieldname": "section_break_xsgy",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "hiring_committee",
-   "fieldtype": "Table MultiSelect",
-   "label": "Hiring Committee",
-   "options": "Hiring Committee"
-  },
-  {
-   "fieldname": "contact_infomation_section",
-   "fieldtype": "Section Break",
-   "label": "Contact infomation"
-  },
-  {
-   "fieldname": "column_fggaga",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "jo_contact_phone",
-   "fieldtype": "Data",
-   "label": "Contact Phone"
-  },
-  {
-   "fieldname": "jo_contact_email",
-   "fieldtype": "Data",
-   "label": "Contact Email"
-  },
-  {
-   "fieldname": "jo_contact_person",
-   "fieldtype": "Data",
-   "label": "Contact Person"
-  },
-  {
-   "fieldname": "column_break_fhsu",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "VND",
-   "fieldname": "jo_currency",
-   "fieldtype": "Select",
-   "label": "Currency",
-   "options": "USD\nEUR\nVND"
+   "label": "Display Quantity"
   },
   {
    "default": "Details",
@@ -251,6 +146,99 @@
    "label": "Max Salary"
   },
   {
+   "default": "VND",
+   "fieldname": "jo_currency",
+   "fieldtype": "Select",
+   "label": "Currency",
+   "options": "USD\nEUR\nVND"
+  },
+  {
+   "fieldname": "jo_job_description",
+   "fieldtype": "Text Editor",
+   "label": "Job Description"
+  },
+  {
+   "fieldname": "jo_job_requirement",
+   "fieldtype": "Text Editor",
+   "label": "Job Requirement"
+  },
+  {
+   "fieldname": "jo_job_benefits",
+   "fieldtype": "Text Editor",
+   "label": "Job Benefits"
+  },
+  {
+   "fieldname": "jo_contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "jo_contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone"
+  },
+  {
+   "fieldname": "jo_contact_email",
+   "fieldtype": "Data",
+   "label": "Contact Email"
+  },
+  {
+   "default": "Vietnamese",
+   "fieldname": "jo_language_requirement",
+   "fieldtype": "Select",
+   "label": "Language Requirement",
+   "options": "Vietnamese\nEnglish"
+  },
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "fieldname": "column_break_qxvs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "contact_infomation_section",
+   "fieldtype": "Section Break",
+   "label": "Contact infomation"
+  },
+  {
+   "fieldname": "column_break_fhsu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_fggaga",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_frqrqrqr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_gagqreqr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "applicants_applied",
+   "fieldtype": "Int",
+   "label": "Applicants Applied",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nOpen\nPaused\nClosed for Applications\nFilled"
+  },
+  {
    "fieldname": "recruitment_process_section",
    "fieldtype": "Section Break",
    "label": "Recruitment Process"
@@ -263,29 +251,66 @@
    "options": "Job_Opening_Rounds"
   },
   {
-   "fieldname": "route",
+   "fieldname": "section_break_xsgy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "hiring_committee",
+   "fieldtype": "Table MultiSelect",
+   "label": "Hiring Committee",
+   "options": "Hiring Committee"
+  },
+  {
+   "default": "0",
+   "fieldname": "publish_to_career_page",
+   "fieldtype": "Check",
+   "label": "Publish to career page"
+  },
+  {
+   "fieldname": "jo_department",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Department",
+   "options": "ATS_Unit"
+  },
+  {
+   "fieldname": "jo_priority",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Priority",
+   "options": "1\n2\n3"
+  },
+  {
+   "fieldname": "cal_com_id",
    "fieldtype": "Data",
-   "label": "Route",
-   "unique": 1
+   "label": "Cal Com Id",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calcom_event_type_id",
+   "fieldtype": "Int",
+   "label": "Calcom event type id"
+  },
+  {
+   "fieldname": "top_cv_id",
+   "fieldtype": "Data",
+   "label": "Top CV"
+  },
+  {
+   "fieldname": "job_url_cms",
+   "fieldtype": "Code",
+   "label": "Job Url"
   },
   {
    "fieldname": "sync_id",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Sync ID"
-  },
-  {
-   "default": "0",
-   "fieldname": "sync_source",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Sync Source"
+   "label": "SyncID"
   }
  ],
- "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 09:18:58.033191",
+ "modified": "2025-06-04 12:49:42.337199",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",
@@ -305,6 +330,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []
