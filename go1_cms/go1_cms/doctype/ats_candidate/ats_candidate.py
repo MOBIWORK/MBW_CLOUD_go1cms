@@ -1,7 +1,7 @@
 # Copyright (c) 2025, Tridotstech and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
@@ -81,3 +81,19 @@ class ATS_Candidate(Document):
 			"columns": columns,
 			"rows": rows
 		}
+
+@frappe.whitelist()
+def get_job_opening_rounds(job_opening):
+	"""
+	Lấy danh sách vòng tuyển dụng của một Job Opening
+	"""
+	if not job_opening:
+		return []
+
+	rounds = frappe.get_all(
+		"Job_Opening_Rounds",
+		filters={"parent": job_opening},
+		fields=["name", "round_name", "idx"],  # Thêm idx để sắp xếp
+		order_by="idx asc"  # Sắp xếp theo thứ tự idx tăng dần
+	)
+	return rounds
