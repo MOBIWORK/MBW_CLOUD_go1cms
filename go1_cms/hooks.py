@@ -154,7 +154,7 @@ doc_events = {
         #"before_save": "go1_cms.api.sync_data.check_sync_flags",
         # "after_delete": "go1_cms.api.synchronous_data.send_delete",
     },
-    "ATS_Candidate_Onboarding_Step": {
+    "ATS_Onboarding": {
         "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
         # "before_delete": "go1_cms.api.sync_data.check_sync_flags"
     },

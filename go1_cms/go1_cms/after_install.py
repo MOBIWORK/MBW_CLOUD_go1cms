@@ -839,7 +839,7 @@ def setup_candidate_permissions():
 	onboard_perm = frappe.get_doc({
 		"doctype": "Custom DocPerm",
 		"role": role_name,
-		"parent": "ATS_Candidate_Onboarding_Step",
+		"parent": "ATS_Onboarding",
 		"permlevel": 0,
 		"read": 1,
 		"write": 1,
@@ -847,6 +847,20 @@ def setup_candidate_permissions():
 		"if_owner": 1
 		})
 	onboard_perm.insert(ignore_permissions=True)
+
+	onboard_step_perm = frappe.get_doc({
+		"doctype": "Custom DocPerm",
+		"role": role_name,
+		"parent": "ATS_Candidate_Onboarding_Step",
+		"permlevel": 0,
+		"read": 1,
+		"write": 1,
+		"apply_user_permissions": 1,
+		"if_owner": 1
+		})
+	onboard_step_perm.insert(ignore_permissions=True)
+
+	
 
 	quiz_perm = frappe.get_doc({
 		"doctype": "Custom DocPerm",

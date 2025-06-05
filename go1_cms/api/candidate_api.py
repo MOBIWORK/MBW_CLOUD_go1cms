@@ -85,9 +85,9 @@ def upload_cv(filedata, filename):
 @frappe.whitelist()
 def get_onboarding_steps():
     email = frappe.session.user
-    candidate = frappe.get_doc("ATS_Candidate", {"can_email": email})
-    steps = frappe.get_all("ATS_Candidate_Onboarding_Step", 
-        filters={"candidate": candidate.name}, 
+    #candidate = frappe.get_doc("ATS_Candidate", {"can_email": email})
+    steps = frappe.get_all("ATS_Onboarding", 
+        filters={"email": email}, 
         fields=["name", "step_name", "description", "is_completed", "completed_on"], 
         order_by="creation asc")
     return steps
