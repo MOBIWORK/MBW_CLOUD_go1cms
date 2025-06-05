@@ -30,13 +30,14 @@ def get_my_application_status():
     """
     email = frappe.session.user
 
-    status = frappe.db.get_value("ATS_Candidate", {"can_email": email}, "status")
-
+    status,job_opening_id = frappe.db.get_value("ATS_Candidate", {"can_email": email}, ["status","job_opening_id"])
+    recruitment_process = frappe.db.get_value("ATS_JobOpening", job_opening_id, "recruitment_process")
     if not status:
         frappe.throw(_("Không tìm thấy trạng thái ứng viên."))
 
     return {
-        "status": status
+        "status": status,
+        "recruitment_process":recruitment_process
     }
 
 
@@ -85,7 +86,7 @@ def upload_cv(filedata, filename):
 def get_onboarding_steps():
     email = frappe.session.user
     candidate = frappe.get_doc("ATS_Candidate", {"can_email": email})
-    steps = frappe.get_all("Candidate Onboarding Step", 
+    steps = frappe.get_all("ATS_Candidate_Onboarding_Step", 
         filters={"candidate": candidate.name}, 
         fields=["name", "step_name", "description", "is_completed", "completed_on"], 
         order_by="creation asc")
