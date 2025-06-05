@@ -799,54 +799,66 @@ def update_workspace_v14():
 
 # khởi tạo role
 def setup_candidate_permissions():
-    role_name = "Candidate"
-    if not frappe.db.exists("Role", role_name):
-        frappe.get_doc({
-            "doctype": "Role",
-            "role_name": role_name,
-            "desk_access": 0
-        }).insert(ignore_permissions=True)
+	role_name = "Candidate"
+	if not frappe.db.exists("Role", role_name):
+		frappe.get_doc({
+			"doctype": "Role",
+			"role_name": role_name,
+			"desk_access": 0
+		}).insert(ignore_permissions=True)
 
-    # Xóa quyền cũ (nếu cần làm sạch trước)
-    frappe.db.delete("Custom DocPerm", {"role": role_name})
+	# Xóa quyền cũ (nếu cần làm sạch trước)
+	frappe.db.delete("Custom DocPerm", {"role": role_name})
 
-    # Cấu hình quyền cho Job Application
-    job_perm = frappe.get_doc({
-        "doctype": "Custom DocPerm",
-        "role": role_name,
-        "parent": "ATS_Candidate",
-        "permlevel": 0,
-        "read": 1,
-        "write": 1,
-        "apply_user_permissions": 1,
-        "if_owner": 1
-    })
-    job_perm.insert(ignore_permissions=True)
+	# Cấu hình quyền cho Job Application
+	job_perm = frappe.get_doc({
+		"doctype": "Custom DocPerm",
+		"role": role_name,
+		"parent": "ATS_Candidate",
+		"permlevel": 0,
+		"read": 1,
+		"write": 1,
+		"apply_user_permissions": 1,
+		"if_owner": 1
+	})
+	job_perm.insert(ignore_permissions=True)
 
-    # Cấu hình quyền cho File
-    file_perm = frappe.get_doc({
-        "doctype": "Custom DocPerm",
-        "role": role_name,
-        "parent": "File",
-        "permlevel": 0,
-        "read": 1,
-        "apply_user_permissions": 1,
-        "if_owner": 1
-    })
-    file_perm.insert(ignore_permissions=True)
+	# Cấu hình quyền cho File
+	file_perm = frappe.get_doc({
+		"doctype": "Custom DocPerm",
+		"role": role_name,
+		"parent": "File",
+		"permlevel": 0,
+		"read": 1,
+		"apply_user_permissions": 1,
+		"if_owner": 1
+	})
+	file_perm.insert(ignore_permissions=True)
     
-    # Cấu hình quyền cho ATS_Candidate_Onboarding_Step
-    onboard_perm = frappe.get_doc({
-        "doctype": "Custom DocPerm",
-        "role": role_name,
-        "parent": "ATS_Candidate_Onboarding_Step",
-        "permlevel": 0,
-        "read": 1,
-        "write": 1,
-        "apply_user_permissions": 1,
-        "if_owner": 1
-    })
-    onboard_perm.insert(ignore_permissions=True)
+	# Cấu hình quyền cho ATS_Candidate_Onboarding_Step
+	onboard_perm = frappe.get_doc({
+		"doctype": "Custom DocPerm",
+		"role": role_name,
+		"parent": "ATS_Candidate_Onboarding_Step",
+		"permlevel": 0,
+		"read": 1,
+		"write": 1,
+		"apply_user_permissions": 1,
+		"if_owner": 1
+		})
+	onboard_perm.insert(ignore_permissions=True)
 
-    frappe.db.commit()
-    print("Candidate role & permissions set successfully.")
+	quiz_perm = frappe.get_doc({
+		"doctype": "Custom DocPerm",
+		"role": role_name,
+		"parent": "LMS Quiz",
+		"permlevel": 0,
+		"read": 1,
+		"write": 1,
+		"apply_user_permissions": 1,
+		"if_owner": 1
+		})
+	quiz_perm.insert(ignore_permissions=True)  
+    
+	frappe.db.commit()
+	print("Candidate role & permissions set successfully.")

@@ -158,6 +158,9 @@ doc_events = {
         "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
         # "before_delete": "go1_cms.api.sync_data.check_sync_flags"
     },
+    "LMS Quiz":{
+        "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
+        }
 }
 
 # Scheduled Tasks
