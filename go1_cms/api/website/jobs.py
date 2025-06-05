@@ -270,7 +270,7 @@ def upload_cv(name_job, **kwargs):
             new_doc.can_phone = phone_number
             new_doc.job_opening_id = jo_public_title
             new_doc.sync_id = str(uuid.uuid4())
-            new_doc.flags.ignore_sync = False
+            frappe.flags.ignore_webhook_sync = True
             doc_saved = new_doc.save(ignore_permissions=True)
             frappe.db.commit()
             filename = ''

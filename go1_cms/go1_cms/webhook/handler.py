@@ -39,7 +39,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
         doc = frappe.get_doc({ "doctype": doctype, **data })
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
-        doc.flags.ignore_sync = True
+        frappe.flags.ignore_webhook_sync = True
         log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
     elif action == "update":
         if not exists:
@@ -47,7 +47,7 @@ def parse_webhook_data(data: dict, doctype: str, key_field: str = "sync_id"):
             doc = frappe.get_doc({ "doctype": doctype, **data })
             doc.insert(ignore_permissions=True)
             frappe.db.commit()
-            doc.flags.ignore_sync = True
+            frappe.flags.ignore_webhook_sync = True
             log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
         else:
             safe_save(non_updatable_fields, data, doctype, docname)
@@ -111,20 +111,18 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
                 if exists:
                     raise frappe.ValidationError(f"Record with {key_field} '{sync_key}' already exists")
                 doc = frappe.get_doc({ "doctype": doctype, **data })
-                
+                frappe.flags.ignore_webhook_sync = True
                 doc.insert(ignore_permissions=True)
                 frappe.db.commit()
-                doc.flags.ignore_sync = True
                 log_webhook_result(doctype, sync_key, "insert", "success", "Inserted", data)
                 results.append({ "status": "success", "action": "insert", "sync_id": sync_key })
 
             elif action == "update":
                 if not exists:
                     doc = frappe.get_doc({ "doctype": doctype, **data })
-                    
+                    frappe.flags.ignore_webhook_sync = True
                     doc.insert(ignore_permissions=True)
                     frappe.db.commit()
-                    doc.flags.ignore_sync = True
                     log_webhook_result(doctype, sync_key, "insert", "success", "Auto-inserted via update", data)
                     results.append({ "status": "success", "action": "insert (via update)", "sync_id": sync_key })
                 else:
@@ -154,7 +152,7 @@ def handle_doc_event(doc, method):
     """
     Event hook xử lý CRUD cho DocType thông qua các sự kiện của Frappe
     """
-    print("Nhận hook",doc.flags.ignore_sync, doc.sync_id)
+    print("Nhận hook",getattr(frappe.flags, "ignore_webhook_sync", True), doc.sync_id)
     action_map = {"after_insert": "insert", "on_update": "update", "on_trash": "delete"}
     action = action_map.get(method)
     if not action:
@@ -172,11 +170,11 @@ def handle_doc_event(doc, method):
         doc.db_set("can_application_date", can_application_date_new)
         doc.can_application_date = can_application_date_new
 
-    if (doc.flags.ignore_sync or not doc.sync_id):
+    if (getattr(frappe.flags, "ignore_webhook_sync", True) or not doc.sync_id):
         frappe.logger("Webhook").info(
             f"[SKIP] Insert event for {doc.doctype} {doc.name} due to ignore_sync flag"
         )
-        doc.flags.ignore_sync = False        
+        frappe.flags.ignore_webhook_sync = False       
         return
 
     # Tạo payload
@@ -336,7 +334,7 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
         elif not isinstance(value, (list, dict)):
             if getattr(fresh_doc, key) != value:
                 setattr(fresh_doc, key, value)
-
+    frappe.flags.ignore_webhook_sync = True
     fresh_doc.save(ignore_permissions=True)
     frappe.db.commit()
-    fresh_doc.flags.ignore_sync = True
+    
