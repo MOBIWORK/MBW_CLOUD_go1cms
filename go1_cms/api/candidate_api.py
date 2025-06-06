@@ -181,13 +181,7 @@ def upload_onboarding_step_file(onboarding_id, step_name):
         matched_step.approved_by_hr = 0  # Explicitly mark as not approved
         frappe.msgprint(_("This step is pending HR review."))
 
-    # 5. Nếu cần HR duyệt thì gửi email
-    if matched_step.requires_hr_approval:
-        send_hr_approval_email(
-            onboarding=onboarding,
-            step_name=step_name,
-            file_url=file_doc.file_url
-        )
+    
 
     onboarding.save(ignore_permissions=True)
     frappe.db.commit()

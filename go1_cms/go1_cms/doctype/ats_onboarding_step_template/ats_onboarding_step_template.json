@@ -8,7 +8,8 @@
   "template_name",
   "job_opening",
   "is_active",
-  "steps"
+  "steps",
+  "sync_id"
  ],
  "fields": [
   {
@@ -33,7 +34,12 @@
    "fieldtype": "Table",
    "label": "Steps",
    "options": "ATS_Onboarding_Step_Template_Detail"
-  }
+  },{
+    "fieldname": "sync_id",
+    "fieldtype": "Data",
+    "label": "Sync ID",
+    "description": "ID used for synchronization with mbw_ats"
+}
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,

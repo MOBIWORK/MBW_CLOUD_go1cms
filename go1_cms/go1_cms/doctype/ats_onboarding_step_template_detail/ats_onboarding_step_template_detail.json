@@ -11,7 +11,8 @@
   "description",
   "required_upload",
   "requires_hr_approval",
-  "idx"
+  "idx",
+  "sync_id"
  ],
  "fields": [
   {
@@ -46,7 +47,12 @@
    "fieldname": "idx",
    "fieldtype": "Int",
    "label": "idx"
-  }
+  },{
+    "fieldname": "sync_id",
+    "fieldtype": "Data",
+    "label": "Sync ID",
+    "description": "ID used for synchronization with mbw_ats"
+}
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
