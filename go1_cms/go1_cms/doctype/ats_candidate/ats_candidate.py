@@ -82,6 +82,14 @@ class ATS_Candidate(Document):
 			"rows": rows
 		}
 
+	def before_save(self):
+		if not self.status and self.job_opening_id:
+			stages = get_job_opening_rounds(self.job_opening_id)
+			if stages:
+				round_name = stages[0].round_name
+				self.status = round_name
+		if not self.candidatesource_id:
+			self.candidatesource_id = "Website"
 @frappe.whitelist()
 def get_job_opening_rounds(job_opening):
 	"""
