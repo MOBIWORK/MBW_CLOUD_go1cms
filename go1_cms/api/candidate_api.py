@@ -2,7 +2,7 @@
 import frappe
 import json
 from frappe import _
-from frappe.utils import now_datetime
+from frappe.utils import now
 from frappe.utils.file_manager import save_file
 
 @frappe.whitelist()
