@@ -49,7 +49,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Draff\nIn Progress\nCompleted\nCancelled"
+   "options": "Draft\nIn Progress\nCompleted\nCancelled"
   },
   {
    "fieldname": "assigned_to",
@@ -67,17 +67,18 @@
    "fieldtype": "Table",
    "label": "Steps",
    "options": "ATS_Candidate_Onboarding_Step"
-  },{
-    "fieldname": "sync_id",
-    "fieldtype": "Data",
-    "label": "Sync ID",
-    "description": "ID used for synchronization with mbw_ats"
-}
+  },
+  {
+   "description": "ID used for synchronization with mbw_ats",
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "label": "Sync ID"
+  }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-05 14:59:18.205204",
+ "modified": "2025-06-09 17:28:07.048579",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Onboarding",

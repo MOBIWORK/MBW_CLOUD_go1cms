@@ -32,7 +32,7 @@ def apply_cv(email, full_name, phone):
         "used": 0
     })
     link_doc.insert(ignore_permissions=True)
-
+    
     url = f"{frappe.utils.get_url()}/candidate/set-password?token={token}"
     return {
         "success": True,
