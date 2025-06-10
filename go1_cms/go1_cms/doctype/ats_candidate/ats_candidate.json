@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "allow_rename": 1,
+ "autoname": "format:{can_id}-{can_full_name}",
  "creation": "2025-02-04 12:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -362,11 +362,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-04 12:46:14.544083",
+ "modified": "2025-06-10 08:23:35.742857",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Candidate",
- "naming_rule": "By script",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

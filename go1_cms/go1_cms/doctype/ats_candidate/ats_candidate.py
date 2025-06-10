@@ -88,8 +88,8 @@ class ATS_Candidate(Document):
 			if stages:
 				round_name = stages[0].round_name
 				self.status = round_name
-		if not self.candidatesource_id:
-			self.candidatesource_id = "Website"
+		# if not self.candidatesource_id:
+		# 	self.candidatesource_id = "Website"
 @frappe.whitelist()
 def get_job_opening_rounds(job_opening):
 	"""
@@ -105,33 +105,3 @@ def get_job_opening_rounds(job_opening):
 		order_by="idx asc"  # Sắp xếp theo thứ tự idx tăng dần
 	)
 	return rounds
-
-def update_candidate_name(doc, method):
-    new_name = f"{doc.can_id} - {doc.can_full_name}"
-
-    # Kiểm tra nếu tên mới khác tên cũ
-    if doc.name and doc.name != new_name:
-        try:
-            # Đổi tên bản ghi, bỏ `merge=True`
-            frappe.rename_doc("ATS_Candidate", doc.name, new_name, force=True, ignore_if_exists=True)
-            doc.name = new_name  # Cập nhật lại name
-        except frappe.DoesNotExistError:
-            frappe.log_error(f"Không tìm thấy bản ghi {doc.name} để đổi tên.", "Rename ATS_Candidate Error")
-        except Exception as e:
-            frappe.log_error(f"Lỗi khi đổi tên ứng viên: {str(e)}", "Rename ATS_Candidate Error")
-
-    
-    
-def update_candidate_names():
-    candidates = frappe.get_all("ATS_Candidate", fields=["name", "can_id", "can_full_name"])
-    for candidate in candidates:
-        new_name = f"{candidate.can_id} - {candidate.can_full_name}"
-        if candidate.name != new_name:
-            try:
-                frappe.rename_doc("ATS_Candidate", candidate.name, new_name, force=True)
-                print(f"Đã đổi tên: {candidate.name} -> {new_name}")
-            except Exception as e:
-                print(f"Lỗi khi đổi tên {candidate.name}: {e}")
-
-def autoname(doc, method):    
-    doc.name = f"{doc.can_id} - {doc.can_full_name}"

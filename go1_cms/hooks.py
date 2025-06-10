@@ -150,9 +150,8 @@ doc_events = {
         "on_change": "go1_cms.api.doc_events.send_mail_sale_order"
     },
     "ATS_Candidate": {
-        "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event",
-        "autoname": "go1_cms.go1_cms.doctype.ats_candidate.ats_candidate.autoname",
-        "before_save": "go1_cms.go1_cms.doctype.ats_candidate.ats_candidate.update_candidate_name",
+        "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
+       
     },
     "ATS_Onboarding": {
         "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
