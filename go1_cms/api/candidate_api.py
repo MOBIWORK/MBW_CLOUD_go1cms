@@ -85,33 +85,68 @@ def upload_cv(filedata, filename):
 @frappe.whitelist()
 def get_onboarding_steps():
     email = frappe.session.user
-    #candidate = frappe.get_doc("ATS_Candidate", {"can_email": email})
-    steps = frappe.get_all("ATS_Onboarding", 
+    # Get the onboarding record for the current user
+    onboarding_docs = frappe.get_all("ATS_Onboarding", 
         filters={"email": email}, 
-        fields=["name", "step_name", "description", "is_completed", "completed_on"], 
+        fields=["name"],
         order_by="creation asc")
-    return steps
+    
+    if not onboarding_docs:
+        return []
+    
+    # Get steps from the child table
+    all_steps = []
+    for onboarding in onboarding_docs:
+        onboarding_doc = frappe.get_doc("ATS_Onboarding", onboarding.name)
+        for step in onboarding_doc.steps:
+            step_data = {
+                "onboarding_id": onboarding.name,
+                "step_name": step.step_name,
+                "description": step.description,
+                "is_completed": step.is_completed,
+                "completed_on": step.completed_on,
+                "step_type": step.step_type,
+                "required_upload": step.required_upload,
+                "uploaded_file": step.uploaded_file,
+                "requires_hr_approval": step.requires_hr_approval,
+                "approved_by_hr": step.approved_by_hr
+            }
+            all_steps.append(step_data)
+    
+    return all_steps
 
 @frappe.whitelist()
 def mark_onboarding_step_complete(onboarding_id, step_name, uploaded_file=None):
     onboarding = frappe.get_doc("ATS_Onboarding", onboarding_id)
     found = False
+    target_step = None
 
     for step in onboarding.steps:
         if step.step_name == step_name:
-            step.is_completed = 1
-            step.completed_on = now()
-            step.completed_by_user = frappe.session.user
-            if uploaded_file:
-                step.uploaded_file = uploaded_file
+            target_step = step
             found = True
             break
 
     if not found:
         frappe.throw(_("Step '{0}' not found in onboarding").format(step_name))
 
-    onboarding.save(ignore_permissions=True)
-    frappe.db.commit()
+    try:
+        # Update trực tiếp child record để tránh trigger parent save
+        frappe.db.set_value("ATS_Candidate_Onboarding_Step", target_step.name, {
+            "is_completed": 1,
+            "completed_on": now(),
+            "completed_by_user": frappe.session.user,
+            "uploaded_file": uploaded_file if uploaded_file else target_step.uploaded_file
+        })
+        frappe.db.commit()
+        
+        # Reload onboarding để có data mới nhất
+        onboarding.reload()
+        
+    except Exception as e:
+        frappe.db.rollback()
+        frappe.log_error(f"Error saving onboarding step: {str(e)}")
+        frappe.throw(_("Có lỗi xảy ra khi lưu bước onboarding: {0}").format(str(e)))
 
     return {
         "message": "Step marked as completed",

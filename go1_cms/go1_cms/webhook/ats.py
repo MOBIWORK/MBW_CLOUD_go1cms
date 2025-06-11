@@ -7,7 +7,7 @@ import json
 # Sync lần đầu
 
 
-@secure_webhook()
+@secure_webhook(require_hmac=True)
 def receive_webhook():
     """
     API nhận webhook dạng batch, sử dụng sync_id làm key định danh.
@@ -38,7 +38,7 @@ def receive_webhook():
         return {"status": "completed"}
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Webhook Receive Error")
+        frappe.log_error(frappe.get_traceback(), "Webhook Receive Error: " + str(e))
         return {"status": "error", "message": str(e)}
 
 

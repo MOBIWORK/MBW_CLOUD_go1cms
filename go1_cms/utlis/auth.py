@@ -47,7 +47,8 @@ def secure_webhook(require_hmac=True, require_token=False):
             if require_hmac:
                 secret = frappe.conf.get("webhook_secret", "default_secret")
                 body = json.loads(frappe.request.data)
-                payload_json = json.dumps({"name":body.get("name")})
+                # Sử dụng toàn bộ payload như phía gửi để tính HMAC với SAME format
+                payload_json = json.dumps(body, default=str, separators=(',', ':'))
                 received_signature = headers.get("x-signature")
 
                 if not received_signature:

@@ -1,7 +1,28 @@
 import frappe
 from frappe import _
 import json
-from mbw_ats.api.doc import get_fields_meta, get_assigned_users
+
+# Replace missing mbw_ats functions with local implementations
+def get_fields_meta(doctype):
+    """Get meta fields for doctype"""
+    try:
+        meta = frappe.get_meta(doctype)
+        return {
+            "fields": [{"fieldname": f.fieldname, "label": f.label, "fieldtype": f.fieldtype} 
+                      for f in meta.fields if not f.hidden]
+        }
+    except Exception:
+        return {"fields": []}
+
+def get_assigned_users(doctype, name):
+    """Get assigned users for a document"""
+    try:
+        return frappe.get_all("ToDo", 
+                            filters={"reference_type": doctype, "reference_name": name, "status": "Open"},
+                            fields=["allocated_to"], 
+                            pluck="allocated_to")
+    except Exception:
+        return []
         
 
 @frappe.whitelist()

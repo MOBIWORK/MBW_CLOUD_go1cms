@@ -6,6 +6,44 @@ from go1_cms.api.wrapper_api import (
 )
 
 
+def delete_mobile_page_sections_for_template(page_template_name):
+    """Delete all Mobile Page Sections linked to a specific Page Template"""
+    try:
+        # Get all Mobile Page Sections linked to this Page Template
+        mobile_sections = frappe.db.get_all(
+            "Mobile Page Section", 
+            filters={
+                "parent": page_template_name, 
+                "parenttype": "Page Template"
+            },
+            fields=["name", "section"]
+        )
+        
+        deleted_count = 0
+        for section in mobile_sections:
+            try:
+                # Delete the associated Page Section first if it exists
+                if section.section and frappe.db.exists("Page Section", section.section):
+                    frappe.delete_doc("Page Section", section.section, ignore_permissions=True)
+                    print(f"  🗑️  Deleted Page Section: {section.section}")
+                
+                # Delete the Mobile Page Section
+                frappe.delete_doc("Mobile Page Section", section.name, ignore_permissions=True)
+                deleted_count += 1
+                print(f"  🗑️  Deleted Mobile Page Section: {section.name}")
+                
+            except Exception as e:
+                print(f"  ⚠️  Error deleting Mobile Page Section {section.name}: {str(e)}")
+                # Continue with other sections even if one fails
+                
+        frappe.db.commit()
+        return deleted_count
+        
+    except Exception as e:
+        print(f"⚠️  Error in delete_mobile_page_sections_for_template: {str(e)}")
+        return 0
+
+
 @frappe.whitelist()
 @check_user_admin
 def get_client_websites():
@@ -159,22 +197,56 @@ def delete_client_website(name):
 
         # === comment: if keep template
         # delete resource template
+        print(f"🗑️  Deleting Page Templates and dependencies for template: {name}")
+        
         for temp in web_template_dict.page_templates:
-            frappe.delete_doc('Page Template', temp.page_template)
+            try:
+                page_template_name = temp.page_template
+                print(f"📄 Processing Page Template: {page_template_name}")
+                
+                # First, delete Mobile Page Sections linked to this Page Template
+                deleted_sections_count = delete_mobile_page_sections_for_template(page_template_name)
+                print(f"  🗑️  Deleted {deleted_sections_count} Mobile Page Sections")
+                
+                # Then delete the Page Template itself
+                frappe.delete_doc('Page Template', page_template_name, ignore_permissions=True)
+                print(f"  ✅ Deleted Page Template: {page_template_name}")
+                
+            except frappe.DoesNotExistError:
+                print(f"  ⚠️  Page Template {page_template_name} already deleted or not found")
+            except Exception as e:
+                print(f"  ❌ Error deleting Page Template {page_template_name}: {str(e)}")
+                # Continue with other templates even if one fails
+                
         if web_template_dict.web_theme:
-            frappe.delete_doc('Web Theme', web_template_dict.web_theme)
+            try:
+                frappe.delete_doc('Web Theme', web_template_dict.web_theme, ignore_permissions=True)
+                print(f"✅ Deleted Web Theme: {web_template_dict.web_theme}")
+            except Exception as e:
+                print(f"⚠️  Error deleting Web Theme: {str(e)}")
+                
         if web_template_dict.header_component:
-            frappe.delete_doc('Header Component',
-                              web_template_dict.header_component)
+            try:
+                frappe.delete_doc('Header Component', web_template_dict.header_component, ignore_permissions=True)
+                print(f"✅ Deleted Header Component: {web_template_dict.header_component}")
+            except Exception as e:
+                print(f"⚠️  Error deleting Header Component: {str(e)}")
+                
         if web_template_dict.footer_component:
-            frappe.delete_doc('Footer Component',
-                              web_template_dict.footer_component)
+            try:
+                frappe.delete_doc('Footer Component', web_template_dict.footer_component, ignore_permissions=True)
+                print(f"✅ Deleted Footer Component: {web_template_dict.footer_component}")
+            except Exception as e:
+                print(f"⚠️  Error deleting Footer Component: {str(e)}")
 
         return name
     except frappe.ValidationError as ex:
+        print("ValidationError:", str(ex))
+        print("Traceback:", frappe.get_traceback())
         frappe.clear_last_message()
         frappe.throw(str(ex))
     except frappe.DoesNotExistError as ex:
+        
         frappe.clear_last_message()
         frappe.throw(str(ex), frappe.DoesNotExistError)
     except Exception as ex:

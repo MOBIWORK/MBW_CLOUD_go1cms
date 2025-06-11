@@ -165,17 +165,31 @@ def handle_doc_event(doc, method):
         doc.sync_id = new_sync_id
     
     #Kiểm tra xem có can_application_date
-    if not getattr(doc, "can_application_date", None):
+    if not getattr(doc, "can_application_date", None) and hasattr(doc, "can_application_date"):
         can_application_date_new = nowdate()
         doc.db_set("can_application_date", can_application_date_new)
         doc.can_application_date = can_application_date_new
 
-    if (getattr(frappe.flags, "ignore_webhook_sync", True) or not doc.sync_id):
-        frappe.logger("Webhook").info(
-            f"[SKIP] Insert event for {doc.doctype} {doc.name} due to ignore_sync flag"
-        )
-        frappe.flags.ignore_webhook_sync = False       
-        return
+    # For ATS_Candidate and ATS_Onboarding, always sync if sync_id exists (ignore the flag)
+    if doc.doctype in ["ATS_Candidate", "ATS_Onboarding"]:
+        print(f"[DEBUG] {doc.doctype} check: sync_id={doc.sync_id}")
+        if not doc.sync_id:
+            frappe.logger("Webhook").info(
+                f"[SKIP] {doc.doctype} {doc.name} - missing sync_id"
+            )
+            print(f"[DEBUG] SKIPPING {doc.doctype} - no sync_id")
+            return
+        print(f"[DEBUG] {doc.doctype} proceeding with sync: {doc.name}")
+    else:
+        # For other doctypes, respect the ignore flag
+        ignore_flag = getattr(frappe.flags, "ignore_webhook_sync", True)
+        print(f"[DEBUG] Non-ATS DocType {doc.doctype}: ignore_flag={ignore_flag}, sync_id={doc.sync_id}")
+        if (ignore_flag or not doc.sync_id):
+            frappe.logger("Webhook").info(
+                f"[SKIP] {action} event for {doc.doctype} {doc.name} due to ignore_sync flag"
+            )
+            frappe.flags.ignore_webhook_sync = False       
+            return
 
     # Tạo payload
     raw_record = doc.as_dict()

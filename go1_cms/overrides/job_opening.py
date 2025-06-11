@@ -18,12 +18,19 @@ class CustomJobOpening(JobOpening):
     def get_context(self, context):
         context.doc_name = self.name
         context.meta_title = self.job_title
+        
+        # Safely get cms meta fields using getattr to avoid AttributeError
+        cms_meta_description = getattr(self, 'cms_meta_description', None) or ''
+        cms_meta_keywords = getattr(self, 'cms_meta_keywords', None) or ''
+        cms_meta_title = getattr(self, 'cms_meta_title', None) or ''
+        cms_meta_image = getattr(self, 'cms_meta_image', None) or ''
+        
         context.metatags = frappe._dict({
-            "description": self.cms_meta_description or '',
-            "keywords": self.cms_meta_keywords or '',
-            "og:title": self.cms_meta_title or '',
-            "og:description": self.cms_meta_description or '',
-            "og:image": self.cms_meta_image or '',
+            "description": cms_meta_description,
+            "keywords": cms_meta_keywords,
+            "og:title": cms_meta_title,
+            "og:description": cms_meta_description,
+            "og:image": cms_meta_image,
         })
 
         if not self.route.endswith('jobs-123-jobs-456-jobs'):
