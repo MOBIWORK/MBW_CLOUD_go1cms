@@ -184,7 +184,10 @@ def export_template():
         create_zip_archive_of_the_folder(path, docname, docname)
         print("==================END: create file zip==================")
 
-    return {'msg': "Done"}
+    frappe.log_error(f"Export completed for {len(temp_names)} website templates", "export_template")
+    return {
+        'msg': f"Đã export thành công {len(temp_names)} website templates thành các file ZIP để phân phối"
+    }
 
 
 def get_files_pages(parent, parenttype, parentfield="web_section"):
