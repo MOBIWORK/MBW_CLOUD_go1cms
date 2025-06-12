@@ -124,6 +124,7 @@
   {
    "fieldname": "can_email",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Email",
    "reqd": 1
   },
@@ -362,7 +363,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-10 08:23:35.742857",
+ "modified": "2025-06-12 08:41:43.659487",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Candidate",

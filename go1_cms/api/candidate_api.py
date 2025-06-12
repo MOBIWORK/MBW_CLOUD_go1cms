@@ -131,17 +131,17 @@ def mark_onboarding_step_complete(onboarding_id, step_name, uploaded_file=None):
         frappe.throw(_("Step '{0}' not found in onboarding").format(step_name))
 
     try:
-        # Update trực tiếp child record để tránh trigger parent save
-        frappe.db.set_value("ATS_Candidate_Onboarding_Step", target_step.name, {
-            "is_completed": 1,
-            "completed_on": now(),
-            "completed_by_user": frappe.session.user,
-            "uploaded_file": uploaded_file if uploaded_file else target_step.uploaded_file
-        })
-        frappe.db.commit()
+        # Cập nhật thông tin step trực tiếp trên parent doc
+        target_step.is_completed = 1
+        target_step.completed_on = now()
+        target_step.completed_by_user = frappe.session.user
+        if uploaded_file:
+            target_step.uploaded_file = uploaded_file
+            
         
-        # Reload onboarding để có data mới nhất
-        onboarding.reload()
+        # Save parent document để trigger hook của ATS_Onboarding
+        onboarding.save(ignore_permissions=True)
+        frappe.db.commit()
         
     except Exception as e:
         frappe.db.rollback()
@@ -203,31 +203,137 @@ def upload_onboarding_step_file(onboarding_id, step_name):
         dt=onboarding.doctype,
         dn=onboarding.name,
         folder="Home/Attachments",
-        is_private=1
+        is_private=0
     )
 
     # --- 4. Cập nhật thông tin step ---
-    matched_step.uploaded_file = file_doc.file_url
-    matched_step.is_completed = 1
-    matched_step.completed_on = frappe.utils.now()
-    matched_step.completed_by_user = frappe.session.user
-
-    if matched_step.requires_hr_approval:
-        matched_step.approved_by_hr = 0  # Explicitly mark as not approved
-        frappe.msgprint(_("This step is pending HR review."))
-
+    # Kiểm tra xem đã có file cũ chưa để xóa (optional - có thể bỏ qua để giữ lại file cũ)
+    old_file_url = matched_step.uploaded_file
+    is_replacement = bool(old_file_url)
     
+    try:
+        # Cập nhật thông tin step trực tiếp trên parent doc
+        matched_step.uploaded_file = file_doc.file_url
+        matched_step.is_completed = 1
+        matched_step.completed_on = frappe.utils.now()
+        matched_step.completed_by_user = frappe.session.user
 
-    onboarding.save(ignore_permissions=True)
-    frappe.db.commit()
+        if matched_step.requires_hr_approval:
+            matched_step.approved_by_hr = 0  # Explicitly mark as not approved
+            if is_replacement:
+                frappe.msgprint(_("File đã được thay thế và đang chờ HR xem xét lại."))
+            else:
+                frappe.msgprint(_("This step is pending HR review."))
 
-    
+        # Save parent document để trigger hook của ATS_Onboarding và đồng bộ sang ATS
+        onboarding.save(ignore_permissions=True)
+        frappe.db.commit()
+        
+    except Exception as e:
+        frappe.db.rollback()
+        frappe.log_error(f"Error saving onboarding step file: {str(e)}")
+        frappe.throw(_("Có lỗi xảy ra khi lưu file onboarding: {0}").format(str(e)))
 
     return {
-        "message": "File uploaded successfully",
+        "message": "File replaced successfully" if is_replacement else "File uploaded successfully",
         "file_url": file_doc.file_url,
         "step_name": step_name,
+        "old_file_url": old_file_url if is_replacement else None,
+        "is_replacement": is_replacement,
         "status": "waiting_for_hr_review" if matched_step.requires_hr_approval else "completed"
+    }
+
+@frappe.whitelist()
+def get_candidate_timeline():
+    """
+    Lấy timeline các vòng tuyển dụng của tất cả jobs của ứng viên từ ATS_CandidateRoundHistory
+    """
+    email = frappe.session.user
+    
+    # Lấy tất cả thông tin candidate có cùng email
+    candidates = frappe.get_all("ATS_Candidate", 
+        filters={"can_email": email}, 
+        fields=["name", "status", "can_full_name", "job_opening_id", "can_application_date"])
+    
+    if not candidates:
+        frappe.throw(_("Không tìm thấy hồ sơ ứng viên cho email này."))
+    
+    all_timelines = []
+    candidate_name = candidates[0]["can_full_name"]  # Lấy tên từ record đầu tiên
+    
+    # Kiểm tra xem có bản ghi onboarding nào không
+    has_onboarding = frappe.db.exists("ATS_Onboarding", {"email": email})
+    
+    for candidate in candidates:
+        # Lấy thông tin job opening
+        job_info = frappe.get_value("ATS_JobOpening", candidate["job_opening_id"], 
+                                  ["jo_public_title", "jo_position"]) if candidate["job_opening_id"] else (None, None)
+        
+        job_title = job_info[0] if job_info else "Không xác định"
+        job_position = job_info[1] if job_info else "Không xác định"
+        
+        # Lấy lịch sử các vòng từ child table
+        round_history = frappe.get_all("ATS_CandidateRoundHistory", 
+            filters={"parent": candidate["name"]},
+            fields=[
+                "round_name", 
+                "change_date",
+                "sync_id"
+            ],
+            order_by="change_date asc"
+        )
+        
+        # Thêm thông tin trạng thái dựa trên logic
+        timeline_data = []
+        for i, round_data in enumerate(round_history):
+            # Nếu có onboarding thì tất cả các vòng đều completed
+            if has_onboarding:
+                status = "Completed"
+                status_text = "Đã hoàn thành"
+            else:
+                # Logic cũ cho trường hợp chưa có onboarding
+                is_current = round_data.get("round_name") == candidate["status"]
+                is_completed = i < len(round_history) - 1
+                
+                if is_completed:
+                    status = "Completed"
+                    status_text = "Đã hoàn thành"
+                elif is_current:
+                    status = "In Progress"
+                    status_text = "Đang tiến hành"
+                else:
+                    status = "Pending"
+                    status_text = "Chờ xử lý"
+            
+            # Tạo object timeline với thông tin đầy đủ
+            timeline_item = {
+                "round_name": round_data.get("round_name"),
+                "moved_to_round_date": round_data.get("change_date"),
+                "status": status,
+                "status_text": status_text,
+                "notes": f"Chuyển vòng vào ngày {round_data.get('change_date', '')}" if round_data.get('change_date') else "Không có ghi chú",
+                "round_order": i + 1
+            }
+            timeline_data.append(timeline_item)
+        
+        # Thêm timeline của job này vào danh sách
+        job_timeline = {
+            "job_info": {
+                "job_title": job_title,
+                "job_position": job_position,
+                "application_date": candidate["can_application_date"],
+                "current_status": candidate["status"]
+            },
+            "timeline": timeline_data
+        }
+        all_timelines.append(job_timeline)
+    
+    return {
+        "candidate_info": {
+            "full_name": candidate_name,
+            "has_onboarding": bool(has_onboarding)
+        },
+        "job_timelines": all_timelines
     }
 
 def send_hr_approval_email(onboarding, step_name, file_url):

@@ -157,10 +157,10 @@ doc_events = {
         "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
         # "before_delete": "go1_cms.api.sync_data.check_sync_flags"
     },
-    "ATS_Candidate_Onboarding_Step": {
-        "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
-        # "before_delete": "go1_cms.api.sync_data.check_sync_flags"
-    },
+    # "ATS_Candidate_Onboarding_Step": {
+    #     "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
+    #     # "before_delete": "go1_cms.api.sync_data.check_sync_flags"
+    # },
     "LMS Quiz":{
         "on_update": "go1_cms.go1_cms.webhook.handler.handle_doc_event"
         }
@@ -253,4 +253,13 @@ get_translated_dict = {
 
 fixtures = [
     {"doctype": "Custom Field", "filters": [{"module": "Go1 CMS"}]},
+]
+
+# Whitelisted API methods
+whitelisted_methods = [
+    "go1_cms.api.candidate_api.get_candidate_timeline",
+    "go1_cms.api.candidate_auth.test_invite_candidate",
+    "go1_cms.api.candidate_auth.test_email_settings", 
+    "go1_cms.api.candidate_auth.cleanup_test_user",
+    "go1_cms.api.candidate_auth.invite_candidate"
 ]
