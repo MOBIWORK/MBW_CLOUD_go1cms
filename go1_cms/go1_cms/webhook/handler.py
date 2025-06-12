@@ -152,7 +152,6 @@ def handle_doc_event(doc, method):
     """
     Event hook xử lý CRUD cho DocType thông qua các sự kiện của Frappe
     """
-    print("Nhận hook",getattr(frappe.flags, "ignore_webhook_sync", True), doc.sync_id)
     action_map = {"after_insert": "insert", "on_update": "update", "on_trash": "delete"}
     action = action_map.get(method)
     if not action:
@@ -164,8 +163,12 @@ def handle_doc_event(doc, method):
         doc.db_set("sync_id", new_sync_id)
         doc.sync_id = new_sync_id
     
-    #Kiểm tra xem có can_application_date
-    if not getattr(doc, "can_application_date", None):
+    # Print debug info sau khi đã xử lý sync_id
+    print("Nhận hook",getattr(frappe.flags, "ignore_webhook_sync", False), doc.sync_id, doc.doctype)
+    print("co chay nhe ban nhe")
+    
+    #Kiểm tra xem có can_application_date (chỉ áp dụng cho ATS_Candidate)
+    if doc.doctype == "ATS_Candidate" and not getattr(doc, "can_application_date", None):
         can_application_date_new = nowdate()
         doc.db_set("can_application_date", can_application_date_new)
         doc.can_application_date = can_application_date_new

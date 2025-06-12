@@ -69,7 +69,6 @@ def after_install():
 	update_site_config("webhook_base_url", "")#url base server nhận hook
 	update_site_config("webhook_secret", "CK_p9hGioqEdOuUS8b2-2G88T2aKq2-C-SnPYadKlY4=")
 	update_site_config("api_token", "9473bc87d2b7d951066b1fb73095f95c")
-	setup_candidate_permissions()
 	# sync data ats
 	frappe.enqueue(sync_ats_categories,queue="short",
         timeout=300,
@@ -158,11 +157,8 @@ def insert_forms():
 
 
 def insert_header_layouts():
-	# file_name = "header_layouts.json"
-	# read_module_path(file_name)
-
-	file_name = "header_layout.json"
-	read_module_path_mbw(file_name)
+	file_name = "header_layouts.json"
+	read_module_path(file_name)
 
 
 def insert_section_components():
@@ -179,6 +175,7 @@ def insert_footer_layouts():
 	# file_name = "footer_layouts.json"
 	# read_module_path(file_name)
 
+	# Backup option from mbw_json_data
 	file_name = "footer_layout.json"
 	read_module_path_mbw(file_name)
 
@@ -187,6 +184,7 @@ def insert_section_groups():
 	# file_name = "section_groups.json"
 	# read_module_path(file_name)
 
+	# Backup option from mbw_json_data
 	file_name = "section_template_group.json"
 	read_module_path_mbw(file_name)
 
@@ -205,9 +203,10 @@ def insert_section_templates():
 
 
 def insert_color_palletes():
-	# file_name = "color_palletes.json"
-	# read_module_path(file_name)
+	file_name = "color_palletes.json"
+	read_module_path(file_name)
 
+	# Backup option from mbw_json_data
 	file_name = "color_palette.json"
 	read_module_path_mbw(file_name)
 
