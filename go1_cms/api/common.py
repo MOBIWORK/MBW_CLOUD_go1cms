@@ -25,7 +25,7 @@ ORDER_STATUS = {
 }
 # doctype resource
 DOCTYPE_RESOURCE = [
-    'Color Palette', 'Header Layout', 'Footer Layout', 'Section Template Group', 'CMS Settings', 'Blogger', 'MBW Blog Tag', 'Mbw Blog Category', 'Mbw Blog Post', 'Email Template', 'Menu', 'MBW Form', 'MBW Website Template', 'Testimonial'
+    'Color Palette', 'Header Layout', 'Footer Layout', 'Section Template Group', 'Section Template', 'Page Template', 'Header Component', 'Footer Component', 'Web Theme', 'CMS Settings', 'Blogger', 'MBW Blog Tag', 'Mbw Blog Category', 'Mbw Blog Post', 'Email Template', 'Menu', 'MBW Form', 'MBW Website Template', 'Testimonial'
 ]
 
 
@@ -717,6 +717,9 @@ def handle_write_multiple_files_web_template():
                 filters = [['is_template', '=', 1]]
             elif d == "Email Template":
                 filters = [['reference_doctype', '=', 'CMS Settings']]
+            elif d in ["Section Template", "Page Template", "Header Component", "Footer Component"]:
+                # Export tất cả templates (không chỉ is_template=1)
+                filters = []
             temps.append({
                 "doc_names": frappe.db.get_all(d, filters, pluck="name"),
                 "doctype": d
