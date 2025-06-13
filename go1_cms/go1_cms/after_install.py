@@ -796,7 +796,6 @@ def update_workspace_v14():
 										frappe.get_traceback(), "workspacev13.json")
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "update_workspace_v14")
-
 # khởi tạo role
 def setup_candidate_permissions():
 	role_name = "Candidate"
