@@ -218,26 +218,68 @@ def delete_client_website(name):
                 print(f"  ❌ Error deleting Page Template {page_template_name}: {str(e)}")
                 # Continue with other templates even if one fails
                 
+        # Trước khi xóa, cần unlink các references trong Web Theme để tránh validation error
         if web_template_dict.web_theme:
             try:
-                frappe.delete_doc('Web Theme', web_template_dict.web_theme, ignore_permissions=True)
-                print(f"✅ Deleted Web Theme: {web_template_dict.web_theme}")
+                # Clear references trong Web Theme trước khi xóa components
+                web_theme_doc = frappe.get_doc('Web Theme', web_template_dict.web_theme)
+                web_theme_doc.default_header = None
+                web_theme_doc.default_footer = None
+                web_theme_doc.flags.ignore_permissions = True
+                web_theme_doc.save()
+                print(f"✅ Cleared references in Web Theme: {web_template_dict.web_theme}")
             except Exception as e:
-                print(f"⚠️  Error deleting Web Theme: {str(e)}")
-                
+                print(f"⚠️  Error clearing Web Theme references: {str(e)}")
+        
+        # Clear tất cả references đến Header/Footer Components từ các Web Themes khác
         if web_template_dict.header_component:
             try:
-                frappe.delete_doc('Header Component', web_template_dict.header_component, ignore_permissions=True)
+                # Tìm tất cả Web Themes có reference đến Header Component này
+                themes_with_header = frappe.db.get_all('Web Theme', 
+                    filters={'default_header': web_template_dict.header_component}, 
+                    fields=['name'])
+                for theme in themes_with_header:
+                    frappe.db.set_value('Web Theme', theme.name, 'default_header', None)
+                    print(f"  🔗 Cleared header reference from Web Theme: {theme.name}")
+                frappe.db.commit()
+            except Exception as e:
+                print(f"⚠️  Error clearing header references: {str(e)}")
+                
+        if web_template_dict.footer_component:
+            try:
+                # Tìm tất cả Web Themes có reference đến Footer Component này
+                themes_with_footer = frappe.db.get_all('Web Theme', 
+                    filters={'default_footer': web_template_dict.footer_component}, 
+                    fields=['name'])
+                for theme in themes_with_footer:
+                    frappe.db.set_value('Web Theme', theme.name, 'default_footer', None)
+                    print(f"  🔗 Cleared footer reference from Web Theme: {theme.name}")
+                frappe.db.commit()
+            except Exception as e:
+                print(f"⚠️  Error clearing footer references: {str(e)}")
+
+        # Bây giờ có thể xóa Header và Footer Components một cách an toàn
+        if web_template_dict.header_component:
+            try:
+                frappe.delete_doc('Header Component', web_template_dict.header_component, ignore_permissions=True, force=True)
                 print(f"✅ Deleted Header Component: {web_template_dict.header_component}")
             except Exception as e:
                 print(f"⚠️  Error deleting Header Component: {str(e)}")
                 
         if web_template_dict.footer_component:
             try:
-                frappe.delete_doc('Footer Component', web_template_dict.footer_component, ignore_permissions=True)
+                frappe.delete_doc('Footer Component', web_template_dict.footer_component, ignore_permissions=True, force=True)
                 print(f"✅ Deleted Footer Component: {web_template_dict.footer_component}")
             except Exception as e:
                 print(f"⚠️  Error deleting Footer Component: {str(e)}")
+                
+        # Cuối cùng, xóa Web Theme
+        if web_template_dict.web_theme:
+            try:
+                frappe.delete_doc('Web Theme', web_template_dict.web_theme, ignore_permissions=True)
+                print(f"✅ Deleted Web Theme: {web_template_dict.web_theme}")
+            except Exception as e:
+                print(f"⚠️  Error deleting Web Theme: {str(e)}")
 
         return name
     except frappe.ValidationError as ex:
