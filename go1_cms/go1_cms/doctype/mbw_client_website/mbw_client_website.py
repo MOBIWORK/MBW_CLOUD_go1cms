@@ -173,15 +173,51 @@ class MBWClientWebsite(Document):
 
             frappe.delete_doc('Web Page Builder', item.page_id)
 
+        # Clear references trong Web Theme trước khi xóa components
+        if self.web_theme:
+            try:
+                web_theme_doc = frappe.get_doc('Web Theme', self.web_theme)
+                web_theme_doc.default_header = None
+                web_theme_doc.default_footer = None
+                web_theme_doc.flags.ignore_permissions = True
+                web_theme_doc.save()
+            except Exception as e:
+                frappe.log_error(f"Error clearing Web Theme references: {str(e)}", "MBW Client Website Delete")
+
+        # Clear tất cả references từ các Web Themes khác
+        for header_comp in list_header:
+            if header_comp:
+                try:
+                    themes_with_header = frappe.db.get_all('Web Theme', 
+                        filters={'default_header': header_comp}, fields=['name'])
+                    for theme in themes_with_header:
+                        frappe.db.set_value('Web Theme', theme.name, 'default_header', None)
+                    frappe.db.commit()
+                except Exception as e:
+                    frappe.log_error(f"Error clearing header references for {header_comp}: {str(e)}", "MBW Client Website Delete")
+                    
+        for footer_comp in list_footer:
+            if footer_comp:
+                try:
+                    themes_with_footer = frappe.db.get_all('Web Theme', 
+                        filters={'default_footer': footer_comp}, fields=['name'])
+                    for theme in themes_with_footer:
+                        frappe.db.set_value('Web Theme', theme.name, 'default_footer', None)
+                    frappe.db.commit()
+                except Exception as e:
+                    frappe.log_error(f"Error clearing footer references for {footer_comp}: {str(e)}", "MBW Client Website Delete")
+
+        # delete header and footer components
+        for x in list_header:
+            if x:  # check if not None
+                frappe.delete_doc('Header Component', x, ignore_permissions=True, force=True)
+        for x in list_footer:
+            if x:  # check if not None
+                frappe.delete_doc('Footer Component', x, ignore_permissions=True, force=True)
+
         # delete web theme
         if self.web_theme:
             frappe.delete_doc('Web Theme', self.web_theme)
-
-        # delete header and footer
-        for x in list_header:
-            frappe.delete_doc('Header Component', x)
-        for x in list_footer:
-            frappe.delete_doc('Footer Component', x)
 
         # delete menu
         menus = frappe.db.get_all(

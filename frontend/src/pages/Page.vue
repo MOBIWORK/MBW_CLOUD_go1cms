@@ -3,22 +3,49 @@
     <template #left-header>
       <Breadcrumbs :items="breadcrumbs" />
     </template>
+    <template #center-header>
+      <!-- Preview Mode Toggle Buttons - Center -->
+      <div v-if="isPreviewMode && alreadyActions" class="flex gap-1">
+        <Button
+          :variant="previewMode === 'desktop' ? 'solid' : 'subtle'"
+          theme="blue"
+          size="sm"
+          @click="previewMode = 'desktop'"
+        >
+          <template #prefix>
+            <FeatherIcon name="monitor" class="h-4 w-4" />
+          </template>
+          Desktop
+        </Button>
+        <Button
+          :variant="previewMode === 'mobile' ? 'solid' : 'subtle'"
+          theme="blue"
+          size="sm"
+          @click="previewMode = 'mobile'"
+        >
+          <template #prefix>
+            <FeatherIcon name="smartphone" class="h-4 w-4" />
+          </template>
+          Mobile
+        </Button>
+      </div>
+    </template>
     <template #right-header>
-      <div class="flex gap-2 justify-end" v-if="alreadyActions">
+      <div class="flex gap-2" v-if="alreadyActions">
         <Tooltip
           v-if="!_page?.web_page?.is_detail_page"
-          :text="__('View page')"
+          :text="isPreviewMode ? __('Edit page') : __('Preview page')"
           :hover-delay="1"
           :placement="'top'"
         >
           <div>
             <Button
               variant="subtle"
-              theme="blue"
+              :theme="isPreviewMode ? 'green' : 'blue'"
               size="md"
               label=""
-              icon="eye"
-              :link="views.data?.config_domain?.domain + _page?.web_page?.route"
+              :icon="isPreviewMode ? 'edit-3' : 'eye'"
+              @click="togglePreviewMode"
             >
             </Button>
           </div>
@@ -37,7 +64,7 @@
           </div>
         </Tooltip> -->
         <Dropdown
-          v-if="_page?.web_page?.allow_delete"
+          v-if="_page?.web_page?.allow_delete && !isPreviewMode"
           :options="[
             {
               group: __('Delete'),
@@ -60,6 +87,7 @@
           </Button>
         </Dropdown>
         <Button
+          v-if="!isPreviewMode"
           variant="subtle"
           theme="gray"
           size="md"
@@ -68,6 +96,7 @@
           @click="cancelSaveDoc"
         ></Button>
         <Button
+          v-if="!isPreviewMode"
           :variant="'solid'"
           theme="blue"
           size="md"
@@ -86,18 +115,118 @@
       </div>
       <ErrorMessage :message="msgError" />
     </div>
-    <div v-if="JSON.stringify(_page) != '{}'">
+    
+    <!-- Edit Mode -->
+    <div v-if="JSON.stringify(_page) != '{}' && !isPreviewMode">
       <FieldsComponent v-model="_page.fields_cp"></FieldsComponent>
       <FieldsSectionComponent
         v-model="_page.fields_st_cp"
       ></FieldsSectionComponent>
     </div>
+    
+    <!-- Preview Mode -->
+    <div v-else-if="JSON.stringify(_page) != '{}' && isPreviewMode">
+      <!-- Debug URL Info -->
+      <div class="mb-4 p-3 bg-gray-50 rounded-lg border">
+        <div class="text-sm text-gray-600 mb-2">
+          <strong>Preview URL:</strong> 
+          <a :href="previewUrl" target="_blank" class="text-blue-600 hover:underline ml-2">
+            {{ previewUrl }}
+          </a>
+          <Button
+            size="sm"
+            variant="subtle"
+            theme="blue"
+            class="ml-2"
+            @click="openInNewTab"
+          >
+            <template #prefix>
+              <FeatherIcon name="external-link" class="h-3 w-3" />
+            </template>
+            Mở tab mới
+          </Button>
+        </div>
+        <div class="text-xs text-gray-500">
+          Domain: {{ views.data?.config_domain?.domain || 'Chưa cấu hình' }} | 
+          Route: {{ _page?.web_page?.route || 'Chưa có route' }}
+        </div>
+      </div>
+      
+      <div
+        class="mx-auto relative"
+        :style="previewMode === 'mobile'
+          ? 'width: 390px; height: 844px; border: 2px solid #e5e7eb; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);'
+          : 'width: 100%; height: 80vh; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;'"
+      >
+        <!-- Loading overlay -->
+        <div 
+          v-if="iframeLoading"
+          class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-10"
+        >
+          <div class="text-center">
+            <LoadingIndicator class="h-8 w-8 mx-auto mb-2" />
+            <p class="text-sm text-gray-600">Đang tải preview...</p>
+          </div>
+        </div>
+        
+        <!-- Error overlay -->
+        <div 
+          v-if="iframeError"
+          class="absolute inset-0 flex items-center justify-center bg-red-50 z-10"
+        >
+          <div class="text-center p-6">
+            <FeatherIcon name="alert-circle" class="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 class="text-lg font-semibold text-red-700 mb-2">Không thể tải preview</h3>
+            <p class="text-sm text-red-600 mb-4">
+              Trang web có thể chặn việc hiển thị trong iframe hoặc URL không hợp lệ
+            </p>
+            <Button
+              variant="solid"
+              theme="blue"
+              size="sm"
+              @click="openInNewTab"
+            >
+              <template #prefix>
+                <FeatherIcon name="external-link" class="h-4 w-4" />
+              </template>
+              Mở trong tab mới
+            </Button>
+          </div>
+        </div>
+        
+        <!-- Overlay to block clicks only, allow scroll -->
+        <div 
+          class="absolute inset-0 z-20 bg-transparent cursor-default"
+          title="Preview mode - chỉ xem, không thể click"
+          style="pointer-events: none;"
+          @click.prevent
+          @mousedown.prevent
+          @mouseup.prevent
+        ></div>
+        
+        <iframe
+          ref="previewIframe"
+          :src="previewUrl"
+          style="width: 100%; height: 100%; border: none;"
+          frameborder="0"
+          @load="onIframeLoad"
+          @error="onIframeError"
+          @click.prevent.capture
+          @mousedown.prevent.capture
+          @mouseup.prevent.capture
+        ></iframe>
+      </div>
+    </div>
+    
+    <!-- Loading -->
     <div v-else class="p-4 border border-gray-300 rounded-sm mb-4">
       <div class="flex justify-center h-screen mt-40 text-gray-700">
         <LoadingIndicator class="h-8 w-8" />
       </div>
     </div>
   </div>
+
+  <!-- Delete Modal -->
   <Dialog
     :options="{
       title: __('Delete page'),
@@ -163,6 +292,19 @@ const msgError = ref()
 const refToTop = ref(null)
 const alreadyActions = ref(false)
 
+// Preview states
+const isPreviewMode = ref(false)
+const previewMode = ref('desktop') // 'desktop' or 'mobile'
+
+// Toggle between edit and preview mode
+function togglePreviewMode() {
+  isPreviewMode.value = !isPreviewMode.value
+  if (isPreviewMode.value) {
+    iframeLoading.value = true
+    iframeError.value = false
+  }
+}
+
 // get detail
 const page = createResource({
   url: 'go1_cms.api.page.get_info_page',
@@ -187,6 +329,7 @@ const page = createResource({
 
 watch(route, (val, oldVal) => {
   _page.value = {}
+  isPreviewMode.value = false // Reset preview mode when route changes
   page.update({
     params: { name: route.query.view },
   })
@@ -300,5 +443,38 @@ async function deleteDoc(close) {
     }
   }
   changeLoadingValue(false)
+}
+
+// Preview URL
+const previewUrl = computed(() => {
+  if (_page.value?.web_page?.route) {
+    // Check protocol: http = local, https = production
+    const isLocal = window.location.protocol === 'http:'
+    const domain = isLocal 
+      ? 'http://cms_fix:8010'
+      : views.data?.config_domain?.domain
+    
+    return domain + _page.value.web_page.route
+  }
+  return ''
+})
+
+// Preview iframe
+const previewIframe = ref(null)
+const iframeLoading = ref(false)
+const iframeError = ref(false)
+
+function onIframeLoad() {
+  iframeLoading.value = false
+  iframeError.value = false
+}
+
+function onIframeError() {
+  iframeLoading.value = false
+  iframeError.value = true
+}
+
+function openInNewTab() {
+  window.open(previewUrl.value, '_blank')
 }
 </script>

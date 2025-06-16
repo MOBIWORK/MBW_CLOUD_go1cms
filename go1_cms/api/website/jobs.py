@@ -38,7 +38,12 @@ def get_filter_job():
     meta = frappe.get_meta('CMS_JobOpening')
     field = meta.get_field('jo_work_form')
     if field.options:
-        options = field.options.split('\n')
+        if isinstance(field.options, str):
+            options = field.options.split('\n')
+        elif isinstance(field.options, list):
+            options = field.options
+        else:
+            options = []
         job_type = [{
             "label" : item,
             "value" : item

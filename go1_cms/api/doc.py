@@ -203,7 +203,13 @@ def get_quick_filters(doctype: str):
 
     for field in fields:
         if field.fieldtype == "Select":
-            field.options = field.options.split("\n")
+            # Kiểm tra nếu options đã là list thì không cần split nữa
+            if isinstance(field.options, str):
+                field.options = field.options.split("\n")
+            elif field.options is None:
+                field.options = []
+            # Nếu field.options đã là list thì giữ nguyên
+            
             field.options = [{"label": option, "value": option}
                              for option in field.options]
             field.options.insert(0, {"label": "", "value": ""})
@@ -409,7 +415,12 @@ def get_list_data(
     if group_by_field and view_type == "group_by":
         def get_options(type, options):
             if type == "Select":
-                return [option for option in options.split("\n")]
+                if isinstance(options, str):
+                    return [option for option in options.split("\n")]
+                elif isinstance(options, list):
+                    return options
+                else:
+                    return []
             else:
                 has_empty_values = any(
                     [not d.get(group_by_field) for d in data])
@@ -532,8 +543,14 @@ def get_field_obj(field):
         obj["placeholder"] = "Select " + field.label + "..."
         obj["doctype"] = field.options
     elif field.fieldtype == "Select" and field.options:
+        if isinstance(field.options, str):
+            options_list = field.options.split("\n")
+        elif isinstance(field.options, list):
+            options_list = field.options
+        else:
+            options_list = []
         obj["options"] = [{"label": option, "value": option}
-                          for option in field.options.split("\n")]
+                          for option in options_list]
 
     if field.read_only:
         obj["tooltip"] = "This field is read only and cannot be edited."
