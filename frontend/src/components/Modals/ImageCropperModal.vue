@@ -60,7 +60,6 @@
       const file = new File([blob], name, { type: blob.type });
 
       const url = URL.createObjectURL(blob); // blob preview
-
       emit('cropped', { file, name, url });
 
       visible.value = false;

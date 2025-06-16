@@ -40,7 +40,6 @@ const rawImage = ref(null);
 const croppedImage = ref(null);
 const showDialog = ref(false);
 
-
 watch(inputFile, (val) => {
   if (!val) {
     nameFile.value = ''
