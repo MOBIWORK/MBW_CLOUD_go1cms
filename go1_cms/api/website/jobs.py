@@ -321,8 +321,7 @@ def upload_cv(name_job, **kwargs):
             frappe.throw('Họ tên không được để trống')
         if not email:
             frappe.throw('Email không được để trống')
-        if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': name_job}):
-            frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
+        
         if not phone_number:
             frappe.throw('Số điện thoại không được để trống')
 
@@ -333,7 +332,8 @@ def upload_cv(name_job, **kwargs):
         if job_info["found"]:
             job_data = job_info["data"]
             jo_public_title = job_info["job_title"]
-            
+            if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': jo_public_title}):
+                frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
             new_doc = frappe.new_doc('ATS_Candidate')
             new_doc.can_id = generate_random_id()
             new_doc.can_full_name = applicant_name
