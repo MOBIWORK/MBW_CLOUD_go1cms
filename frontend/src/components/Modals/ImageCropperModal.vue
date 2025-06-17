@@ -13,12 +13,12 @@
           />
         </div>
       </template>
-      <!-- <template #actions>
+      <template #actions>
 			<div class="flex justify-end gap-2">
-				<Button variant="solid" @click="handleClose">Hủy</Button>
+				<Button variant="subtle" @click="handleClose">Hủy</Button>
         <Button variant="solid" @click="handleCrop">Crop</Button>
 			</div>
-		</template> -->
+		</template>
     </Dialog>
   </template>
   
@@ -76,21 +76,7 @@
 	return {
 		title: __("Crop image"),
 		size: '3xl',
-		actions: [
-			{
-				label: __('Crop'),
-				variant: 'solid',
-				onClick: (close) => {
-					handleCrop(close)
-				},
-			},{
-				label: __('Cancel'),
-				variant: 'solid',
-				onClick: (close) => {
-					handleClose(close)
-				},
-			},
-		],
+    class:"space-y-2 flex justify-end",
 	}
 })
 
