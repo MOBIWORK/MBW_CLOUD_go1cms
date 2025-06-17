@@ -29,6 +29,8 @@ import json
 import os
 from go1_cms.api.candidate_auth import send_password_setup_email
 
+AI_BASEURL_V2 = frappe.conf.get("ai_baseurl_v2") or "http://n8n.fastwork.vn:8001"
+
 
 @frappe.whitelist(allow_guest=True)
 def get_filter_job():
@@ -572,16 +574,14 @@ def extract_cv_url():
     API để extract thông tin CV bằng AI từ file đã upload
     """
     AI_BASEURL = frappe.conf.get("ai_baseurl") or "https://taskingai.mbwcloud.com"
-    url_extract_ai = f"{AI_BASEURL}/v2/genai/hr-assistants/cv-extraction/pdf-upload"
+    url_extract_ai = f"{AI_BASEURL_V2}/api/v1/cv_extract"
     
     file_name = frappe.form_dict.get("file_name")
     if not file_name:
         frappe.throw("Missing 'file_name' in request parameters.")
 
     headers = {
-        "Authorization": "Bearer tkoBjKTFTNfFDzkmGe0z9ppUusIeexVy",
-        "topcv_assistant_id": "X5lMjLOTtqJ0v14yj8zix3vT",
-        "other_assistant_id": "X5lMoK7W2Q87cb1sYg3liuXY",
+        "x-api-key":"6Bwunlw3Fm1J23tGKZjb/WJXwBDI3gRY971+VUFOU+w="
     }
 
     try:
