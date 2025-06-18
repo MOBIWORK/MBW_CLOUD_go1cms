@@ -782,7 +782,8 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
         if job_info["found"]:
             job_data = job_info["data"]
             jo_public_title = job_info["job_title"]
-            
+            if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': jo_public_title}):
+                frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
             # Create new candidate
             new_doc = frappe.new_doc('ATS_Candidate')
             new_doc.can_id = generate_random_id()
