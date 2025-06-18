@@ -1,0 +1,183 @@
+{
+ "actions": [],
+ "creation": "2021-06-07 14:19:54.958989",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "quiz",
+  "quiz_title",
+  "column_break_3",
+  "member",
+  "member_name",
+  "member_candidate",
+  "member_email",
+  "position",
+  "section_break_dkpn",
+  "score",
+  "score_out_of",
+  "column_break_gkip",
+  "percentage",
+  "passing_percentage",
+  "section_break_knockout",
+  "is_knocked_out",
+  "knockout_question",
+  "section_break_6",
+  "result"
+ ],
+ "fields": [
+  {
+   "fieldname": "quiz",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Quiz",
+   "options": "LMS Quiz"
+  },
+  {
+   "fetch_from": "quiz.title",
+   "fieldname": "quiz_title",
+   "fieldtype": "Data",
+   "label": "Quiz Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User"
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_dkpn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "score",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Score",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "quiz.total_marks",
+   "fieldname": "score_out_of",
+   "fieldtype": "Int",
+   "label": "Score Out Of",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gkip",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "percentage",
+   "fieldtype": "Int",
+   "label": "Percentage",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "passing_percentage",
+   "fieldtype": "Int",
+   "label": "Passing Percentage",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_knockout",
+   "fieldtype": "Section Break",
+   "label": "Knockout Information"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_knocked_out",
+   "fieldtype": "Check",
+   "label": "Is Knocked Out"
+  },
+  {
+   "fieldname": "knockout_question",
+   "fieldtype": "Long Text",
+   "label": "Knockout Question"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "result",
+   "fieldtype": "Table",
+   "label": "Result",
+   "options": "LMS Quiz Result"
+  },
+  {
+   "fieldname": "member_candidate",
+   "fieldtype": "Data",
+   "label": "Member Candidate"
+  },
+  {
+   "fieldname": "member_email",
+   "fieldtype": "Data",
+   "label": "Member Email"
+  },
+  {
+   "fieldname": "position",
+   "fieldtype": "Link",
+   "label": "Position",
+   "options": "ATS_Position"
+  }
+ ],
+ "in_create": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-09 11:26:27.893679",
+ "modified_by": "Administrator",
+  "module": "Go1 CMS",
+ "name": "LMS Quiz Submission",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "LMS Student",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "member_name",
+ "track_changes": 1
+}

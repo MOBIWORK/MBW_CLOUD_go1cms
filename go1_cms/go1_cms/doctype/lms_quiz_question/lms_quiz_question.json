@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "creation": "2021-06-07 10:48:57.994714",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "question",
+  "column_break_qcpo",
+  "marks",
+  "is_knockout",
+  "question_is_knockout",
+  "section_break_huup",
+  "question_detail",
+  "type",
+  "sync_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "question",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Question",
+   "options": "LMS Question",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qcpo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "marks",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Marks",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_knockout",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Knockout Question (Override)",
+   "description": "Override knockout setting from the base question. If checked, wrong answer will immediately disqualify the candidate"
+  },
+  {
+   "fetch_from": "question.is_knockout",
+   "fieldname": "question_is_knockout",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Question Knockout",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_huup",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "question.question",
+   "fieldname": "question_detail",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Question Detail",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "question.type",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Choices\nUser Input\nOpen Ended",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "SyncID"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-12 11:22:16.964071",
+ "modified_by": "Administrator",
+  "module": "Go1 CMS",
+ "name": "LMS Quiz Question",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,166 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "creation": "2021-06-07 10:50:17.893625",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "max_attempts",
+  "position",
+  "show_answers",
+  "show_submission_history",
+  "column_break_gaac",
+  "total_marks",
+  "passing_percentage",
+  "duration",
+  "link_test",
+  "section_break_tzbu",
+  "shuffle_questions",
+  "column_break_clsh",
+  "limit_questions_to",
+  "section_break_sbjx",
+  "questions",
+  "description",
+  "sync_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "max_attempts",
+   "fieldtype": "Int",
+   "label": "Max Attempts"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_answers",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Show Answers"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_submission_history",
+   "fieldtype": "Check",
+   "label": "Show Submission History"
+  },
+  {
+   "fieldname": "column_break_gaac",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_marks",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Total Marks",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "passing_percentage",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Passing Percentage",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Data",
+   "label": "Duration (in minutes)"
+  },
+  {
+   "fieldname": "section_break_tzbu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "shuffle_questions",
+   "fieldtype": "Check",
+   "label": "Shuffle Questions"
+  },
+  {
+   "fieldname": "column_break_clsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "shuffle_questions",
+   "fieldname": "limit_questions_to",
+   "fieldtype": "Int",
+   "label": "Limit Questions To"
+  },
+  {
+   "fieldname": "section_break_sbjx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "questions",
+   "fieldtype": "Table",
+   "label": "Questions",
+   "options": "LMS Quiz Question"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "link_test",
+   "fieldtype": "Code",
+   "label": "Link Test"
+  },
+  {
+   "fieldname": "sync_id",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "SyncID"
+  },
+  {
+   "fieldname": "position",
+   "fieldtype": "Link",
+   "label": "Position",
+   "options": "ATS_Position"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-09 11:23:45.243336",
+ "modified_by": "Administrator",
+  "module": "Go1 CMS",
+ "name": "LMS Quiz",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}
