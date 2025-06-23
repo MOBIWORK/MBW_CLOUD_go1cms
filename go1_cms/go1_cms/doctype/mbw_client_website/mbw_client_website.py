@@ -164,14 +164,39 @@ class MBWClientWebsite(Document):
     def after_delete(self):
         list_header = [self.header_component]
         list_footer = [self.footer_component]
+        
         for item in self.page_websites:
-            doc = frappe.get_doc('Web Page Builder', item.page_id)
-            if doc.header_component and doc.header_component not in list_header:
-                list_header.append(doc.header_component)
-            if doc.footer_component and doc.footer_component not in list_footer:
-                list_footer.append(doc.footer_component)
+            try:
+                doc = frappe.get_doc('Web Page Builder', item.page_id)
+                if doc.header_component and doc.header_component not in list_header:
+                    list_header.append(doc.header_component)
+                if doc.footer_component and doc.footer_component not in list_footer:
+                    list_footer.append(doc.footer_component)
 
-            frappe.delete_doc('Web Page Builder', item.page_id)
+                # Delete Page Sections first to avoid dependency issues
+                page_sections = frappe.db.get_all(
+                    "Mobile Page Section",
+                    filters={"parent": item.page_id, "parenttype": "Web Page Builder"},
+                    fields=['name', 'section']
+                )
+                
+                for ps in page_sections:
+                    try:
+                        # Delete the Page Section if it exists
+                        if ps.section and frappe.db.exists("Page Section", ps.section):
+                            frappe.delete_doc("Page Section", ps.section, ignore_permissions=True, force=True)
+                        
+                        # Delete the Mobile Page Section
+                        frappe.delete_doc("Mobile Page Section", ps.name, ignore_permissions=True, force=True)
+                        
+                    except Exception as e:
+                        frappe.log_error(f"Error deleting Page Section {ps.section}: {str(e)}", "MBW Client Website Delete")
+
+                # Now safely delete the Web Page Builder
+                frappe.delete_doc('Web Page Builder', item.page_id, ignore_permissions=True, force=True)
+                
+            except Exception as e:
+                frappe.log_error(f"Error deleting Web Page Builder {item.page_id}: {str(e)}", "MBW Client Website Delete")
 
         # Clear references trong Web Theme trước khi xóa components
         if self.web_theme:
@@ -219,20 +244,74 @@ class MBWClientWebsite(Document):
         if self.web_theme:
             frappe.delete_doc('Web Theme', self.web_theme)
 
-        # delete menu
+        # Clear menu references from Page Sections before deleting menus
         menus = frappe.db.get_all(
             "Menu",
             filters={"id_client_website": self.name, 'is_template': 0},
             fields=['name']
         )
-        for n in menus:
-            frappe.delete_doc('Menu', n.name)
+        
+        for menu in menus:
+            try:
+                # Find all Page Sections that reference this menu
+                page_sections_with_menu = frappe.db.get_all(
+                    "Page Section",
+                    filters={"menu": menu.name},
+                    fields=['name']
+                )
+                
+                # Clear menu references from Page Sections
+                for ps in page_sections_with_menu:
+                    try:
+                        frappe.db.set_value('Page Section', ps.name, 'menu', None)
+                    except Exception as e:
+                        frappe.log_error(f"Error clearing menu reference from Page Section {ps.name}: {str(e)}", "MBW Client Website Delete")
+                
+                frappe.db.commit()
+                
+                # Now safely delete the menu
+                frappe.delete_doc('Menu', menu.name, ignore_permissions=True, force=True)
+                
+            except Exception as e:
+                frappe.log_error(f"Error deleting menu {menu.name}: {str(e)}", "MBW Client Website Delete")
+                # Try force delete as last resort
+                try:
+                    frappe.delete_doc('Menu', menu.name, ignore_permissions=True, force=True)
+                except Exception as force_error:
+                    frappe.log_error(f"Force delete menu {menu.name} also failed: {str(force_error)}", "MBW Client Website Delete")
 
-        # delete MBW Form
+        # Clear form references from Page Sections before deleting forms
         mbw_forms = frappe.db.get_all(
             "MBW Form",
             filters={"id_client_website": self.name, 'is_template': 0},
             fields=['name']
         )
-        for f in mbw_forms:
-            frappe.delete_doc('MBW Form', f.name)
+        
+        for form in mbw_forms:
+            try:
+                # Find all Page Sections that reference this form
+                page_sections_with_form = frappe.db.get_all(
+                    "Page Section",
+                    filters={"form": form.name},
+                    fields=['name']
+                )
+                
+                # Clear form references from Page Sections
+                for ps in page_sections_with_form:
+                    try:
+                        frappe.db.set_value('Page Section', ps.name, 'form', None)
+                    except Exception as e:
+                        frappe.log_error(f"Error clearing form reference from Page Section {ps.name}: {str(e)}", "MBW Client Website Delete")
+                
+                frappe.db.commit()
+                
+                # Now safely delete the form
+                frappe.delete_doc('MBW Form', form.name, ignore_permissions=True, force=True)
+                
+            except Exception as e:
+                frappe.log_error(f"Error deleting form {form.name}: {str(e)}", "MBW Client Website Delete")
+                # Try force delete as last resort
+                try:
+                    frappe.delete_doc('MBW Form', form.name, ignore_permissions=True, force=True)
+                except Exception as force_error:
+                    frappe.log_error(f"Force delete form {form.name} also failed: {str(force_error)}", "MBW Client Website Delete")

@@ -747,6 +747,68 @@ def normalize_dates_recursively(obj):
         return [normalize_dates_recursively(item) for item in obj]
     else:
         return try_parse_date(obj)
+
+def map_ai_data_to_doctype_format(data):
+    """
+    Map AI extracted data to DocType field format
+    """
+    mapped_data = {}
+    
+    # Map projects data
+    if data.get("projects"):
+        mapped_projects = []
+        for project in data["projects"]:
+            mapped_project = {
+                "project_name": project.get("projects_name", ""),
+                "project_role": project.get("project_role", ""),
+                "project_description": project.get("project_description", ""),
+                "project_start_date": project.get("project_start_date", ""),
+                "project_end_date": project.get("project_end_date", "")
+            }
+            mapped_projects.append(mapped_project)
+        mapped_data["projects"] = mapped_projects
+    
+    # Work experience should already be in correct format based on the rename_keys function
+    if data.get("work_experience"):
+        mapped_data["work_experience"] = data["work_experience"]
+    
+    # Skills should already be in correct format
+    if data.get("skills"):
+        mapped_data["skills"] = data["skills"]
+    
+    # Certificates - map from 'certificate' to correct format
+    if data.get("certificate"):
+        mapped_certs = []
+        for cert in data["certificate"]:
+            mapped_cert = {
+                "can_cert_name": cert.get("name", ""),
+                "can_cert_organization": cert.get("organization", ""),
+                "can_cert_issued_date": cert.get("start_date", ""),
+                "can_cert_expiration_date": cert.get("end_date", ""),
+                "can_cert_link": ""  # No link in AI data
+            }
+            mapped_certs.append(mapped_cert)
+        mapped_data["certificates"] = mapped_certs
+    
+    # Awards
+    if data.get("awards"):
+        mapped_awards = []
+        for award in data["awards"]:
+            mapped_award = {
+                "can_award_name": award.get("name", ""),
+                "can_award_organization": award.get("organization", ""),
+                "can_award_received_date": award.get("end_date", ""),
+                "can_award_link": ""  # No link in AI data
+            }
+            mapped_awards.append(mapped_award)
+        mapped_data["awards"] = mapped_awards
+    
+    # Copy other data as is
+    for key in ["personal_info", "can_avatar", "list_imgs_base64"]:
+        if data.get(key):
+            mapped_data[key] = data[key]
+    
+    return mapped_data
 @frappe.whitelist(methods=['POST'], allow_guest=True)
 def upload_cv_with_ai_extraction(name_job, **kwargs):
     """
@@ -811,51 +873,100 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             new_doc.sync_id = str(uuid.uuid4())  # Add sync_id for ATS sync
             new_doc.candidatesource_id = "Website"  # Set candidate source
             
+            # Allow webhook sync for candidate sync to ATS
+            frappe.flags.ignore_webhook_sync = False
+            
             # Handle extracted data from AI
-            extracted_data = kwargs.get('extracted_data')
-            if extracted_data:
+            extracted_data_raw = kwargs.get('extracted_data')
+            print("Received extracted_data_raw:", extracted_data_raw)
+
+            if extracted_data_raw:
                 try:
-                    extracted_data = json.loads(extracted_data) if isinstance(extracted_data, str) else extracted_data
-                    extracted_data = normalize_dates_recursively(extracted_data)
-                    if extracted_data.get("personal_info"):
-                        personal_info = extracted_data["personal_info"]
-                        # Update with better data from AI if available
-                        if personal_info.get("can_full_name") and len(personal_info.get("can_full_name", "")) > len(applicant_name):
-                            new_doc.can_full_name = personal_info.get("can_full_name", applicant_name)
-                        if personal_info.get("can_phone"):
-                            new_doc.can_phone = personal_info.get("can_phone", phone_number)
-                        if personal_info.get('dob'):
-                            new_doc.can_dob = personal_info.get('dob','')
+                    extracted_data = json.loads(extracted_data_raw) if isinstance(extracted_data_raw, str) else extracted_data_raw
+                    print("Parsed extracted_data:", extracted_data)
                     
-                    # Add avatar if available
-                    if extracted_data.get("can_avatar"):
-                        new_doc.can_avatar = extracted_data.get("can_avatar")
+                    # Extract the actual data from the payload
+                    data = extracted_data.get("data", {})
+                    print("Data section:", data)
+                    
+                    # Normalize dates in the data
+                    data = normalize_dates_recursively(data)
+                    
+                    # Map AI data to DocType format
+                    mapped_data = map_ai_data_to_doctype_format(data)
+                    print("Mapped data:", mapped_data)
+                    
+                    # Handle personal info
+                    personal_info = mapped_data.get("personal_info", {})
+                    if personal_info:
+                        print("Processing personal_info:", personal_info)
+                        if personal_info.get("can_full_name") and len(personal_info["can_full_name"]) > len(applicant_name):
+                            new_doc.can_full_name = personal_info["can_full_name"]
+                        if personal_info.get("can_phone"):
+                            new_doc.can_phone = personal_info["can_phone"]
+                        if personal_info.get("dob"):
+                            new_doc.can_dob = personal_info.get("dob", "")
 
-                    if "work_experience" in extracted_data:
-                        new_doc["work_experience"] = extracted_data.get("work_experience")
-                    if "projects" in extracted_data:
-                        new_doc["projects"] = extracted_data.get("projects")
+                    # Handle avatar
+                    if mapped_data.get("can_avatar"):
+                        new_doc.can_avatar = mapped_data["can_avatar"]
 
-                    if "skills" in extracted_data:
-                        new_doc["skills"] = extracted_data.get("skills")
-                        
-                    if "list_imgs_base64" in extracted_data and extracted_data.get("list_imgs_base64"):
+                    # Handle work experience
+                    work_experience = mapped_data.get("work_experience", [])
+                    if work_experience:
+                        print("Processing work_experience:", len(work_experience), "items")
+                        for we in work_experience:
+                            new_doc.append("candidate_work_experience", we)
+
+                    # Handle projects
+                    projects = mapped_data.get("projects", [])
+                    if projects:
+                        print("Processing projects:", len(projects), "items")
+                        for project in projects:
+                            new_doc.append("candidate_project", project)
+
+                    # Handle skills
+                    skills = mapped_data.get("skills", [])
+                    if skills:
+                        print("Processing skills:", len(skills), "items")
+                        for skill in skills:
+                            new_doc.append("candidate_skill", skill)
+
+                    # Handle certificates (correct field name is candidate_certification)
+                    certificates = mapped_data.get("certificates", [])
+                    if certificates:
+                        print("Processing certificates:", len(certificates), "items")
+                        for cert in certificates:
+                            new_doc.append("candidate_certification", cert)
+
+                    # Handle awards
+                    awards = mapped_data.get("awards", [])
+                    if awards:
+                        print("Processing awards:", len(awards), "items")
+                        for award in awards:
+                            new_doc.append("candidate_award", award)
+
+                    # Handle base64 images if available
+                    if mapped_data.get("list_imgs_base64"):
                         try:
-                            new_doc["can_avatar"] = upload_base64_without_filename(
-                                extracted_data.get("list_imgs_base64")[0],
+                            new_doc.can_avatar = upload_base64_without_filename(
+                                mapped_data["list_imgs_base64"][0],
                                 "ATS_Candidate",
-                                extracted_data.get("personal_info").get("can_full_name", "unknown"),
+                                new_doc.can_full_name,
                             )
                         except Exception as avatar_error:
                             frappe.log_error(str(avatar_error), "CV Avatar Upload Error")
-                            new_doc["can_avatar"] = None
-                    else:
-                        new_doc["can_avatar"] = None
+                            new_doc.can_avatar = None
+                    elif not mapped_data.get("can_avatar"):
+                        new_doc.can_avatar = None
+
                 except Exception as data_error:
-                    frappe.log_error(str(data_error), "Process Extracted Data Error")
+                    frappe.log_error(frappe.get_traceback(), "Process Extracted Data Error")
+                    print("Error processing extracted data:", str(data_error))
 
             # Save candidate first to get the name
             new_doc.save(ignore_permissions=True)
+            frappe.db.commit()
             new_doc.reload()
 
             # Attach uploaded file to candidate if file_name provided
@@ -908,12 +1019,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             return {
                 'status': '200', 
                 'name': new_doc.name,
-                'candidate_data': {
-                    'can_full_name': new_doc.can_full_name,
-                    'can_email': new_doc.can_email,
-                    'can_phone': new_doc.can_phone,
-                    'can_avatar': getattr(new_doc, 'can_avatar', None)
-                }
+                'candidate_data': new_doc.as_dict()
             }
         else:
             frappe.throw(_('Không tìm thấy công việc ứng tuyển'))
@@ -923,7 +1029,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
         frappe.throw(str(ex))
     except Exception as ex:
         frappe.log_error(frappe.get_traceback(), "Upload CV With AI Extraction Error")
-        frappe.throw(_("Upload không thành công. Vui lòng thử lại!"))
+        frappe.throw(_("Upload không thành công. Vui lòng thử lại!"), ex)
 
 
 @frappe.whitelist(allow_guest=True)

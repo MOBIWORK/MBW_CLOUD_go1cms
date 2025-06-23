@@ -103,9 +103,16 @@ def export_template():
         web_template = frappe.get_doc(doctype, docname)
         # get file attach in child
         for img in web_template.images:
-            arr_url = img.image.split('/files/')
-            if arr_url[1] not in files_attach:
-                files_attach.append(arr_url[1])
+            if img.image:
+                # Handle both string and list cases
+                image_url = img.image
+                if isinstance(image_url, list):
+                    image_url = image_url[0] if image_url else ""
+                
+                if image_url and isinstance(image_url, str) and '/files/' in image_url:
+                    arr_url = image_url.split('/files/')
+                    if len(arr_url) > 1 and arr_url[1] not in files_attach:
+                        files_attach.append(arr_url[1])
 
         # write file doctype reference web template
         handle_write_multiple_files_web_template(web_template)
@@ -222,18 +229,30 @@ def get_files_page(section):
                 content = json.loads(field.content)
                 for item in content:
                     for f in fields_attach:
-                        if item[f] and item[f].startswith('/files/'):
-                            file_name = item[f].split('/files/')[1]
-                            if file_name and file_name not in files:
-                                files.append(file_name)
+                        if item[f]:
+                            # Handle both string and list cases
+                            file_url = item[f]
+                            if isinstance(file_url, list):
+                                file_url = file_url[0] if file_url else ""
+                            
+                            if file_url and isinstance(file_url, str) and file_url.startswith('/files/'):
+                                file_name = file_url.split('/files/')[1]
+                                if file_name and file_name not in files:
+                                    files.append(file_name)
             except Exception as ex:
                 print('=========Error========', ex)
         elif field.field_type == 'Attach':
             try:
-                if field.content and field.content.startswith('/files/'):
-                    file_name = field.content.split('/files/')[1]
-                    if file_name and file_name not in files:
-                        files.append(file_name)
+                if field.content:
+                    # Handle both string and list cases
+                    file_url = field.content
+                    if isinstance(file_url, list):
+                        file_url = file_url[0] if file_url else ""
+                    
+                    if file_url and isinstance(file_url, str) and file_url.startswith('/files/'):
+                        file_name = file_url.split('/files/')[1]
+                        if file_name and file_name not in files:
+                            files.append(file_name)
             except Exception as ex:
                 print('=========Error========', ex)
 

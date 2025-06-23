@@ -179,9 +179,28 @@ def create_client_website(name):
         update_edit_client_website(website.name)
 
         # update web template
-        template.template_in_use = 1
-        template.installed_template = 1
-        template.save(ignore_permissions=True)
+        try:
+            template.template_in_use = 1
+            template.installed_template = 1
+            template.save(ignore_permissions=True)
+        except Exception as save_error:
+            # Log the error but don't fail the client website creation
+            frappe.log_error(
+                title="Failed to update template status",
+                message=f"Template: {name}\nError: {str(save_error)}\n{frappe.get_traceback()}"
+            )
+            # Try to update directly via database to avoid validation
+            try:
+                frappe.db.set_value('MBW Website Template', name, {
+                    'template_in_use': 1,
+                    'installed_template': 1
+                })
+                frappe.db.commit()
+            except Exception as db_error:
+                frappe.log_error(
+                    title="Failed to update template status via DB",
+                    message=f"Template: {name}\nError: {str(db_error)}"
+                )
 
         return {'name': website.name, 'template_edit': None}
     except frappe.ValidationError as ex:

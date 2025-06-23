@@ -744,9 +744,16 @@ def handle_write_multiple_files_web_template():
             # get file attach in child
             if doctype == 'MBW Website Template':
                 for img in d_j.images:
-                    arr_url = img.image.split('/files/')
-                    if arr_url[1] not in files_attach:
-                        files_attach.append(arr_url[1])
+                    if img.image:
+                        # Handle both string and list cases
+                        image_url = img.image
+                        if isinstance(image_url, list):
+                            image_url = image_url[0] if image_url else ""
+                        
+                        if image_url and isinstance(image_url, str) and '/files/' in image_url:
+                            arr_url = image_url.split('/files/')
+                            if len(arr_url) > 1 and arr_url[1] not in files_attach:
+                                files_attach.append(arr_url[1])
 
             # remove fields is None
             d_j = remove_nulls(d_j)
