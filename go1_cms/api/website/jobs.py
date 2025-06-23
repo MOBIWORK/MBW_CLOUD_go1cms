@@ -13,6 +13,7 @@ from go1_cms.api.common import (
 from go1_cms.api.website.log_page import (
     log_page_view
 )
+from dateutil import parser
 from datetime import datetime
 import math
 from io import BytesIO
@@ -728,7 +729,24 @@ def upload_base64_without_filename(base64_string, doctype, docname):
     except Exception as e:
         frappe.log_error(str(e), "Upload Base64 Avatar Error")
         return None
+def try_parse_date(value):
+    if isinstance(value, str):
+        try:
+            dt = parser.parse(value, dayfirst=True)
+            return dt.strftime('%Y-%m-%d')
+        except:
+            return value
+    return value
 
+def normalize_dates_recursively(obj):
+    if isinstance(obj, dict):
+        for key in obj:
+            obj[key] = normalize_dates_recursively(obj[key])
+        return obj
+    elif isinstance(obj, list):
+        return [normalize_dates_recursively(item) for item in obj]
+    else:
+        return try_parse_date(obj)
 @frappe.whitelist(methods=['POST'], allow_guest=True)
 def upload_cv_with_ai_extraction(name_job, **kwargs):
     """
@@ -798,7 +816,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             if extracted_data:
                 try:
                     extracted_data = json.loads(extracted_data) if isinstance(extracted_data, str) else extracted_data
-                    
+                    extracted_data = normalize_dates_recursively(extracted_data)
                     if extracted_data.get("personal_info"):
                         personal_info = extracted_data["personal_info"]
                         # Update with better data from AI if available
@@ -806,47 +824,27 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
                             new_doc.can_full_name = personal_info.get("can_full_name", applicant_name)
                         if personal_info.get("can_phone"):
                             new_doc.can_phone = personal_info.get("can_phone", phone_number)
+                        if personal_info.get('dob'):
+                            new_doc.can_dob = personal_info.get('dob','')
                     
                     # Add avatar if available
                     if extracted_data.get("can_avatar"):
-                        new_doc.can_avatar = extracted_data["can_avatar"]
+                        new_doc.can_avatar = extracted_data.get("can_avatar")
 
                     if "work_experience" in extracted_data:
-                        work_experience = {
-                            "company": "work_experience_place",
-                            "position": "work_experience_role",
-                            "start_date": "work_experience_start",
-                            "end_date": "work_experience_end",
-                            "descriptions": "work_experience_detail",
-                        }
-                        new_doc["work_experience"] = rename_keys_in_list(
-                            extracted_data["work_experience"], work_experience
-                        )
+                        new_doc["work_experience"] = extracted_data.get("work_experience")
                     if "projects" in extracted_data:
-                        projects = {
-                            "name": "projects_name",
-                            "tasks": "project_description",
-                            "start_date": "project_start_date",
-                            "end_date": "project_end_date",
-                            "position": "project_role",
-                        }
-                        new_doc["projects"] = rename_keys_in_list(
-                            extracted_data["projects"], projects
-                        )
+                        new_doc["projects"] = extracted_data.get("projects")
 
                     if "skills" in extracted_data:
-                        skill = {
-                            "name": "can_skill_name",
-                        }
-                        new_doc["skills"] = rename_keys_in_list(
-                            extracted_data["skills"], skill
-                        )
-                    if "list_imgs_base64" in extracted_data and extracted_data["list_imgs_base64"]:
+                        new_doc["skills"] = extracted_data.get("skills")
+                        
+                    if "list_imgs_base64" in extracted_data and extracted_data.get("list_imgs_base64"):
                         try:
                             new_doc["can_avatar"] = upload_base64_without_filename(
-                                extracted_data["list_imgs_base64"][0],
+                                extracted_data.get("list_imgs_base64")[0],
                                 "ATS_Candidate",
-                                extracted_data["personal_info"].get("can_full_name", "unknown"),
+                                extracted_data.get("personal_info").get("can_full_name", "unknown"),
                             )
                         except Exception as avatar_error:
                             frappe.log_error(str(avatar_error), "CV Avatar Upload Error")
