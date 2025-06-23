@@ -3,6 +3,7 @@ import frappe
 import requests
 import json
 from frappe.exceptions import ValidationError, DoesNotExistError
+
 from go1_cms.utlis.webhook_utils import log_webhook_result
 from datetime import datetime, timedelta
 from frappe.utils import nowdate, now_datetime
@@ -78,6 +79,10 @@ def parse_webhook_data_batch(payload: dict, key_field: str = "sync_id"):
 
     results = []
     meta = frappe.get_meta(doctype)
+
+    #Kiểm tra lấy danh mục trước khi sync lần đầu
+    if not check_exists_cate():
+        sync_from_ats()
     
     # Các field không được update
     skip_fieldtypes = {'Section Break', 'Column Break', 'Button'}
@@ -341,3 +346,48 @@ def safe_save(non_updatable_fields, data, doctype, sync_key):
     fresh_doc.save(ignore_permissions=True)
     frappe.db.commit()
     
+def check_exists_cate():
+    total_location = frappe.db.count("ATS_Location")
+    total_position = frappe.db.count("ATS_Position")
+    if total_location > 0 and total_position > 0:
+        return True
+    else:
+        return False
+
+def sync_from_ats():
+    from go1_cms.api.sync_setup import sync_from_external
+    try:
+        sync_from_external("ATS_Country")
+        sync_from_external("ATS_Province")
+        sync_from_external("ATS_District")
+        sync_from_external("ATS_Ward")        
+        sync_from_external("ATS_Company")
+        sync_from_external("ATS_Unit")
+        sync_from_external("ATS_Level")
+        sync_from_external("ATS_Location")     
+        
+        sync_from_external("ATS_EducationLevel")
+        sync_from_external("ATS_Education")
+        sync_from_external("ATS_Institution")
+        sync_from_external("ATS_Major")
+        sync_from_external("ATS_Round_Type")
+        sync_from_external("ATS_Recruitment_Process")     
+        sync_from_external("ATS_Position")   
+        sync_from_external("ATS_CandidateSource")
+        sync_from_external("ATS_RejectReasonCampaignGroup")
+        sync_from_external("Hiring Committee")
+        sync_from_external("Hiring_Committee_Schedule")
+        sync_from_external("Job_Opening_Rounds")
+        sync_from_external("Job_Position_Rounds")
+        sync_from_external("Candidate_Award")
+        sync_from_external("Candidate_Certification")
+        sync_from_external("Candidate_Project")
+        sync_from_external("Candidate_Course")
+        sync_from_external("Candidate_Skill")
+        sync_from_external("Candidate_Work_Experience")
+        sync_from_external("ATS_CandidateRoundHistory")
+        sync_from_external("Candidate Stages")
+        sync_from_external("ATS_JobOpening")
+
+    except Exception as e:
+        frappe.log_error("Error sync from get ", frappe.get_traceback())

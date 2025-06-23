@@ -91,6 +91,7 @@ class ATS_JobOpening(Document):
 
 		return {"columns": columns, "rows": rows}
 
+
 	def on_update(self):
 		"""Forward data sang CMS_JobOpening sau khi sync từ ATS
 		"""
@@ -116,3 +117,4 @@ class ATS_JobOpening(Document):
 	def after_delete(self):
 		if self.sync_id:
 			frappe.db.delete("CMS_JobOpening",{"sync_id":self.sync_id})
+
