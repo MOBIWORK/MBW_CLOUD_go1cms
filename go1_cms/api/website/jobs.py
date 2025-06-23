@@ -304,7 +304,7 @@ def upload_cv(name_job, **kwargs):
             frappe.throw('Mã biểu mẫu không đúng')
 
         captcha = frappe.db.get_value('CMS Captcha', {
-            "ip": ip, 'captcha_text': captcha_text}, ['name', 'creation'], as_dict=1)
+            "ip": ip, 'captcha_text': captcha_text.strip().upper()}, ['name', 'creation'], as_dict=1)
         if not captcha_text or not captcha:
             return {
                 'status': '0',
@@ -749,7 +749,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
 
         # Validate captcha
         captcha = frappe.db.get_value('CMS Captcha', {
-            "ip": ip, 'captcha_text': captcha_text}, ['name', 'creation'], as_dict=1)
+            "ip": ip, 'captcha_text': captcha_text.strip().upper()}, ['name', 'creation'], as_dict=1)
         if not captcha_text or not captcha:
             return {
                 'status': '0',
