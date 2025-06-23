@@ -966,7 +966,6 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
 
             # Save candidate first to get the name
             new_doc.save(ignore_permissions=True)
-            frappe.db.commit()
             new_doc.reload()
 
             # Attach uploaded file to candidate if file_name provided
