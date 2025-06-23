@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "format:{can_id}-{can_full_name}",
+ "autoname": "format:CAN-{YY}{MM}-{#####}",
  "creation": "2025-02-04 12:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -363,7 +363,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-12 08:41:43.659487",
+ "modified": "2025-06-23 17:05:00.843499",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Candidate",

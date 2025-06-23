@@ -1,6 +1,6 @@
 {
  "actions": [],
- "allow_rename": 1,
+ "autoname": "format:OB-{YY}{MM}-{#####}",
  "creation": "2025-06-05 14:28:16.287350",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -78,10 +78,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-09 17:28:07.048579",
+ "modified": "2025-06-23 17:06:52.851288",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_Onboarding",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
