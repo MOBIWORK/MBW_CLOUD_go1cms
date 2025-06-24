@@ -11,5 +11,6 @@ dependencies = [
     # "frappe~=15.0.0" # Installed and managed by bench.
     "python-slugify",
     "premailer",
-    "captcha"
+    "captcha",
+    "fuzzywuzzy~=0.18.0"
 ]
