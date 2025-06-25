@@ -7,7 +7,6 @@ import zipfile
 from frappe.utils import encode, get_files_path, getdate, to_timedelta, flt
 from go1_cms.api.sync_setup import sync_from_external
 
-
 def after_migrate():
     try:
         sync_from_external("ATS_Company")

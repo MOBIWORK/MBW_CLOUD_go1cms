@@ -75,6 +75,7 @@ def after_install():
         timeout=300,
         now=True)
 
+
 def sync_ats_categories():
 	sync_from_external("ATS_Country")
 	sync_from_external("ATS_Province")

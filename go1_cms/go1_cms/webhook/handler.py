@@ -366,7 +366,6 @@ def sync_from_ats():
         sync_from_external("ATS_Profession")
         sync_from_external("ATS_Level")
         sync_from_external("ATS_Location")     
-        
         sync_from_external("ATS_EducationLevel")
         sync_from_external("ATS_Education")
         sync_from_external("ATS_Institution")

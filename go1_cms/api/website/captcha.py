@@ -9,7 +9,6 @@ import frappe
 from frappe import _, local
 from frappe.utils import now, add_to_date
 
-
 @frappe.whitelist(methods=['GET'], allow_guest=True)
 def get_captcha():
     # CAPTCHA config
