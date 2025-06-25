@@ -19,12 +19,9 @@ def get_captcha():
     text_color = (0, 0, 0)
 
     # Font settings
-    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # Tùy hệ thống
     font_size = 48
-    if not os.path.exists(font_path):
-        return {"error": "Font not found at " + font_path}
     
-    font = ImageFont.truetype(font_path, font_size)
+    font = ImageFont.load_default(font_size)
 
     # Tạo ảnh trắng
     image = Image.new('RGB', (width, height), background_color)

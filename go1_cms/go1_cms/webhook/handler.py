@@ -363,6 +363,7 @@ def sync_from_ats():
         sync_from_external("ATS_Ward")        
         sync_from_external("ATS_Company")
         sync_from_external("ATS_Unit")
+        sync_from_external("ATS_Profession")
         sync_from_external("ATS_Level")
         sync_from_external("ATS_Location")     
         
