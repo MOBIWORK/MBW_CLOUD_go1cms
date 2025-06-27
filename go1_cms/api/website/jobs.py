@@ -129,13 +129,14 @@ def get_all_job(name_section, **kwargs):
     m_query = frappe.qb.from_(JobOpening)
     
     # First, check if there are any published records
-    published_count = frappe.db.count('CMS_JobOpening', {'publish_to_career_page': 1})
+    published_count = frappe.db.count('CMS_JobOpening', {'publish_to_career_page': 1, "status":"Open"})
     if published_count == 0:
         # If no published records, return all records for debugging
         frappe.log_error("No published job openings found", "get_all_job_debug")
     else:
         # Only filter by published if there are published records
         m_query = m_query.where(JobOpening.publish_to_career_page == 1)
+        m_query = m_query.where(JobOpening.status == "Open")
     
     # Apply filters
     if text_search:
