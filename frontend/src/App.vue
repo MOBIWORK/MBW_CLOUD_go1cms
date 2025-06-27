@@ -8,12 +8,12 @@
     <router-view />
   </DesktopLayout>
   <Dialogs />
-  <Toasts />
+  <!-- <Toasts /> -->
 </template>
 
 <script setup>
 import DesktopLayout from '@/components/Layouts/DesktopLayout.vue'
 import { Dialogs } from '@/utils/dialogs'
 import { sessionStore as session } from '@/stores/session'
-import { Toasts } from 'frappe-ui'
+// import { Toasts } from 'frappe-ui'
 </script>
