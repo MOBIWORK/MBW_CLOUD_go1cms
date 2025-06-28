@@ -3,7 +3,7 @@ import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import { useDateFormat, useTimeAgo } from '@vueuse/core'
 import { usersStore } from '@/stores/users'
 import { gemoji } from 'gemoji'
-import { toast } from 'frappe-ui'
+import { toast } from '@/composables/useToast'
 import { h } from 'vue'
 import slugify from 'slugify'
 import dayjs from 'dayjs'
@@ -277,6 +277,15 @@ export function warningMessage(title, message) {
     text: message,
     icon: 'alert-circle',
     iconClasses: 'text-orange-600',
+  })
+}
+
+export function successMessage(title, message) {
+  createToast({
+    title: title || 'Thành công',
+    text: message,
+    icon: 'check',
+    iconClasses: 'text-green-600',
   })
 }
 
