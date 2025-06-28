@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { userResource } from '@/stores/user'
+import { usersStore } from '@/stores/user'
 import { sessionStore } from '@/stores/session'
 import { viewsStore } from '@/stores/views'
 
@@ -186,6 +186,11 @@ const routes = [
     name: 'Login',
     component: () => import('@/pages/Login.vue'),
   },
+  {
+    path: '/company',
+    name: 'Company',
+    component: () => import('@/pages/ats_company/Company.vue'),
+  },
   
 ]
 
@@ -217,7 +222,7 @@ let router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const { isLoggedIn, isSystemUser } = sessionStore()
 
-  isLoggedIn && (await userResource.promise)
+  isLoggedIn && (await usersStore.promise)
 
   if (from.meta?.scrollPos) {
     from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop
@@ -228,6 +233,20 @@ router.beforeEach(async (to, from, next) => {
     const data = await views.fetch()
     if(!data?.developer_mode){
       next({ name: 'Interface Repository' })
+    }
+  }
+
+  // Check if trying to access Company route and redirect if mbw_ats_site_name exists
+  if(to.name == 'Company' && isLoggedIn){
+    try {
+      const response = await fetch('/api/method/go1_cms.api.site_config.get_site_config')
+      const data = await response.json()
+      if(data.message && data.message.success && data.message.mbw_ats_site_name && data.message.mbw_ats_site_name.trim() !== ""){
+        next({ name: 'Interface Repository' })
+        return
+      }
+    } catch (error) {
+      console.error('Error checking site config:', error)
     }
   }
 

@@ -1,190 +1,227 @@
 <template>
-  <div class="space-y-1.5">
-    <label class="block" :class="labelClasses" v-if="attrs.label">
-      {{ attrs.label }}
-    </label>
-    <Autocomplete
-      ref="autocomplete"
-      :options="options.data"
-      v-model="value"
-      v-model:currentOption="currentOption"
-      v-model:query="text"
-      :size="attrs.size || 'sm'"
-      :variant="attrs.variant"
-      :placeholder="attrs.placeholder"
-      :filterable="false"
-    >
-      <template #target="{ open, togglePopover }">
-        <slot name="target" v-bind="{ open, togglePopover }" />
-      </template>
+	<div class="space-y-1.5 p-[2px] -m-[2px]">
+		<label class="block" :class="labelClasses" v-if="attrs.label">
+			{{ __(attrs.label) }}
+		</label>
+		<Autocomplete
+			ref="autocomplete"
+			:options="options.data"
+			v-model="value"
+			:size="attrs.size || 'sm'"
+			:variant="attrs.variant"
+			:placeholder="attrs.placeholder"
+			:filterable="false"
+		>
+			<template #target="{ open, togglePopover }">
+				<slot name="target" v-bind="{ open, togglePopover }" />
+			</template>
 
-      <template #prefix>
-        <slot name="prefix" />
-      </template>
+			<template #prefix>
+				<slot name="prefix" />
+			</template>
 
-      <template #item-prefix="{ active, selected, option }">
-        <slot name="item-prefix" v-bind="{ active, selected, option }" />
-      </template>
+			<template #item-prefix="{ active, selected, option }">
+				<slot name="item-prefix" v-bind="{ active, selected, option }" />
+			</template>
 
-      <template #item-label="{ active, selected, option }">
-        <slot name="item-label" v-bind="{ active, selected, option }" />
-      </template>
+			<template #item-label="{ active, selected, option }">
+				<slot name="item-label" v-bind="{ active, selected, option }" />
+			</template>
 
-      <template #footer="{ value, close }">
-        <div v-if="attrs.onCreate">
-          <Button
-            variant="ghost"
-            class="w-full !justify-start"
-            label="Create New"
-            @click="attrs.onCreate(value, close)"
-          >
-            <template #prefix>
-              <FeatherIcon name="plus" class="h-4" />
-            </template>
-          </Button>
-        </div>
-        <div>
-          <Button
-            variant="ghost"
-            class="w-full !justify-start"
-            :label="__('Clear')"
-            @click="() => clearValue(close)"
-          >
-            <template #prefix>
-              <FeatherIcon name="x" class="h-4" />
-            </template>
-          </Button>
-        </div>
-      </template>
-    </Autocomplete>
-  </div>
+			<template #footer="{ value, close }">
+				<div v-if="attrs.onCreate">
+					<Button
+						variant="ghost"
+						class="w-full !justify-start"
+						:label="__('Create New')"
+						@click="() => attrs.onCreate(value, close)"
+					>
+						<template #prefix>
+							<FeatherIcon name="plus" class="h-4" />
+						</template>
+					</Button>
+				</div>
+				<div>
+					<Button
+						variant="ghost"
+						class="w-full !justify-start"
+						:label="__('Clear')"
+						@click="() => clearValue(close)"
+					>
+						<template #prefix>
+							<FeatherIcon name="x" class="h-4" />
+						</template>
+					</Button>
+				</div>
+			</template>
+		</Autocomplete>
+	</div>
 </template>
 
 <script setup>
-import Autocomplete from '@/components/frappe-ui/Autocomplete.vue'
-import { watchDebounced } from '@vueuse/core'
-import { createResource } from 'frappe-ui'
-import { useAttrs, computed, ref, watch } from 'vue'
+import Autocomplete from "@/components/frappe-ui/Autocomplete.vue";
+import { watchDebounced } from "@vueuse/core";
+import { createResource } from "frappe-ui";
+import { useAttrs, computed, ref, watch } from "vue";
 
 const props = defineProps({
-  doctype: {
-    type: String,
-    required: true,
-  },
-  modelValue: {
-    type: String,
-    default: '',
-  },
-  hideMe: {
-    type: Boolean,
-    default: false,
-  },
-  filters: {
-    type: [Object, Array],
-    default: {},
-  },
-})
+	doctype: {
+		type: String,
+		required: true,
+	},
+	filters: {
+		type: [Array, String],
+		default: [],
+	},
+	modelValue: {
+		type: String,
+		default: "",
+	},
+	doc: { type: Object, default: () => ({}) },
+	hideMe: {
+		type: Boolean,
+		default: false,
+	},
+});
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(["update:modelValue", "change"]);
 
-const attrs = useAttrs()
+const attrs = useAttrs();
 
-const valuePropPassed = computed(() => 'value' in attrs)
+const valuePropPassed = computed(() => "value" in attrs);
 
 const value = computed({
-  get: () => (valuePropPassed.value ? attrs.value : props.modelValue),
-  set: (val) => {
-    return (
-      val?.value &&
-      emit(valuePropPassed.value ? 'change' : 'update:modelValue', val?.value)
-    )
-  },
-})
+	get: () => (valuePropPassed.value ? attrs.value : props.modelValue),
+	set: (val) => {
+		return (
+			val?.value && emit(valuePropPassed.value ? "change" : "update:modelValue", val?.value)
+		);
+	},
+});
 
-const autocomplete = ref(null)
-const text = ref('')
-const currentOption = ref(null)
+const autocomplete = ref(null);
+const text = ref("");
 
 watchDebounced(
-  () => autocomplete.value?.query,
-  (val) => {
-    val = val || ''
-    // if (text.value === val) return
-    // text.value = val
-    reload(val)
-  },
-  { debounce: 300, immediate: true },
-)
+	() => autocomplete.value?.query,
+	(val) => {
+		val = val || "";
+		if (text.value === val) return;
+		text.value = val;
+		reload(val);
+	},
+	{ debounce: 300, immediate: true },
+);
 
 watchDebounced(
-  () => props.doctype,
-  () => reload(value.value),
-  { debounce: 300, immediate: true },
-)
+	() => props.doctype,
+	() => reload(""),
+	{ debounce: 300, immediate: true },
+);
+
+// 1) Computed để parse filters
+const parsedFilters = computed(() => {
+	// Kiểm tra nếu filters là mảng mới thực hiện map
+	if (!Array.isArray(props.filters)) {
+		return props.filters || [];
+	}
+	
+	return props.filters.map((f) => {
+		if (Array.isArray(f) && typeof f[3] === "string" && f[3].startsWith("eval:")) {
+			// cắt bỏ 'eval:' và trim path, vd "doc.country_id"
+			const path = f[3].slice(5).trim().split(".");
+			// lấy giá trị từ props.doc theo đường dẫn ấy
+			let val = props[path[0]]; // đầu tiên: props["doc"]
+			for (let i = 1; i < path.length; i++) {
+				val = val?.[path[i]];
+			}
+			return [f[0], f[1], f[2], val];
+		}
+		return f;
+	});
+});
 
 const options = createResource({
-  url: 'frappe.desk.search.search_link',
-  // cache: [props.doctype, text.value, props.hideMe],
-  method: 'POST',
-  params: {
-    filters: props.filters,
-    txt: text.value,
-    doctype: props.doctype,
-  },
-  transform: (data) => {
-    let allData = data.map((option) => {
-      return {
-        label: option.label || option.value,
-        value: option.value,
-      }
-    })
+	url: "frappe.desk.search.search_link",
+	// cache: [props.doctype, text.value, props.hideMe],
+	method: "POST",
+	params: {
+		txt: text.value,
+		doctype: props.doctype,
+		ignore_user_permissions: true,
+		filters: parsedFilters.value,
+	},
+	transform: (data) => {
+		// console.log(data);
+		let allData = data.map((option) => {
+			return {
+				label: option.label || option.value,
+				value: option.value,
+			};
+		});
+		if (!props.hideMe && props.doctype == "User") {
+			allData.unshift({
+				label: "@me",
+				value: "@me",
+			});
+		}
+		return allData;
+	},
+	onError: (error) => {
+		console.error("Error fetching data:", error);
+	},
+});
 
-    if (!currentOption.value) {
-      currentOption.value = allData.find((el) => el.value == value.value)
-    }
+// 3) Khi parsedFilters thay đổi, tự động reload()
+watch(parsedFilters, () => reload(text.value), { deep: true, immediate: true });
 
-    if (!props.hideMe && props.doctype == 'User') {
-      allData.unshift({
-        label: '@me',
-        value: '@me',
-      })
-    }
-    return allData
-  },
-})
-
-function reload(val) {
-  if (
-    options.data?.length &&
-    val === options.params?.txt &&
-    props.doctype === options.params?.doctype
-  )
-    return
-
-  options.update({
-    params: {
-      filters: props.filters,
-      txt: val || '',
-      doctype: props.doctype,
-    },
-  })
-  options.reload()
-}
+// Xóa console.log không cần thiết có thể gây lỗi
+// watch(
+// 	() => props.filters,
+// 	(newFilters, oldFilters) => {
+// 		// chỉ reload khi filters thực sự khác
+// 		reload(text.value);
+// 	},
+// 	{ deep: true, immediate: true },
+// );
 
 function clearValue(close) {
-  emit(valuePropPassed.value ? 'change' : 'update:modelValue', '')
-  text.value = ''
-  reload('')
-  close()
+	emit(valuePropPassed.value ? "change" : "update:modelValue", "");
+	close();
 }
 
 const labelClasses = computed(() => {
-  return [
-    {
-      sm: 'text-xs',
-      md: 'text-base',
-    }[attrs.size || 'sm'],
-    'text-gray-600',
-  ]
-})
+	return [
+		{
+			sm: "text-xs",
+			md: "text-base",
+		}[attrs.size || "sm"],
+		"text-ink-gray-5",
+	];
+});
+
+function reload(val) {
+	// Nếu dữ liệu đã tồn tại và không thay đổi, không cần reload
+	if (
+		options.data?.length &&
+		val === options.params?.txt &&
+		props.doctype === options.params?.doctype &&
+		JSON.stringify(parsedFilters.value) === JSON.stringify(options.params?.filters)
+	)
+		return;
+
+	try {
+		options.update({
+			params: {
+				txt: val,
+				doctype: props.doctype,
+				filters: parsedFilters.value,
+				ignore_user_permissions: true,
+			},
+		});
+		options.reload();
+	} catch (error) {
+		console.error("Error updating options:", error);
+	}
+}
 </script>

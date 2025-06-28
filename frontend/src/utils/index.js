@@ -583,3 +583,104 @@ export function getDateMinusDays(dateString, days, operator = '-') {
 
   return `${year}-${month}-${day}`
 }
+
+export async function setupListCustomizations(data, obj = {}) {
+	if (!data.list_script) return [];
+
+	let actions = [];
+	let bulkActions = [];
+
+	if (Array.isArray(data.list_script)) {
+		for (let script of data.list_script) {
+			let _script = await getListScript(script, obj);
+			actions = actions.concat(_script?.actions || []);
+			bulkActions = bulkActions.concat(_script?.bulk_actions || []);
+		}
+	} else {
+		let _script = await getListScript(data.list_script, obj);
+		actions = _script?.actions || [];
+		bulkActions = _script?.bulk_actions || [];
+	}
+
+	data.listActions = actions;
+	data.bulkActions = bulkActions;
+	return { actions, bulkActions };
+}
+
+export const catStatusColor = {
+	Active: "green",
+	Inactive: "red",
+	1: "green",
+	0: "red",
+};
+
+export function getRandom(len = 4) {
+	let text = "";
+	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+	Array.from({ length: len }).forEach(() => {
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	});
+
+	return text;
+}
+
+export function getFormat(date, format, onlyDate = false, onlyTime = false, withDate = true) {
+	if (!date) return "";
+
+	// Mặc định format ngày là DD/MM/YYYY
+	let dateFormat =
+		window.sysdefaults?.date_format
+			?.replace(/dd/i, "DD")
+			?.replace(/mm/i, "MM")
+			?.replace(/yyyy/i, "YYYY") || "DD/MM/YYYY";
+
+	let timeFormat = window.sysdefaults?.time_format || "HH:mm:ss";
+
+	// Nếu không truyền format, dùng format mặc định
+	format = format || "ddd, MMM D, YYYY h:mm a";
+
+	// Ghi đè format theo flags
+	if (onlyDate && onlyTime) {
+		format = `${dateFormat} ${timeFormat}`;
+	} else if (onlyDate) {
+		format = dateFormat;
+	} else if (onlyTime) {
+		format = timeFormat;
+	}
+
+	// Trả về giá trị cuối cùng
+	return withDate ? dayjs(date).format(format) : format;
+}
+
+export function isTouchScreenDevice() {
+	return "ontouchstart" in document.documentElement;
+}
+
+export function evaluateDependsOnValue(expression, doc) {
+	if (!expression) return true;
+	if (!doc) return true;
+
+	let out = null;
+
+	if (typeof expression === "boolean") {
+		out = expression;
+	} else if (typeof expression === "function") {
+		out = expression(doc);
+	} else if (expression.substr(0, 5) == "eval:") {
+		try {
+			out = _eval(expression.substr(5), { doc });
+		} catch (e) {
+			out = true;
+		}
+	} else {
+		let value = doc[expression];
+		if (Array.isArray(value)) {
+			out = !!value.length;
+		} else {
+			out = !!value;
+		}
+	}
+
+	return out;
+}

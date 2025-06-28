@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
-import { userResource } from './user'
+import { usersStore } from './user'
 import { ref, computed } from 'vue'
 
 export const sessionStore = defineStore('cms-session', () => {
@@ -28,7 +28,7 @@ export const sessionStore = defineStore('cms-session', () => {
       throw new Error(__('Incorrect email or password.'))
     },
     onSuccess() {
-      userResource.reload()
+      usersStore.reload()
       user.value = sessionUser()
       login.reset()
       window.location.href = '/cms'
@@ -38,7 +38,7 @@ export const sessionStore = defineStore('cms-session', () => {
   const logout = createResource({
     url: 'logout',
     onSuccess() {
-      userResource.reset()
+      usersStore.reset()
       user.value = null
       window.location.href = '/cms/login'
     },

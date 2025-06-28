@@ -8,7 +8,7 @@
         :label="value"
         theme="gray"
         variant="subtle"
-        class="rounded-full"
+        class="rounded"
         @keydown.delete.capture.stop="removeLastValue"
       >
         <template #suffix>
@@ -93,7 +93,8 @@ import {
   ComboboxOption,
 } from '@headlessui/vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { Popover, createResource } from 'frappe-ui'
+import Popover from '@/components/frappe-ui/Popover.vue'
+import { createResource } from 'frappe-ui'
 import { ref, computed, nextTick } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 
@@ -132,7 +133,7 @@ watchDebounced(
   query,
   (val) => {
     val = val || ''
-    if (text.value === val) return
+    if (text.value === val && options.value?.length) return
     text.value = val
     reload(val)
   },
@@ -140,22 +141,18 @@ watchDebounced(
 )
 
 const filterOptions = createResource({
-  url: 'frappe.desk.search.search_link',
+  url: 'crm.api.contact.search_emails',
   method: 'POST',
   cache: [text.value, 'Contact'],
-  params: {
-    txt: text.value,
-    doctype: 'Contact',
-  },
+  params: { txt: text.value },
   transform: (data) => {
     let allData = data
-      .filter((c) => {
-        return c.description.split(', ')[1]
-      })
       .map((option) => {
-        let email = option.description.split(', ')[1]
+        let fullName = option[0]
+        let email = option[1]
+        let name = option[2]
         return {
-          label: option.label || email,
+          label: fullName || name || email,
           value: email,
         }
       })
@@ -176,10 +173,7 @@ const options = computed(() => {
 
 function reload(val) {
   filterOptions.update({
-    params: {
-      txt: val || '',
-      doctype: 'Contact',
-    },
+    params: { txt: val },
   })
   filterOptions.reload()
 }

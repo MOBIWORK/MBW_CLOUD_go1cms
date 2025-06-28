@@ -75,6 +75,7 @@
           <nav class="flex flex-col">
             <SidebarLink
               v-for="link in view.views"
+              :key="link.label"
               :icon="link.icon"
               :label="link.label"
               :to="link.to"
@@ -147,9 +148,10 @@ import { viewsStore } from '@/stores/views'
 import { notificationsStore } from '@/stores/notifications'
 import { FeatherIcon } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { globalStore } from '@/stores/global'
+import { createResource } from 'frappe-ui'
 const { changeNameWebsiteEdit } = globalStore()
 const { name_website_edit } = storeToRefs(globalStore())
 import ChangeLanguageDialog from '@/components/Settings/ChangeLanguageDialog.vue'
@@ -157,6 +159,24 @@ import ChangeLanguageDialog from '@/components/Settings/ChangeLanguageDialog.vue
 const { views } = viewsStore()
 
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
+const showSettings = ref(true)
+
+// Site config resource
+const siteConfig = createResource({
+  url: 'go1_cms.api.site_config.get_site_config',
+  auto: true,
+  onSuccess: (data) => {
+    if (data.success) {
+      // Hide settings if mbw_ats_site_name exists and is not empty
+      showSettings.value = !data.mbw_ats_site_name || data.mbw_ats_site_name === ""
+    }
+  }
+})
+
+// Load site config on mount
+onMounted(() => {
+  siteConfig.fetch()
+})
 
 const links = [
   // {
@@ -193,6 +213,22 @@ const allViews = computed(() => {
 
   if (views.data?.website_primary == 1) {
     changeNameWebsiteEdit(views.data?.name_web)
+
+    // Only add Settings section if showSettings is true (when mbw_ats_site_name is empty or doesn't exist)
+    if (showSettings.value) {
+      _views.push({
+        name: 'Settings',
+        opened: true,
+        views: [
+          {
+            label: 'Company',
+            icon: ChartIcon,
+            to: 'Company',
+          },
+        ],
+      })
+    }
+
     //
     _views.push({
       name: 'Dashboard',
