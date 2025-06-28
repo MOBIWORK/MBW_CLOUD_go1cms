@@ -191,6 +191,21 @@ const routes = [
     name: 'Company',
     component: () => import('@/pages/ats_company/Company.vue'),
   },
+  {
+    path: '/unit',
+    name: 'Unit',
+    component: () => import('@/pages/ats_unit/Unit.vue'),
+  },
+  {
+    path: '/profession',
+    name: 'Profession',
+    component: () => import('@/pages/ats_profession/Profession.vue'),
+  },
+  {
+    path: '/level',
+    name: 'Level',
+    component: () => import('@/pages/ats_level/Level.vue'),
+  },
   
 ]
 

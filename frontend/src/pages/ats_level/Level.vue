@@ -15,7 +15,7 @@
 		v-model:loadMore="loadMore"
 		v-model:resizeColumn="triggerResize"
 		v-model:updatedPageCount="updatedPageCount"
-		doctype="ATS_Company"
+		doctype="ATS_Level"
 		:enableGroupSearch="true"
 	/>
 	<DataListView
@@ -23,7 +23,7 @@
 		v-if="listData.data && rows.length"
 		v-model="listData.data.page_length_count"
 		v-model:list="listData"
-		:doctype="'ATS_Company'"
+		:doctype="'ATS_Level'"
 		:rows="rows"
 		:columns="listData.data?.columns || []"
 		:options="{
@@ -54,21 +54,22 @@
 		v-model="showInfoModalData"
 		:list_field_value="list_field_value"
 		:editMode="editMode"
-		:doctype="'ATS_Company'"
+		:doctype="'ATS_Level'"
 		v-model:quickEntry="showQuickEntryModal"
 		@updateList="listData.reload()"
 	></Modal>
 
-	<QuickEntryModal v-model="showQuickEntryModal" doctype="ATS_Company" />
+	<QuickEntryModal v-model="showQuickEntryModal" doctype="ATS_Level" />
 </template>
 
 <script setup>
 import EmailIcon from "@/components/Icons/EmailIcon.vue";
+import Autocomplete from "@/components/frappe-ui/Autocomplete.vue";
 import LayoutHeader from "@/components/LayoutHeader.vue";
 import ViewControls from "@/components/ViewControls.vue";
 import QuickEntryModal from "@/components/Modals/QuickEntryModal.vue";
-import Modal from "@/components/Modals/ATS_Company_Modal.vue";
-import DataListView from "@/components/ListViews/ATS_Company_ListView.vue";
+import Modal from "@/components/Modals/ATS_Level_Modal.vue";
+import DataListView from "@/components/ListViews/ATS_Level_ListView.vue";
 
 import { Breadcrumbs, Button, createResource } from "frappe-ui";
 import { ref, computed, onMounted, reactive } from "vue";
@@ -76,9 +77,9 @@ import { usePermissionStore } from "@/stores/permission";
 
 const { can } = usePermissionStore();
 
-const canCreate = can("ATS_Company", "create");
+const canCreate = can("ATS_Level", "create");
 
-const breadcrumbs = [{ label: __("Company"), route: { name: "Company" } }];
+const breadcrumbs = [{ label: __("Level"), route: { name: "Level" } }];
 
 const dataListView = ref(null);
 const listData = ref({});

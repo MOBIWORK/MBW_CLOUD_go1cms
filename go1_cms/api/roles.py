@@ -345,7 +345,7 @@ def add_user_to_ats(user, roles):
 	user_doc = frappe.get_doc("User", user)
 
 	# Bỏ hết và thêm lại đúng MBW ATS
-	user_doc.set("allow_modules", ["MBW ATS"])
+	user_doc.set("allow_modules", ["Go1 CMS"])
 
 	# Add roles nếu chưa có
 	existing_roles = {r.role for r in user_doc.roles}

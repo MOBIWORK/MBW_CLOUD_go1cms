@@ -6,4 +6,45 @@ from frappe.model.document import Document
 
 
 class ATS_Level(Document):
-	pass
+	def default_list_data():
+		columns = [
+			{
+				'label': 'Level ID',
+				'type': 'Data',
+				'key': 'level_id',
+				'width': '16rem'
+			},
+			{
+				'label': 'Level Name',
+				'type': 'Data',
+				'key': 'level_name',
+				'width': '16rem'
+			},
+			{
+				'label': 'Using Unit',
+				'type': 'Link',
+				'key': 'unit_id',
+				'options': 'ATS_Unit',
+				'width': '16rem'
+			},
+			{
+				'label': 'Cat Status',
+				'type': 'Select',
+				'key': 'cat_status',
+				'width': '16rem'
+			}
+		]
+
+		rows = [
+			"level_id",
+			"level_name",
+			"level_description",
+			"unit_id",
+			"cat_status",
+			"cat_order",
+			"cat_color",
+			"cat_icon",
+			"name"
+		]
+		return {'columns': columns, 'rows': rows}
+

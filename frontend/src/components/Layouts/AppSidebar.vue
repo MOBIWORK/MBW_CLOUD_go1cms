@@ -225,6 +225,21 @@ const allViews = computed(() => {
             icon: ChartIcon,
             to: 'Company',
           },
+          {
+            label: 'Unit',
+            icon: ChartIcon,
+            to: 'Unit',
+          },
+          {
+            label: 'Profession',
+            icon: ChartIcon,
+            to: 'Profession',
+          },
+          {
+            label: 'Level',
+            icon: ChartIcon,
+            to: 'Level',
+          },
         ],
       })
     }

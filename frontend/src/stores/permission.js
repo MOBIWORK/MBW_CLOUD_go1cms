@@ -13,7 +13,7 @@ export const usePermissionStore = defineStore("permission", () => {
 			roles: currentRoles,
 		});
 
-		console.log(res)
+		console.log(">>>>=====res",res)
 
 		let map = {};
 		for (const p of res) {
