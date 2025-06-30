@@ -58,7 +58,7 @@
 				</Autocomplete>
 
 				<!-- Cấu hình Trigger -->
-				<div class="mt-4 border-t pt-4">
+				<div class="mt-4 border-t pt-4 hidden">
 					<div class="text-sm font-semibold mb-2">{{__('Automation Triggers')}}</div>
 
 					<div v-if="selectedRound.triggers?.length">

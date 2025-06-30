@@ -83,32 +83,24 @@ import FormSetupIcon from '@/components/Icons/FormSetupIcon.vue'
 import NewsIcon from '@/components/Icons/NewsIcon.vue'
 import TemplatePageIcon from '@/components/Icons/TemplatePageIcon.vue'
 import WebpageIcon from '@/components/Icons/WebpageIcon.vue'
-import MyWebsiteIcon from '@/components/Icons/MyWebsiteIcon.vue'
-import DomainIcon from '@/components/Icons/DomainIcon.vue'
 import DisplayIcon from '@/components/Icons/DisplayIcon.vue'
 import HeaderIcon from '@/components/Icons/HeaderIcon.vue'
 import FooterIcon from '@/components/Icons/FooterIcon.vue'
 import HomeIcon from '@/components/Icons/HomeIcon.vue'
 import ServiceIcon from '@/components/Icons/ServiceIcon.vue'
 import NewPageIcon from '@/components/Icons/NewPageIcon.vue'
-import PostIcon from '@/components/Icons/PostIcon.vue'
 import FormIcon from '@/components/Icons/FormIcon.vue'
 import DescriptionIcon from '@/components/Icons/DescriptionIcon.vue'
-import PinIcon from '@/components/Icons/PinIcon.vue'
 import ChartIcon from '@/components/Icons/ChartIcon.vue'
 import UserDropdown from '@/components/UserDropdown.vue'
 import PolicyIconV1 from '@/components/Icons/PolicyIconV1.vue'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
-import ContactsIconV1 from '@/components/Icons/ContactsIconV1.vue'
 import OrganizationsIcon from '@/components/Icons/OrganizationsIcon.vue'
 import SettingsIcon from '@/components/Icons/SettingsIcon.vue'
 import MenuIcon from '@/components/Icons/MenuIcon.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
-import NotificationsIcon from '@/components/Icons/NotificationsIcon.vue'
 import SidebarLink from '@/components/SidebarLink.vue'
-import Notifications from '@/components/Notifications.vue'
 import { viewsStore } from '@/stores/views'
-import { notificationsStore } from '@/stores/notifications'
 import { FeatherIcon } from 'frappe-ui'
 import { useStorage } from '@vueuse/core'
 import { computed, ref, onMounted } from 'vue'
@@ -118,6 +110,17 @@ import { createResource } from 'frappe-ui'
 const { changeNameWebsiteEdit } = globalStore()
 const { name_website_edit } = storeToRefs(globalStore())
 import ChangeLanguageDialog from '@/components/Settings/ChangeLanguageDialog.vue'
+import Company from '@/components/Icons/Company.vue'
+import Unit from '@/components/Icons/Unit.vue'
+import Profession from '@/components/Icons/Profession.vue'
+import Level from '@/components/Icons/Level.vue'
+import Location from '@/components/Icons/Location.vue'
+import Position from '@/components/Icons/Position.vue'
+import Country from '@/components/Icons/Country.vue'
+import Province from '@/components/Icons/Province.vue'
+import District from '@/components/Icons/District.vue'
+import Ward from '@/components/Icons/Ward.vue'
+import Recruitment from '@/components/Icons/Recruitment.vue'
 
 const { views } = viewsStore()
 
@@ -184,33 +187,33 @@ const allViews = computed(() => {
         opened: true,
         views: [
           {
-            label: 'Company',
-            icon: ChartIcon,
+            label: __('Company'),
+            icon: Company,
             to: 'Company',
           },
           {
-            label: 'Unit',
-            icon: ChartIcon,
+            label: __('Unit'),
+            icon: Unit,
             to: 'Unit',
           },
           {
-            label: 'Profession',
-            icon: ChartIcon,
+            label: __('Profession'),
+            icon: Profession,
             to: 'Profession',
           },
           {
-            label: 'Level',
-            icon: ChartIcon,
+            label: __('Level'),
+            icon: Level,
             to: 'Level',
           },
           {
-            label: 'Location',
-            icon: ChartIcon,
+            label: __('Location'),
+            icon: Location,
             to: 'Location',
           },
           {
-            label: 'Position',
-            icon: ChartIcon,
+            label: __('Position'),
+            icon: Position,
             to: 'Position',
           },
         ],
@@ -221,23 +224,23 @@ const allViews = computed(() => {
         opened: true,
         views: [
           {
-            label: 'Country',
-            icon: ChartIcon,
+            label: __('Country'),
+            icon: Country,
             to: 'Country',
           },
           {
-            label: 'Province',
-            icon: ChartIcon,
+            label: __('Province'),
+            icon: Province,
             to: 'Province',
           },
           {
-            label: 'District',
-            icon: ChartIcon,
+            label: __('District'),
+            icon: District,
             to: 'District',
           },
           {
-            label: 'Ward',
-            icon: ChartIcon,
+            label: __('Ward'),
+            icon: Ward,
             to: 'Ward',
           },
         ],
@@ -248,8 +251,8 @@ const allViews = computed(() => {
       opened: true,
       views: [
         {
-          label: 'Recruitment',
-          icon: ChartIcon,
+          label: __('Recruitment'),
+          icon: Recruitment,
           to: 'Process',
         },
       ],

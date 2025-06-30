@@ -102,11 +102,11 @@ def get_job_position_rounds(job_position):
 		for round in job_doc.job_position_rounds:
 			# Parse triggers từ JSON string sang list (nếu có)
 			triggers = []
-			if round.automation_rules:
-				try:
-					triggers = frappe.parse_json(round.automation_rules)
-				except Exception:
-					triggers = []
+			# if round.automation_rules:
+			# 	try:
+			# 		triggers = frappe.parse_json(round.automation_rules)
+			# 	except Exception:
+			# 		triggers = []
 
 			rounds.append({
 				"name": round.name,
