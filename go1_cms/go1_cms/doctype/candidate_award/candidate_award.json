@@ -25,14 +25,12 @@
    "fieldname": "can_award_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Award Name",
-   "reqd": 1
+   "label": "Award Name"
   },
   {
    "fieldname": "can_award_organization",
    "fieldtype": "Data",
-   "label": "Issuing Organization",
-   "reqd": 1
+   "label": "Issuing Organization"
   },
   {
    "fieldname": "column_break_xqht",
@@ -42,8 +40,7 @@
    "fieldname": "can_award_received_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Received Date",
-   "reqd": 1
+   "label": "Received Date"
   },
   {
    "fieldname": "section_break_psof",
@@ -68,7 +65,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-16 15:20:27.518955",
+ "modified": "2025-06-30 14:33:23.369363",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "Candidate_Award",

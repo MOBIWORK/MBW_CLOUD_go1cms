@@ -24,8 +24,7 @@
    "fieldname": "project_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Project Name",
-   "reqd": 1
+   "label": "Project Name"
   },
   {
    "fieldname": "project_role",
@@ -40,8 +39,7 @@
    "fieldname": "project_start_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Start Date",
-   "reqd": 1
+   "label": "Start Date"
   },
   {
    "fieldname": "project_end_date",
@@ -62,7 +60,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-16 15:19:46.375796",
+ "modified": "2025-06-30 14:35:31.573068",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "Candidate_Project",

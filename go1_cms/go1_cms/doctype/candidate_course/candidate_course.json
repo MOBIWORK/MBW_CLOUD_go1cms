@@ -26,14 +26,12 @@
    "fieldname": "can_course_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Course Name",
-   "reqd": 1
+   "label": "Course Name"
   },
   {
    "fieldname": "can_course_organization",
    "fieldtype": "Data",
-   "label": "Issuing Organization",
-   "reqd": 1
+   "label": "Issuing Organization"
   },
   {
    "fieldname": "column_break_xqht",
@@ -43,8 +41,7 @@
    "fieldname": "can_course_start_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Start Date",
-   "reqd": 1
+   "label": "Start Date"
   },
   {
    "fieldname": "can_course_end_date",
@@ -75,7 +72,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-16 15:20:39.773081",
+ "modified": "2025-06-30 14:34:30.279688",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "Candidate_Course",

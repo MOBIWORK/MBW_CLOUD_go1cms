@@ -60,8 +60,11 @@ def get_filter_job():
         'ATS_Unit', fields=['unit_name as label', 'name as value'], order_by='creation asc')
     
     
-    job_designation = frappe.db.get_all('ATS_Position', fields=[
-        'position_name as label', 'name as value'], order_by='creation')
+    # Lấy tất cả position đang active
+    job_designation = frappe.db.get_all('ATS_Position', 
+        fields=['position_name as label', 'name as value'], 
+        filters={'cat_status': 'Active'},
+        order_by='position_name')
 
     return {
         'job_type': job_type,
@@ -794,7 +797,7 @@ def map_ai_data_to_doctype_format(data):
     # Awards
     if data.get("awards"):
         mapped_awards = []
-        for award in data["awards"]:
+        for award in data.get("awards", []):
             mapped_award = {
                 "can_award_name": award.get("name", ""),
                 "can_award_organization": award.get("organization", ""),
@@ -858,6 +861,8 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
         # Find job opening in both CMS_JobOpening and ATS_JobOpening
         from go1_cms.api.fix_job_doctype import find_job_opening
         job_info = find_job_opening(name_job)
+        
+        print("job_info", job_info)
         
         if job_info["found"]:
             job_data = job_info["data"]
