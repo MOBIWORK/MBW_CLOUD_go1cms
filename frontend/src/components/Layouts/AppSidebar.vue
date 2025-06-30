@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="relative flex h-full flex-col justify-between transition-all duration-300 ease-in-out"
-    :class="isSidebarCollapsed ? 'w-15' : 'w-56'"
-  >
+  <div class="relative flex h-full flex-col justify-between transition-all duration-300 ease-in-out"
+    :class="isSidebarCollapsed ? 'w-15' : 'w-56'">
     <div class="flex justify-center border-b">
       <UserDropdown class="p-2" :isCollapsed="isSidebarCollapsed" />
     </div>
@@ -32,79 +30,44 @@
           </template>
         </SidebarLink>
       </div> -->
-      <div
-        v-if="!isSidebarCollapsed && name_website_edit"
-        class="m-2 text-base p-2 rounded-md border-2 bg-gray-200"
-      >
+      <div v-if="!isSidebarCollapsed && name_website_edit" class="m-2 text-base p-2 rounded-md border-2 bg-gray-200">
         <p class="text-gray-700 font-bold">{{ name_website_edit }}</p>
       </div>
       <div v-for="view in allViews" :key="view.label">
-        <div
-          v-if="!view.hideLabel && isSidebarCollapsed && view.views?.length"
-          class="mx-2 my-2 h-1 border-b"
-        ></div>
-        <Section
-          :label="view.name"
-          :hideLabel="view.hideLabel"
-          :isOpened="view.opened"
-        >
+        <div v-if="!view.hideLabel && isSidebarCollapsed && view.views?.length" class="mx-2 my-2 h-1 border-b"></div>
+        <Section :label="view.name" :hideLabel="view.hideLabel" :isOpened="view.opened">
           <template #header="{ opened, hide, toggle }">
-            <div
-              v-if="!hide"
+            <div v-if="!hide"
               class="flex justify-between cursor-pointer gap-1.5 px-3 text-sm font-medium text-gray-600 transition-all duration-300 ease-in-out"
-              :class="
-                isSidebarCollapsed
+              :class="isSidebarCollapsed
                   ? 'ml-0 h-0 overflow-hidden opacity-0'
                   : 'ml-2 mt-4 h-7 w-auto opacity-100'
-              "
-              @click="toggle()"
-            >
+                " @click="toggle()">
               <div class="flex gap-1.5">
                 <component :is="view.icon" class="h-4 w-4 text-gray-700" />
                 <span class="uppercase">
                   {{ __(view.name) }}
                 </span>
               </div>
-              <FeatherIcon
-                name="chevron-right"
-                class="h-4 text-gray-900 transition-all duration-300 ease-in-out"
-                :class="{ 'rotate-90': opened }"
-              />
+              <FeatherIcon name="chevron-right" class="h-4 text-gray-900 transition-all duration-300 ease-in-out"
+                :class="{ 'rotate-90': opened }" />
             </div>
           </template>
           <nav class="flex flex-col">
-            <SidebarLink
-              v-for="link in view.views"
-              :key="link.label"
-              :icon="link.icon"
-              :label="link.label"
-              :to="link.to"
-              :isCollapsed="isSidebarCollapsed"
-              class="mx-2 my-0.5"
-            />
+            <SidebarLink v-for="link in view.views" :key="link.label" :icon="link.icon" :label="link.label" :to="link.to"
+              :isCollapsed="isSidebarCollapsed" class="mx-2 my-0.5" />
           </nav>
         </Section>
       </div>
     </div>
     <div class="m-2 flex flex-col gap-1">
-      <SidebarLink
-        label="Docs"
-        :isCollapsed="isSidebarCollapsed"
-        icon="book-open"
-        @click="() => openDocs()"
-      />
-      <SidebarLink
-        :label="isSidebarCollapsed ? 'Expand' : 'Collapse'"
-        :isCollapsed="isSidebarCollapsed"
-        @click="isSidebarCollapsed = !isSidebarCollapsed"
-        class=""
-      >
+      <SidebarLink label="Docs" :isCollapsed="isSidebarCollapsed" icon="book-open" @click="() => openDocs()" />
+      <SidebarLink :label="isSidebarCollapsed ? 'Expand' : 'Collapse'" :isCollapsed="isSidebarCollapsed"
+        @click="isSidebarCollapsed = !isSidebarCollapsed" class="">
         <template #icon>
           <span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-            <CollapseSidebar
-              class="h-4.5 w-4.5 text-gray-700 duration-300 ease-in-out"
-              :class="{ '[transform:rotateY(180deg)]': isSidebarCollapsed }"
-            />
+            <CollapseSidebar class="h-4.5 w-4.5 text-gray-700 duration-300 ease-in-out"
+              :class="{ '[transform:rotateY(180deg)]': isSidebarCollapsed }" />
           </span>
         </template>
       </SidebarLink>
@@ -189,7 +152,7 @@ const links = [
     icon: DisplayIcon,
     to: 'Interface Repository',
   },
-    {
+  {
     label: 'Candidate',
     icon: DisplayIcon,
     to: 'candidates',
@@ -240,8 +203,57 @@ const allViews = computed(() => {
             icon: ChartIcon,
             to: 'Level',
           },
+          {
+            label: 'Location',
+            icon: ChartIcon,
+            to: 'Location',
+          },
+          {
+            label: 'Position',
+            icon: ChartIcon,
+            to: 'Position',
+          },
         ],
       })
+
+      _views.push({
+        name: 'Diffrerent',
+        opened: true,
+        views: [
+          {
+            label: 'Country',
+            icon: ChartIcon,
+            to: 'Country',
+          },
+          {
+            label: 'Province',
+            icon: ChartIcon,
+            to: 'Province',
+          },
+          {
+            label: 'District',
+            icon: ChartIcon,
+            to: 'District',
+          },
+          {
+            label: 'Ward',
+            icon: ChartIcon,
+            to: 'Ward',
+          },
+        ],
+      })
+
+      _views.push({
+      name: 'Process',
+      opened: true,
+      views: [
+        {
+          label: 'Recruitment',
+          icon: ChartIcon,
+          to: 'Process',
+        },
+      ],
+    })
     }
 
     //

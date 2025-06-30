@@ -4,9 +4,10 @@ import { useDateFormat, useTimeAgo } from '@vueuse/core'
 import { usersStore } from '@/stores/users'
 import { gemoji } from 'gemoji'
 import { toast } from '@/composables/useToast'
-import { h } from 'vue'
+import { h, watch } from 'vue'
 import slugify from 'slugify'
 import dayjs from 'dayjs'
+import { dayjsLocal } from "frappe-ui";
 
 slugify.extend({
   $: '',
@@ -683,4 +684,77 @@ export function evaluateDependsOnValue(expression, doc) {
 	}
 
 	return out;
+}
+
+export function validateTriggers(triggers) {
+	if (!Array.isArray(triggers)) return { valid: true };
+
+	// Check: mỗi trigger phải có ít nhất 1 role
+	for (const [i, t] of triggers.entries()) {
+		if (!t.targets || !Array.isArray(t.targets) || t.targets.length === 0) {
+			return {
+				valid: false,
+				error: `Trigger ${i + 1} is missing target roles.`,
+			};
+		}
+	}
+
+	// Check: không được trùng trigger_event + action_type
+	const seen = new Set();
+	for (const [i, t] of triggers.entries()) {
+		const key = `${t.trigger_event}::${t.action_type}`;
+		if (seen.has(key)) {
+			return {
+				valid: false,
+				error: `Duplicate Trigger Event  + "${t.action_type}" in Trigger ${i + 1}`,
+			};
+		}
+		seen.add(key);
+	}
+
+	return { valid: true };
+}
+
+export function formatDate(date, format, onlyDate = false, onlyTime = false) {
+	if (!date) return "";
+	format = getFormat(date, format, onlyDate, onlyTime, false);
+	return dayjsLocal(date).format(format);
+}
+
+export function showToast(title, text, icon, iconClasses = null) {
+	if (!iconClasses) {
+		if (icon == 'check') {
+			iconClasses = 'bg-surface-green-3 text-ink-white rounded-md p-px'
+		} else if (icon == 'alert-circle') {
+			iconClasses = 'bg-yellow-600 text-ink-white rounded-md p-px'
+		} else {
+			iconClasses = 'bg-surface-red-5 text-ink-white rounded-md p-px'
+		}
+	}
+	createToast({
+		title: title,
+		text: htmlToText(text),
+		icon: icon,
+		iconClasses: iconClasses,
+		position: icon == 'check' ? 'bottom-right' : 'top-center',
+		timeout: 5,
+	})
+}
+
+export function updateDocumentTitle(meta) {
+	watch(
+		() => meta,
+		(meta) => {
+			if (!meta.value.title) return;
+			if (meta.value.title && meta.value.subtitle) {
+				document.title = `${meta.value.title} | ${meta.value.subtitle}`;
+				return;
+			}
+			if (meta.value.title) {
+				document.title = `${meta.value.title}`;
+				return;
+			}
+		},
+		{ immediate: true, deep: true },
+	);
 }

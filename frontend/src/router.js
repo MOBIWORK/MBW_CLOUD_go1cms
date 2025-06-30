@@ -206,7 +206,58 @@ const routes = [
     name: 'Level',
     component: () => import('@/pages/ats_level/Level.vue'),
   },
-  
+  {
+    path: '/location',
+    name: 'Location',
+    component: () => import('@/pages/ats_location/Location.vue'),
+  },
+  {
+    path: '/position',
+    name: 'Position',
+    component: () => import('@/pages/ats_position/Position.vue'),
+  },
+  {
+    path: '/country',
+    name: 'Country',
+    component: () => import('@/pages/ats_country/Country.vue'),
+  },
+  {
+    path: '/province',
+    name: 'Province',
+    component: () => import('@/pages/ats_province/Province.vue'),
+  },
+  {
+    path: '/district',
+    name: 'District',
+    component: () => import('@/pages/ats_district/District.vue'),
+  },
+  {
+    path: '/ward',
+    name: 'Ward',
+    component: () => import('@/pages/ats_ward/Ward.vue'),
+  },
+  {
+		path: "/process",
+		name: "Process",
+		component: () => import("@/pages/ats_process/ATS_Process.vue"),
+	},
+  {
+		path: "/data-import",
+		name: "Data Import",
+		component: () => import("@/pages/import_data/ImportData.vue"),
+	},
+  {
+		path: "/data-import/:importId",
+		name: "Data Import Detail",
+		component: () => import("@/pages/import_data/ImportDataDetail.vue"),
+		props: true,
+	},
+	{
+		path: "/data-import/:importId",
+		name: "Data Import New",
+		component: () => import("@/pages/import_data/ImportDataDetail.vue"),
+		props: true,
+	},
 ]
 
 const scrollBehavior = (to, from, savedPosition) => {
