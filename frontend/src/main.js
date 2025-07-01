@@ -23,7 +23,7 @@ import {
 import LoadingIndicator from '@/components/Icons/LoadingIndicator.vue'
 
 import translationPlugin from './translation'
-import { createDialog } from './utils/dialogs'
+import { createDialog } from "./utils/dialogs";
 import { initSocket } from './socket'
 
 import vue3PhotoPreview from 'vue3-photo-preview'

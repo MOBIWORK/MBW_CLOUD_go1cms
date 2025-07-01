@@ -17,7 +17,7 @@
 			:hidden="Boolean(field.hidden)"
 		/>
 		<Grid
-			v-else-if="field.fieldtype === 'Table' && data[field.fieldname]"
+			v-else-if="field.fieldtype === 'Table' && data"
 			v-model="data[field.fieldname]"
 			:doctype="field.options"
 			:parentDoctype="doctype"
@@ -66,11 +66,11 @@
 				<span class="text-ink-red-3" v-if="field.mandatory">*</span>
 			</label>
 		</div>
-		<div class="flex gap-1" v-else-if="field.fieldtype === 'Link'">
+		<div class="flex gap-1"  v-else-if="['Link', 'Dynamic Link'].includes(field.fieldtype)">
 			<Link
 				class="form-control flex-1 truncate"
 				:value="data[field.fieldname]"
-				:doctype="field.options"
+				:doctype="field.fieldtype == 'Link' ? field.options : data[field.options]"
 				:filters="field.filters"
 				@change="(v) => (data[field.fieldname] = v)"
 				:placeholder="getPlaceholder(field)"
@@ -392,6 +392,7 @@
 			v-else
 			type="text"
 			:placeholder="getPlaceholder(field)"
+			v-if="data"
 			v-model="data[field.fieldname]"
 			:disabled="Boolean(field.read_only)"
 			:hidden="Boolean(field.hidden)"
@@ -424,7 +425,9 @@ import {
 import MultipleSelect from "@/components/Controls/MultipleSelect.vue";
 import { computed, inject } from "vue";
 import StarRating from "@/components/StarRating.vue";
-import TableMultiselectInput from '@/components/Controls/TableMultiselectInput.vue'
+import TableMultiselectInput from "@/components/Controls/TableMultiselectInput.vue";
+import { createDocument } from "@/composables/document";
+import { useLinkRefreshStore } from "@/stores/linkRefresh";
 
 const props = defineProps({
 	field: Object,
@@ -433,9 +436,11 @@ const props = defineProps({
 const data = inject("data");
 const doctype = inject("doctype");
 const preview = inject("preview");
+const disableCreate = inject("disableCreate", false);
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } = getMeta(doctype);
 const { getUser } = usersStore();
+const linkRefreshStore = useLinkRefreshStore();
 
 const field = computed(() => {
 	let field = props.field;
@@ -451,6 +456,32 @@ const field = computed(() => {
 
 	if (field.fieldtype === "Link" && field.options === "User") {
 		field.fieldtype = "User";
+	}
+
+	if (field.fieldtype === "Link" && field.options !== "User") {
+		console.log('🔗 Field create:', field.create);
+		if (!field.create && !disableCreate) {
+			field.create = (value, close) => {
+				const callback = (d) => {
+					console.log('🎯 Field callback called with:', d);
+					if (d) {
+						// Set value vào field hiện tại
+						data.value[field.fieldname] = d.name;
+						console.log(`🔗 Set field ${field.fieldname} = ${d.name}`);
+						
+						// Trigger store để refresh tất cả Link fields khác cùng doctype
+						linkRefreshStore.triggerLinkRefresh(field.options, d.name);
+						console.log("✅ Triggered store refresh for", field.options, d.name);
+						console.log('📋 Store state:', linkRefreshStore.lastCreatedDocument);
+					} else {
+						console.log('❌ Field callback: No document data received');
+					}
+				};
+				console.log('🚀 Creating document for field:', field.fieldname, 'doctype:', field.options);
+				console.log('🔗 Callback function created:', typeof callback);
+				createDocument(field.options, value, close, callback);
+			};
+		}
 	}
 
 	let _field = {

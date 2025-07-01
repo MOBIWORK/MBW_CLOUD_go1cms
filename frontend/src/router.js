@@ -258,6 +258,25 @@ const routes = [
 		component: () => import("@/pages/import_data/ImportDataDetail.vue"),
 		props: true,
 	},
+  {
+		path: "/ats_job_openings/:jobOpeningId",
+		name: "ats_job_opening_detail",
+		component: () => import("@/pages/ats_jobopening/ATS_JobOpening_Detail.vue"),
+		props: true,
+		meta: { doctype: "ATS_JobOpening" },
+	},
+	{
+		path: "/ats_job_opening_view/:jobOpeningId",
+		name: "ats_job_opening_view",
+		component: () => import("@/pages/ats_jobopening/ATS_JobOpening_View.vue"),
+		props: true,
+		meta: { doctype: "ATS_JobOpening" },
+	},
+  {
+    path: '/cms_candidates',
+    name: 'cms_candidates',
+    component: () => import('@/pages/cms_candidate/Candidates.vue'),
+  },
 ]
 
 const scrollBehavior = (to, from, savedPosition) => {

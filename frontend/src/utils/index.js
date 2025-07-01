@@ -758,3 +758,40 @@ export function updateDocumentTitle(meta) {
 		{ immediate: true, deep: true },
 	);
 }
+
+export function convertSize(size) {
+	const units = ["B", "KB", "MB", "GB", "TB"];
+	let unitIndex = 0;
+	while (size > 1024) {
+		size /= 1024;
+		unitIndex++;
+	}
+	return `${size?.toFixed(2)} ${units[unitIndex]}`;
+}
+
+export function isImage(extention) {
+	if (!extention) return false;
+	return ["png", "jpg", "jpeg", "gif", "svg", "bmp", "webp"].includes(extention.toLowerCase());
+}
+
+export async function setupCustomizations(data, obj) {
+	if (!data._form_script) return [];
+
+	let statuses = [];
+	let actions = [];
+	if (Array.isArray(data._form_script)) {
+		for (let script of data._form_script) {
+			let _script = await getFromScript(script, obj);
+			actions = actions.concat(_script?.actions || []);
+			statuses = statuses.concat(_script?.statuses || []);
+		}
+	} else {
+		let _script = await getFromScript(data._form_script, obj);
+		actions = _script?.actions || [];
+		statuses = _script?.statuses || [];
+	}
+
+	data._customStatuses = statuses;
+	data._customActions = actions;
+	return { statuses, actions };
+}

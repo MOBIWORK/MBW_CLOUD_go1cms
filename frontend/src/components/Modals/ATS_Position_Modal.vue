@@ -237,13 +237,13 @@ const convertRounds = (rounds = []) =>
 		round_type: r.round_type,
 		position: r.position,
 		default: r.default,
-		automation_rules: (r.triggers || []).map((t) => ({
-			...t,
-			targets: typeof t.targets === "string" ? t.targets : JSON.stringify(t.targets || []),
-			name: t.name ? t.name : getRandom(10),
-			__isLocal: 1,
-			owner: 'Administrator',
-		})),
+		// automation_rules: (r.triggers || []).map((t) => ({
+		// 	...t,
+		// 	targets: typeof t.targets === "string" ? t.targets : JSON.stringify(t.targets || []),
+		// 	name: t.name ? t.name : getRandom(10),
+		// 	__isLocal: 1,
+		// 	owner: 'Administrator',
+		// })),
 		__isLocal: 1,
 	}));
 
@@ -378,7 +378,7 @@ async function callSetValue(values) {
 		// Convert automation_rules sang JSON string
 		values.job_position_rounds = values.job_position_rounds.map((r) => ({
 			...r,
-			automation_rules: JSON.stringify(r.automation_rules || []),
+			// automation_rules: JSON.stringify(r.automation_rules || []),
 		}));
 
 		const d = await call("frappe.client.set_value", {
@@ -419,7 +419,7 @@ async function callInsertDoc() {
 		// Convert automation_rules sang JSON string
 		_data.value.job_position_rounds = _data.value.job_position_rounds.map((r) => ({
 			...r,
-			automation_rules: JSON.stringify(r.automation_rules || []),
+			// automation_rules: JSON.stringify(r.automation_rules || []),
 		}));
 
 		const doc = await call("frappe.client.insert", {

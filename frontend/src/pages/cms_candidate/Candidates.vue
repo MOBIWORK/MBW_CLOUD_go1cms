@@ -15,7 +15,7 @@
         hideColumnsButton: false,
       }"
       :filters="props.filters"
-      doctype="ATS_Candidate"
+      doctype="CMS_Candidate"
     />
     <CandidateListView
       v-if="candidates.data && rows.length"

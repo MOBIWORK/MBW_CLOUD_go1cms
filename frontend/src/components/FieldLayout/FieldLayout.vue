@@ -38,6 +38,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  disableCreate: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const tabIndex = ref(0)
@@ -54,6 +58,7 @@ provide(
 provide('hasTabs', hasTabs)
 provide('doctype', props.doctype)
 provide('preview', props.preview)
+provide('disableCreate', props.disableCreate)
 </script>
 <style scoped>
 .section:not(:has(.field)) {

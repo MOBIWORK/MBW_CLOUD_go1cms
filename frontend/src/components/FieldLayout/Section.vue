@@ -9,7 +9,7 @@
     ]"
   >
     <Section
-      class="flex sm:flex-row flex-col gap-4 text-lg font-medium"
+      class="flex sm:flex-row flex-col gap-4 text-lg font-medium px-3"
       :class="{ 'px-3 sm:px-5': hasTabs }"
       :labelClass="['text-lg font-medium', { 'px-3 sm:px-5': hasTabs }]"
       :label="section.label"

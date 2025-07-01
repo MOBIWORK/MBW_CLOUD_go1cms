@@ -161,6 +161,11 @@ const links = [
     to: 'candidates',
   },
   {
+    label: 'CMS Candidate',
+    icon: DisplayIcon,
+    to: 'cms_candidates',
+  },
+  {
     label: 'Job Opening',
     icon: DisplayIcon,
     to: 'job_opening',

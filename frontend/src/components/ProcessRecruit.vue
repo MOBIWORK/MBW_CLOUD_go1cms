@@ -357,7 +357,7 @@ const addRoundToFrappe = async () => {
 				round_type: selectedRound.value.round_type,
 				position: newPosition,
 				default: false,
-				automation_rules: triggers, // ✅ Thêm trigger vào đây
+				// automation_rules: triggers, // ✅ Thêm trigger vào đây
 			},
 		});
 
@@ -423,7 +423,7 @@ const saveEditedRound = async () => {
 			fieldname: {
 				round_name: newName,
 				round_type: newType, // Cập nhật luôn kiểu vòng nếu có
-				automation_rules: triggers,
+				// automation_rules: triggers,
 			},
 		});
 

@@ -139,3 +139,51 @@ def get_job_position_rounds(job_position):
 	except Exception as e:
 		frappe.log_error(f"Error getting job position rounds: {str(e)}")
 		return {"success": False, "message": str(e)}
+
+@frappe.whitelist()
+def get_job_opening_rounds(job_opening):
+	try:
+		job_doc = frappe.get_doc("CMS_JobOpening", job_opening)
+
+		rounds = []
+		for round in job_doc.recruitment_process:
+			# Parse triggers từ JSON string sang list (nếu có)
+			triggers = []
+			if round.automation_rules:
+				try:
+					triggers = frappe.parse_json(round.automation_rules)
+				except Exception:
+					triggers = []
+
+			rounds.append({
+				"name": round.name,
+				"round_name": round.round_name,
+				"round_type": round.round_type,
+				"position": round.position,
+				"default": round.default,
+				"test_link": round.test_link,
+				"triggers": triggers,
+			})
+
+		# Sắp xếp theo position
+		rounds = sorted(rounds, key=lambda r: r["position"])
+
+		# Phân chia theo cấu trúc
+		if len(rounds) == 0:
+			return {"success": True, "fixedStart": [], "draggableRounds": [], "fixedEnd": []}
+		if len(rounds) == 1:
+			return {"success": True, "fixedStart": [rounds[0]], "draggableRounds": [], "fixedEnd": []}
+		if len(rounds) == 2:
+			return {"success": True, "fixedStart": [rounds[0]], "draggableRounds": [], "fixedEnd": [rounds[1]]}
+		if len(rounds) == 3:
+			return {"success": True, "fixedStart": [rounds[0]], "draggableRounds": [], "fixedEnd": rounds[1:]}
+
+		return {
+			"success": True,
+			"fixedStart": [rounds[0]],
+			"draggableRounds": rounds[1:-2],
+			"fixedEnd": rounds[-2:],
+		}
+	except Exception as e:
+		frappe.log_error(f"Error getting job position rounds: {str(e)}")
+		return {"success": False, "message": str(e)}
