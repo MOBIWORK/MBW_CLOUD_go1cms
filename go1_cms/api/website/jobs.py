@@ -858,15 +858,10 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
         if not phone_number:
             frappe.throw('Số điện thoại không được để trống')
 
-        # Find job opening in both CMS_JobOpening and ATS_JobOpening
-        from go1_cms.api.fix_job_doctype import find_job_opening
-        job_info = find_job_opening(name_job)
+       
         
-        print("job_info", job_info)
-        
-        if job_info["found"]:
-            job_data = job_info["data"]
-            jo_public_title = job_info["job_title"]
+        if frappe.db.exists("CMS_JobOpening", name_job):
+            jo_public_title = frappe.db.get_value("CMS_JobOpening",name_job,"jo_public_title")
             if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': jo_public_title}):
                 frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
             # Create new candidate
@@ -884,28 +879,23 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             
             # Handle extracted data from AI
             extracted_data_raw = kwargs.get('extracted_data')
-            print("Received extracted_data_raw:", extracted_data_raw)
 
             if extracted_data_raw:
                 try:
                     extracted_data = json.loads(extracted_data_raw) if isinstance(extracted_data_raw, str) else extracted_data_raw
-                    print("Parsed extracted_data:", extracted_data)
                     
                     # Extract the actual data from the payload
                     data = extracted_data.get("data", {})
-                    print("Data section:", data)
                     
                     # Normalize dates in the data
                     data = normalize_dates_recursively(data)
                     
                     # Map AI data to DocType format
                     mapped_data = map_ai_data_to_doctype_format(data)
-                    print("Mapped data:", mapped_data)
                     
                     # Handle personal info
                     personal_info = mapped_data.get("personal_info", {})
                     if personal_info:
-                        print("Processing personal_info:", personal_info)
                         if personal_info.get("can_full_name") and len(personal_info["can_full_name"]) > len(applicant_name):
                             new_doc.can_full_name = personal_info["can_full_name"]
                         if personal_info.get("can_phone"):
@@ -987,18 +977,24 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             # Send email notification
             domain = get_domain()
             redirect_to = f'{domain}/app/job-applicant/{new_doc.name}'
+            job_open = frappe.db.get_value(
+                'CMS_JobOpening', name_job,
+                ['jo_public_title', 'jo_work_form', 'jo_location',
+                    'jo_using_unit', 'jo_position', 'jo_min_salary', 'jo_max_salary', 'jo_currency'],
+                as_dict=1
+            )
             args = {
-                'time': new_doc.creation.strftime("%d/%m/%Y %H:%M:%S"),
+                 'time': format_creation(new_doc.creation),
                 'job_title': jo_public_title,
-                'designation': job_data.jo_position,
-                'location': job_data.jo_location,
-                'employment_type': job_data.jo_work_form,
-                'department': job_data.jo_using_unit,
-                'lower_range': job_data.jo_min_salary,
-                'upper_range': job_data.jo_max_salary,
-                'currency': job_data.jo_currency,
+                'designation': job_open.jo_position,
+                'location': job_open.jo_location,
+                'employment_type': job_open.jo_work_form,
+                'department': job_open.jo_using_unit,
+                'lower_range': job_open.jo_min_salary,
+                'upper_range': job_open.jo_max_salary,
+                'currency': job_open.jo_currency,
                 'salary_per': 'Tháng',
-                'full_name': new_doc.can_full_name,
+                'full_name': applicant_name,
                 'email': email,
                 'phone_number': phone_number,
                 'redirect_to': redirect_to,
