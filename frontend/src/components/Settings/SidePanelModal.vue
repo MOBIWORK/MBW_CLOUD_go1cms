@@ -110,7 +110,7 @@ function getParams() {
 }
 
 const sections = createResource({
-  url: 'mbw_ats.mbw_ats.doctype.mbw_ats_fields_layout.mbw_ats_fields_layout.get_fields_layout',
+  url: 'go1_cms.go1_cms.doctype.mbw_ats_fields_layout.mbw_ats_fields_layout.get_fields_layout',
   cache: ['sidebar-sections', _doctype.value],
   params: getParams(),
   onSuccess(data) {
@@ -146,7 +146,7 @@ function saveChanges() {
   })
   loading.value = true
   call(
-    'mbw_ats.mbw_ats.doctype.mbw_ats_fields_layout.mbw_ats_fields_layout.save_fields_layout',
+    'go1_cms.go1_cms.doctype.mbw_ats_fields_layout.mbw_ats_fields_layout.save_fields_layout',
     {
       doctype: _doctype.value,
       type: 'Side Panel',

@@ -5,7 +5,7 @@
 		</template>
 		<template #right-header>
 			<div class="relative">
-				<Dropdown :options="defaultActions" @click.stop>
+				<!-- <Dropdown :options="defaultActions" @click.stop>
 					<template v-slot="{ open }">
 						<Button variant="solid" class="flex items-center gap-1">
 							<template #prefix>
@@ -17,10 +17,10 @@
 							</template>
 						</Button>
 					</template>
-				</Dropdown>
+				</Dropdown> -->
 			</div>
 			<div class="relative">
-				<Dropdown :options="statusOptions('ATS_JobOpening', updateField, customStatuses)">
+				<Dropdown :options="statusOptions('CMS_JobOpening', updateField, customStatuses)">
 					<template #default="{ open }">
 						<Button :label="getDataRecord.data?.status"
 							:theme="getJOStatus(getDataRecord.data?.status)?.colorClass[2]" :class="generateClassObject(
@@ -599,7 +599,7 @@ function updateFieldData(fieldname, value, callback) {
 	createResource({
 		url: "frappe.client.set_value",
 		params: {
-			doctype: "ATS_JobOpening",
+			doctype: "CMS_JobOpening",
 			name: props.jobOpeningId,
 			fieldname,
 			value,
@@ -633,7 +633,7 @@ const togglePublishStatus = async () => {
 
 	try {
 		await call("frappe.client.set_value", {
-			doctype: "ATS_JobOpening",
+			doctype: "CMS_JobOpening",
 			name: getDataRecord.data?.name,
 			fieldname: {
 				publish_to_career_page: newStatus,

@@ -47,7 +47,7 @@ export const statusesStore = defineStore("ats-statuses", () => {
 
 	function statusOptions(doctype, action, statuses = []) {
 		let statusesByName;
-		if (doctype == "ATS_JobOpening") {
+		if (doctype == "CMS_JobOpening") {
 			statusesByName = joStatusesByName;
 		} else {
 			statusesByName = null;

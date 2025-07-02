@@ -61,6 +61,44 @@
             </span>
           </div>
         </div>
+        <div v-else-if="column.key === 'action_button'">
+          <div class="flex align-middle gap-2">
+            <Tooltip
+              :text="__('Edit candidate')"
+              :hover-delay="1"
+              :placement="'top'"
+            >
+              <div>
+                <Button
+                  :variant="'subtle'"
+                  theme="blue"
+                  size="sm"
+                  label=""
+                  icon="edit"
+                  @click="handleEditCandidate(item)"
+                >
+                </Button>
+              </div>
+            </Tooltip>
+            <Tooltip
+              :text="__('View detail')"
+              :hover-delay="1"
+              :placement="'top'"
+            >
+              <div>
+                <Button
+                  :variant="'subtle'"
+                  theme="green"
+                  size="sm"
+                  label=""
+                  icon="eye"
+                  @click="handleViewCandidate(item)"
+                >
+                </Button>
+              </div>
+            </Tooltip>
+          </div>
+        </div>
         <ListRowItem v-else :item="item" class="">
 				<template #prefix> 
           <div v-if="column.key === 'can_phone'">
@@ -111,14 +149,21 @@ import {
   ListRowItem,
   ListFooter,
   Tooltip,
-  Avatar
+  Avatar,
+  Button
 } from 'frappe-ui'
 import { ref, watch } from 'vue'
 import { globalStore } from '@/stores/global'
 import CalendarIcon from '@/components/Icons/CalendarIcon.vue'
 import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import EmailIcon from '@/components/Icons/EmailIcon.vue'
+// import { tagStore } from '@/stores/tags'
 const { changeLoadingValue } = globalStore()
+
+// Create a simple fallback for tagStore if it doesn't exist
+const tagStore = {
+  tagByName: {}
+}
 const props = defineProps({
   rows: {
     type: Array,
@@ -145,6 +190,8 @@ const emit = defineEmits([
   'updatePageCount',
   'columnWidthUpdated',
   'applyFilter',
+  'editCandidate',
+  'viewCandidate',
 ])
 
 const pageLengthCount = defineModel()
@@ -167,6 +214,14 @@ function getContrastTextColor(hex) {
 function formattedDateTooltip(dateStr) {
   const [year, month, day] = dateStr.split("-");
   return `${day}/${month}/${year}`;
+}
+
+function handleEditCandidate(candidate) {
+  emit('editCandidate', candidate)
+}
+
+function handleViewCandidate(candidate) {
+  emit('viewCandidate', candidate)
 }
 
 watch(pageLengthCount, (val, old_value) => {

@@ -1,18 +1,21 @@
 <template>
 	<LayoutHeader>
 		<template #left-header>
-			<Button v-if="route.query.from === 'view'" :variant="'outline'" theme="gray" @click="backToView"
-				class="mr-2">
-				<template #icon>
-					<FeatherIcon name="arrow-left" class="h-4 w-4" />
-				</template>
-				{{ __('Back to View') }}
-			</Button>
-			<Breadcrumbs :items="breadcrumbs">
-				<template #prefix="{ item }">
-					<Icon :icon="item.icon" class="mr-2 h-4" />
-				</template>
-			</Breadcrumbs>
+			<div class="flex items-center gap-2">
+
+				<Button v-if="route.query.from === 'view'" :variant="'outline'" theme="gray" @click="backToView"
+					class="mr-2">
+					<template #icon>
+						<FeatherIcon name="arrow-left" class="h-4 w-4" />
+					</template>
+					{{ __('Back to View') }}
+				</Button>
+				<Breadcrumbs :items="breadcrumbs">
+					<template #prefix="{ item }">
+						<Icon :icon="item.icon" class="mr-2 h-4" />
+					</template>
+				</Breadcrumbs>
+			</div>
 
 			<!-- <StatusDoctype
           :configDoc="configDoc"
@@ -49,10 +52,10 @@
 					<template #prefix>
 						<FeatherIcon name="clock" class="h-4 w-4" />
 					</template>
-					{{ __('View History') }}
-				</Button>
+{{ __('View History') }}
+</Button>
 
-			</div> -->
+</div> -->
 			<!-- <AssignTo v-model="assignedTo" :data="getDataRecord.data" doctype="ATS_JobOpening" /> -->
 			<Dropdown :options="statusOptions('CMS_JobOpening', updateField, customStatuses)">
 				<template #default="{ open }">
@@ -617,7 +620,7 @@ const sections = createResource({
 	cache: ["fieldsLayout", props.jobOpeningId],
 	params: { doctype: "CMS_JobOpening" },
 	auto: true,
-});		
+});
 
 function validateRequired(fieldname, value) {
 	let meta = getDataRecord.data.fields_meta || {};

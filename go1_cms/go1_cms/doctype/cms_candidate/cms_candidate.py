@@ -44,6 +44,12 @@ class CMS_Candidate(Document):
 				"key": "can_application_date",
 				"width": "14rem"
 			},
+			{
+				"label": "Actions",
+				"type": "Data",
+				"key": "action_button",
+				"width": "10rem"
+			},
    			# {
 			# 	"label": "Tags",
 			# 	"type": "Data",
