@@ -2,8 +2,8 @@
  "actions": [],
  "allow_guest_to_view": 1,
  "allow_import": 1,
- "allow_rename": 0,
- "autoname": "format:JOB-{YY}{MM}-{#####}",
+ "allow_rename": 1,
+ "autoname": "prompt",
  "creation": "2025-01-17 00:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -286,11 +286,11 @@
  "has_web_view": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-14 09:18:58.033191",
+ "modified": "2025-07-02 08:52:36.518303",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "CMS_JobOpening",
- "naming_rule": "Expression",
+ "naming_rule": "Set by user",
  "owner": "Administrator",
  "permissions": [
   {
@@ -306,6 +306,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": []

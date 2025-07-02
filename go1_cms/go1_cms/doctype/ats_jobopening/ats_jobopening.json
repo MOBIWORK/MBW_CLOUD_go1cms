@@ -1,7 +1,8 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "format:JOB-{YY}{MM}-{#####}",
+ "allow_rename": 1,
+ "autoname": "prompt",
  "creation": "2025-01-17 00:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -309,11 +310,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-23 17:05:40.544755",
+ "modified": "2025-07-02 08:52:12.865963",
  "modified_by": "Administrator",
  "module": "Go1 CMS",
  "name": "ATS_JobOpening",
- "naming_rule": "Expression",
+ "naming_rule": "Set by user",
  "owner": "Administrator",
  "permissions": [
   {

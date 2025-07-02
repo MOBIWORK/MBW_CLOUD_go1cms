@@ -861,8 +861,11 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
        
         
         if frappe.db.exists("CMS_JobOpening", name_job):
-            jo_public_title = frappe.db.get_value("CMS_JobOpening",name_job,"jo_public_title")
-            if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': jo_public_title}):
+            #HAOLD Sửa
+            #Tìm job trong CMS sau đó lấy ra sync_id tiếp theo tìm trong ATS_Job để lấy ra name (ví name đã rename theo expression)
+            # sync_id = frappe.db.get_value("CMS_JobOpening",name_job,"sync_id")
+            # name = frappe.db.get_value("ATS_JobOpening",{"sync_id":sync_id},"name")
+            if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': name_job}):
                 frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
             # Create new candidate
             new_doc = frappe.new_doc('ATS_Candidate')
@@ -870,7 +873,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             new_doc.can_full_name = applicant_name
             new_doc.can_email = email
             new_doc.can_phone = phone_number
-            new_doc.job_opening_id = jo_public_title  # Use title instead of name_job for consistency
+            new_doc.job_opening_id = name_job  # Use title instead of name_job for consistency
             new_doc.sync_id = str(uuid.uuid4())  # Add sync_id for ATS sync
             new_doc.candidatesource_id = "Website"  # Set candidate source
             
@@ -985,7 +988,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             )
             args = {
                  'time': format_creation(new_doc.creation),
-                'job_title': jo_public_title,
+                'job_title': job_open.jo_public_title,
                 'designation': job_open.jo_position,
                 'location': job_open.jo_location,
                 'employment_type': job_open.jo_work_form,
