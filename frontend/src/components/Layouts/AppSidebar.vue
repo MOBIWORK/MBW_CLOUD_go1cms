@@ -28,8 +28,8 @@
               class="absolute -left-1.5 top-1 z-20 h-[5px] w-[5px] translate-x-6 translate-y-1 rounded-full bg-gray-800 ring-1 ring-white"
             ></div>
           </template>
-        </SidebarLink>
-      </div> -->
+</SidebarLink>
+</div> -->
       <div v-if="!isSidebarCollapsed && name_website_edit" class="m-2 text-base p-2 rounded-md border-2 bg-gray-200">
         <p class="text-gray-700 font-bold">{{ name_website_edit }}</p>
       </div>
@@ -40,8 +40,8 @@
             <div v-if="!hide"
               class="flex justify-between cursor-pointer gap-1.5 px-3 text-sm font-medium text-gray-600 transition-all duration-300 ease-in-out"
               :class="isSidebarCollapsed
-                  ? 'ml-0 h-0 overflow-hidden opacity-0'
-                  : 'ml-2 mt-4 h-7 w-auto opacity-100'
+                ? 'ml-0 h-0 overflow-hidden opacity-0'
+                : 'ml-2 mt-4 h-7 w-auto opacity-100'
                 " @click="toggle()">
               <div class="flex gap-1.5">
                 <component :is="view.icon" class="h-4 w-4 text-gray-700" />
@@ -54,14 +54,14 @@
             </div>
           </template>
           <nav class="flex flex-col">
-            <SidebarLink v-for="link in view.views" :key="link.label" :icon="link.icon" :label="link.label" :to="link.to"
-              :isCollapsed="isSidebarCollapsed" class="mx-2 my-0.5" />
+            <SidebarLink v-for="link in view.views" :key="link.label" :icon="link.icon" :label="link.label"
+              :to="link.to" :isCollapsed="isSidebarCollapsed" class="mx-2 my-0.5" />
           </nav>
         </Section>
       </div>
     </div>
     <div class="m-2 flex flex-col gap-1">
-      <SidebarLink label="Docs" :isCollapsed="isSidebarCollapsed" icon="book-open" @click="() => openDocs()" />
+      <!-- <SidebarLink label="Docs" :isCollapsed="isSidebarCollapsed" icon="book-open" @click="() => openDocs()" /> -->
       <SidebarLink :label="isSidebarCollapsed ? 'Expand' : 'Collapse'" :isCollapsed="isSidebarCollapsed"
         @click="isSidebarCollapsed = !isSidebarCollapsed" class="">
         <template #icon>
@@ -126,6 +126,7 @@ const { views } = viewsStore()
 
 const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 const showSettings = ref(true)
+const siteConfigLoaded = ref(false)
 
 // Site config resource
 const siteConfig = createResource({
@@ -136,6 +137,7 @@ const siteConfig = createResource({
       // Hide settings if mbw_ats_site_name exists and is not empty
       showSettings.value = !data.mbw_ats_site_name || data.mbw_ats_site_name === ""
     }
+    siteConfigLoaded.value = true // Đánh dấu đã load xong
   }
 })
 
@@ -161,18 +163,195 @@ const links = [
     to: 'candidates',
   },
   {
-    label: 'CMS Candidate',
-    icon: DisplayIcon,
-    to: 'cms_candidates',
-  },
-  {
     label: 'Job Opening',
     icon: DisplayIcon,
     to: 'job_opening',
   },
 ]
 
+const dashboardSection = {
+  name: 'Dashboard',
+  opened: false,
+  views: [
+    {
+      label: 'Dashboard',
+      icon: ChartIcon,
+      to: 'Dashboard',
+    },
+  ],
+}
+
+const jobOpeningSection = {
+  name: 'Recruitment news',
+  opened: true,
+  views: [
+    {
+      label: 'Job Opening',
+      icon: DisplayIcon,
+      to: 'job_opening',
+    },
+    {
+      label: __('Company'),
+      icon: Company,
+      to: 'Company',
+    },
+    {
+      label: __('Unit'),
+      icon: Unit,
+      to: 'Unit',
+    },
+    {
+      label: __('Profession'),
+      icon: Profession,
+      to: 'Profession',
+    },
+    {
+      label: __('Level'),
+      icon: Level,
+      to: 'Level',
+    },
+    {
+      label: __('Location'),
+      icon: Location,
+      to: 'Location',
+    },
+    {
+      label: __('Position'),
+      icon: Position,
+      to: 'Position',
+    },
+    {
+      label: __('Country'),
+      icon: Country,
+      to: 'Country',
+    },
+    {
+      label: __('Province'),
+      icon: Province,
+      to: 'Province',
+    },
+    {
+      label: __('District'),
+      icon: District,
+      to: 'District',
+    },
+    {
+      label: __('Ward'),
+      icon: Ward,
+      to: 'Ward',
+    },
+    {
+      label: __('Recruitment'),
+      icon: Recruitment,
+      to: 'Process',
+    },
+  ],
+}
+
+const candidatePages = ['Candidate Login', 'Reset Password', 'Forgot Password', 'Create Password']
+
+function getCmsCandidateViews() {
+  if (!views.data?.list_page) return []
+  return views.data.list_page
+    .filter(page => candidatePages.includes(page.name_page))
+    .map(page => ({
+      label: page.name_page,
+      icon: DisplayIcon, // hoặc getIcon(page.icon) nếu muốn động
+      to: {
+        name: 'Page',
+        query: { view: page.name },
+      },
+    }))
+}
+
+const settingSection = {
+  name: 'General Settings',
+  opened: false,
+  // icon: SettingsIcon,
+  views: [
+    {
+      label: 'Website Settings',
+      icon: SettingsIcon,
+      to: 'Website Setup',
+    },
+    {
+      label: 'Menu',
+      icon: MenuIcon,
+      to: 'Menu',
+    },
+    {
+      label: 'Settings',
+      icon: FormSetupIcon,
+      to: 'CMS Settings',
+    },
+    {
+      label: 'Header',
+      icon: HeaderIcon,
+      to: 'Header Page',
+    },
+    {
+      label: 'Footer',
+      icon: FooterIcon,
+      to: 'Footer Page',
+    },
+  ],
+}
+
 const allViews = computed(() => {
+  if (!siteConfigLoaded.value) {
+    return []
+  }
+
+  // Nhánh giao diện mới
+  if (views.data?.website_primary == 1 && showSettings.value) {
+    changeNameWebsiteEdit(views.data?.name_web)
+    let _views = []
+    _views.push(dashboardSection)
+    _views.push(jobOpeningSection)
+    _views.push({
+      name: 'Candidate account',
+      opened: false,
+      views: [
+        {
+          label: 'CMS Candidate',
+          icon: DisplayIcon,
+          to: 'cms_candidates',
+        },
+        ...getCmsCandidateViews()
+      ]
+    })
+    _views.push(settingSection)
+    if (views.data?.list_page) {
+      let items_view = []
+      views.data?.list_page.forEach((el) => {
+        if (!candidatePages.includes(el.name_page)) {
+          items_view.push({
+            label: el.name_page,
+            icon: getIcon(el.icon),
+            to: {
+              name: 'Page',
+              query: { view: el.name },
+            },
+          })
+        }
+      })
+      if (views.data?.open_add_new_page) {
+        items_view.push({
+          label: 'Add New Page',
+          icon: NewPageIcon,
+          to: 'New Page',
+        })
+      }
+      _views.push({
+        name: 'Page List',
+        opened: false,
+        views: items_view,
+      })
+    }
+    return _views
+  }
+
+  // Nhánh else: dùng giao diện cũ
   let _views = [
     {
       name: 'Publish',
@@ -184,87 +363,6 @@ const allViews = computed(() => {
 
   if (views.data?.website_primary == 1) {
     changeNameWebsiteEdit(views.data?.name_web)
-
-    // Only add Settings section if showSettings is true (when mbw_ats_site_name is empty or doesn't exist)
-    if (showSettings.value) {
-      _views.push({
-        name: 'Settings',
-        opened: true,
-        views: [
-          {
-            label: __('Company'),
-            icon: Company,
-            to: 'Company',
-          },
-          {
-            label: __('Unit'),
-            icon: Unit,
-            to: 'Unit',
-          },
-          {
-            label: __('Profession'),
-            icon: Profession,
-            to: 'Profession',
-          },
-          {
-            label: __('Level'),
-            icon: Level,
-            to: 'Level',
-          },
-          {
-            label: __('Location'),
-            icon: Location,
-            to: 'Location',
-          },
-          {
-            label: __('Position'),
-            icon: Position,
-            to: 'Position',
-          },
-        ],
-      })
-
-      _views.push({
-        name: 'Diffrerent',
-        opened: true,
-        views: [
-          {
-            label: __('Country'),
-            icon: Country,
-            to: 'Country',
-          },
-          {
-            label: __('Province'),
-            icon: Province,
-            to: 'Province',
-          },
-          {
-            label: __('District'),
-            icon: District,
-            to: 'District',
-          },
-          {
-            label: __('Ward'),
-            icon: Ward,
-            to: 'Ward',
-          },
-        ],
-      })
-
-      _views.push({
-      name: 'Process',
-      opened: true,
-      views: [
-        {
-          label: __('Recruitment'),
-          icon: Recruitment,
-          to: 'Process',
-        },
-      ],
-    })
-    }
-
-    //
     _views.push({
       name: 'Dashboard',
       opened: true,
@@ -276,12 +374,9 @@ const allViews = computed(() => {
         },
       ],
     })
-
-    //
     _views.push({
       name: 'General Settings',
       opened: true,
-      // icon: SettingsIcon,
       views: [
         {
           label: 'Website Settings',
@@ -300,7 +395,6 @@ const allViews = computed(() => {
         },
       ],
     })
-
     if (views.data?.list_page) {
       let items_view = [
         {
@@ -331,54 +425,24 @@ const allViews = computed(() => {
           to: 'New Page',
         })
       }
-
       _views.push({
         name: 'Page List',
         opened: true,
-        // icon: InboxIcon,
         views: items_view,
       })
     }
-
-    //
     _views.push({
       name: 'Forms',
       opened: true,
-      // icon: InboxIcon,
       views: [
-        // {
-        //   label: 'Post management',
-        //   icon: PostIcon,
-        //   to: 'Posts',
-        // },
         {
           label: 'Form management',
           icon: FormIcon,
           to: 'Forms',
         },
-        // {
-        //   label: 'Contact List',
-        //   icon: ContactsIconV1,
-        //   to: 'Contacts',
-        // },
       ],
     })
   }
-
-  // if (views.data?.developer_mode == 1) {
-  //   _views.push({
-  //     name: 'Tạo tệp Json website mẫu',
-  //     opened: true,
-  //     views: [
-  //       {
-  //         label: 'Trình tạo',
-  //         icon: JsonIcon,
-  //         to: 'Setup File Template',
-  //       },
-  //     ],
-  //   })
-  // }
-
   return _views
 })
 

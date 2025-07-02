@@ -282,12 +282,16 @@ watch(filterChange, () => {
 })
 
 onMounted(() => {
-  socket.on('dashboard_update', (data) => {
-    report.reload()
-  })
+  if (socket) {
+    socket.on('dashboard_update', (data) => {
+      report.reload()
+    })
+  }
 })
 
 onBeforeUnmount(() => {
-  socket.off('dashboard_update')
+  if (socket) {
+    socket.off('dashboard_update')
+  }
 })
 </script>

@@ -6,7 +6,7 @@ import { viewsStore } from '@/stores/views'
 const routes = [
   {
     path: '/',
-    redirect: { name: 'Interface Repository' },
+    redirect: { name: 'job_opening' },
     name: 'Home',
   },
   // {
@@ -237,41 +237,41 @@ const routes = [
     component: () => import('@/pages/ats_ward/Ward.vue'),
   },
   {
-		path: "/process",
-		name: "Process",
-		component: () => import("@/pages/ats_process/ATS_Process.vue"),
-	},
+    path: '/process',
+    name: 'Process',
+    component: () => import('@/pages/ats_process/ATS_Process.vue'),
+  },
   {
-		path: "/data-import",
-		name: "Data Import",
-		component: () => import("@/pages/import_data/ImportData.vue"),
-	},
+    path: '/data-import',
+    name: 'Data Import',
+    component: () => import('@/pages/import_data/ImportData.vue'),
+  },
   {
-		path: "/data-import/:importId",
-		name: "Data Import Detail",
-		component: () => import("@/pages/import_data/ImportDataDetail.vue"),
-		props: true,
-	},
-	{
-		path: "/data-import/:importId",
-		name: "Data Import New",
-		component: () => import("@/pages/import_data/ImportDataDetail.vue"),
-		props: true,
-	},
+    path: '/data-import/:importId',
+    name: 'Data Import Detail',
+    component: () => import('@/pages/import_data/ImportDataDetail.vue'),
+    props: true,
+  },
   {
-		path: "/ats_job_openings/:jobOpeningId",
-		name: "ats_job_opening_detail",
-		component: () => import("@/pages/ats_jobopening/ATS_JobOpening_Detail.vue"),
-		props: true,
-		meta: { doctype: "ATS_JobOpening" },
-	},
-	{
-		path: "/ats_job_opening_view/:jobOpeningId",
-		name: "ats_job_opening_view",
-		component: () => import("@/pages/ats_jobopening/ATS_JobOpening_View.vue"),
-		props: true,
-		meta: { doctype: "ATS_JobOpening" },
-	},
+    path: '/data-import/:importId',
+    name: 'Data Import New',
+    component: () => import('@/pages/import_data/ImportDataDetail.vue'),
+    props: true,
+  },
+  {
+    path: '/ats_job_openings/:jobOpeningId',
+    name: 'ats_job_opening_detail',
+    component: () => import('@/pages/ats_jobopening/ATS_JobOpening_Detail.vue'),
+    props: true,
+    meta: { doctype: 'ATS_JobOpening' },
+  },
+  {
+    path: '/ats_job_opening_view/:jobOpeningId',
+    name: 'ats_job_opening_view',
+    component: () => import('@/pages/ats_jobopening/ATS_JobOpening_View.vue'),
+    props: true,
+    meta: { doctype: 'ATS_JobOpening' },
+  },
   {
     path: '/cms_candidates',
     name: 'cms_candidates',
@@ -313,21 +313,42 @@ router.beforeEach(async (to, from, next) => {
     from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop
   }
 
-  if(to.name == 'Setup File Template' && isLoggedIn){
+  if (to.name == 'Setup File Template' && isLoggedIn) {
     const { views } = viewsStore()
     const data = await views.fetch()
-    if(!data?.developer_mode){
+    if (!data?.developer_mode) {
       next({ name: 'Interface Repository' })
     }
   }
 
   // Check if trying to access Company route and redirect if mbw_ats_site_name exists
-  if(to.name == 'Company' && isLoggedIn){
+  if (
+    (to.name == 'Company' ||
+      to.name == 'Unit' ||
+      to.name == 'Profession' ||
+      to.name == 'Level' ||
+      to.name == 'Location' ||
+      to.name == 'Position' ||
+      to.name == 'Country' ||
+      to.name == 'Province' ||
+      to.name == 'District' ||
+      to.name == 'Ward' ||
+      to.name == 'Process' ||
+      to.name == 'cms_candidates') &&
+    isLoggedIn
+  ) {
     try {
-      const response = await fetch('/api/method/go1_cms.api.site_config.get_site_config')
+      const response = await fetch(
+        '/api/method/go1_cms.api.site_config.get_site_config',
+      )
       const data = await response.json()
-      if(data.message && data.message.success && data.message.mbw_ats_site_name && data.message.mbw_ats_site_name.trim() !== ""){
-        next({ name: 'Interface Repository' })
+      if (
+        data.message &&
+        data.message.success &&
+        data.message.mbw_ats_site_name &&
+        data.message.mbw_ats_site_name.trim() !== ''
+      ) {
+        next({ name: 'job_opening' })
         return
       }
     } catch (error) {

@@ -13,7 +13,7 @@
 
 <script setup>
 import DesktopLayout from '@/components/Layouts/DesktopLayout.vue'
-import { Dialogs } from '@/utils/dialogs'
+import { Dialogs } from '@/utils/dialogs.js'
 import { sessionStore as session } from '@/stores/session'
 import Toasts from '@/components/Toasts.vue'
 </script>
