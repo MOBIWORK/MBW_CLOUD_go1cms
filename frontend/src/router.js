@@ -72,6 +72,11 @@ const routes = [
     component: () => import('@/pages/ats_jobopening/JobOpenings.vue'),
   },
   {
+    path: '/ats_job_opening',
+    name: 'ats_job_opening',
+    component: () => import('@/pages/ats_jobopening/ATS_JobOpenings.vue'),
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/pages/Dashboard.vue'),

@@ -165,7 +165,7 @@ const links = [
   {
     label: 'Job Opening',
     icon: DisplayIcon,
-    to: 'job_opening',
+    to: 'ats_job_opening',
   },
 ]
 
@@ -230,11 +230,11 @@ const jobOpeningSection = {
       icon: Province,
       to: 'Province',
     },
-    {
-      label: __('District'),
-      icon: District,
-      to: 'District',
-    },
+    // {
+    //   label: __('District'),
+    //   icon: District,
+    //   to: 'District',
+    // },
     {
       label: __('Ward'),
       icon: Ward,
