@@ -48,8 +48,7 @@
   watch(visible, (val) => emit('update:modelValue', val))
   
   const cropper = ref()
-  const cropResult = ref(null)
-  
+  const cropResult = ref(null)  
   function onCropChange({ coordinates, canvas }) {
     cropResult.value = { coordinates, canvas }
   }
