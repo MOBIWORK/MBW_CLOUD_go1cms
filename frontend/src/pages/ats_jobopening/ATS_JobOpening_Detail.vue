@@ -132,10 +132,10 @@
 			</div>
 		</Resizer>
 	</div>
-	<!-- <AIModal v-if="showAIModal" v-model="showAIModal" :note="getDataRecord?.data"
+	<AIModal v-if="showAIModal" v-model="showAIModal" :note="getDataRecord?.data"
 		:jo_job_description=getDataRecord.data?.jo_job_description
 		:jo_job_requirement=getDataRecord.data?.jo_job_requirement :jo_job_benefits=getDataRecord.data?.jo_job_benefits
-		@after="(data) => useDataAI(data)" /> -->
+		@after="(data) => useDataAI(data)" />
 
 	<SidePanelModal v-if="showSidePanelModal" v-model="showSidePanelModal" doctype="CMS_JobOpening"
 		@reload="() => fieldsLayout.reload()" />
@@ -178,6 +178,7 @@ import DataFields from "@/components/Activities/DataFields.vue";
 import ProcessRecruitTable from "../../components/ProcessRecruitTable.vue";
 import { getRandom } from "../../utils";
 import { updateDocumentTitle } from '@/utils'
+import AIModal from "@/components/Modals/AIModal.vue";
 
 
 usePageMeta(() => {

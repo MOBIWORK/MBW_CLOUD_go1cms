@@ -147,3 +147,46 @@ class CMS_JobOpening(WebsiteGenerator):
 	def on_insert(sefl):
 		print(sefl.jo_public_title)
 		pass
+
+def get_job_description_for_ai(self):
+    """Prepare comprehensive job description for AI processing"""
+    description_parts = []
+    
+    if self.jo_job_description:
+        description_parts.append(f"Job Description: {frappe.utils.strip_html_tags(self.jo_job_description)}")
+    
+    if self.jo_job_requirement:
+        description_parts.append(f"Job Requirements: {frappe.utils.strip_html_tags(self.jo_job_requirement)}")
+        
+    if self.jo_job_benefits:
+        description_parts.append(f"Job Benefits: {frappe.utils.strip_html_tags(self.jo_job_benefits)}")
+        
+    if self.jo_public_title:
+        description_parts.append(f"Position: {self.jo_public_title}")
+        
+    if self.jo_level_id:
+        description_parts.append(f"Level: {self.jo_level_id}")
+        
+    return "\n\n".join(description_parts)
+
+
+def process_ai_generated_criteria(self, rules):
+        """Process AI-generated rules and create evaluation criteria"""
+        try:
+            for rule in rules:           
+                # Extract rule information from actual AI format
+                criterion = rule.get("criterion", "Other")  # WorkHistory, Education, Skills
+                coefficient = rule.get("coefficient", 1)     # 1-5 scale
+                context = rule.get("context", "")            # Instruction text or skills list
+
+                # Set instruction based on criteria type
+                # if criteria_type == "Skills":
+                #     # For skills, set a generic instruction
+                #     eval_setting.instruction = "<p>Evaluate candidate's technical and professional skills relevant to this position.</p>"
+                # else:
+                    # For other criteria types, use the context as instruction
+
+                
+        except Exception as e:
+            print(f"Error processing AI rule: {str(e)} - Rule: {rule}")
+            frappe.log_error(f"Error processing AI rule:- Rule: {rule}", "AI Rule Processing")
