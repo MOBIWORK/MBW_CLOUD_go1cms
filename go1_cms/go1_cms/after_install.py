@@ -66,15 +66,15 @@ def after_install():
 	# update_workspace_v14()
 	"""Khởi tạo biến cho webhook
 	"""	
-	if frappe.conf.get("mbw_ats_site_name"):
-		update_site_config("webhook_base_url", frappe.conf.get("mbw_ats_site_name"))#url base server nhận hook
+	setup_candidate_permissions()
 	update_site_config("webhook_secret", "CK_p9hGioqEdOuUS8b2-2G88T2aKq2-C-SnPYadKlY4=")
 	update_site_config("api_token", "9473bc87d2b7d951066b1fb73095f95c")
-	setup_candidate_permissions()
-	# sync data ats 
-	frappe.enqueue(sync_ats_categories,queue="short",
-        timeout=300,
-        now=True)
+	if frappe.conf.get("mbw_ats_site_name"):
+		update_site_config("webhook_base_url", frappe.conf.get("mbw_ats_site_name"))#url base server nhận hook
+		# sync data ats 
+		frappe.enqueue(sync_ats_categories,queue="short",
+			timeout=300,
+			now=True)
 
 
 def sync_ats_categories():
