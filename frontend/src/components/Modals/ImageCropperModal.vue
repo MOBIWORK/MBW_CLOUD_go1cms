@@ -7,6 +7,10 @@
             :src="imageDataUrl"
             :stencil-props="{ aspectRatio }"
             :auto-zoom="true"
+            :min-width="100"
+    :min-height="100"
+    :max-width="2000"
+    :max-height="2000"
             image-restriction="stencil"
             @change="onCropChange"
             ref="cropper"
@@ -31,8 +35,9 @@
     modelValue: Boolean,
     imageDataUrl: String,
     aspectRatio: {
-      type: Number,
-      default: 1,
+      resizable: true,
+      movable: true,
+      aspectRatio: null // hoặc đặt tỉ lệ mong muốn
     },
   })
   
