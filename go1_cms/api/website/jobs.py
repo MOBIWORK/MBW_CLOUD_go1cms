@@ -29,6 +29,7 @@ import requests
 import json
 import os
 from go1_cms.api.candidate_auth import send_password_setup_email
+from go1_cms.api.site_config import get_site_config
 
 AI_BASEURL_V2 = frappe.conf.get("ai_baseurl_v2") or "http://n8n.fastwork.vn:8001"
 
@@ -339,9 +340,20 @@ def upload_cv(name_job, **kwargs):
         if job_info["found"]:
             job_data = job_info["data"]
             jo_public_title = job_info["job_title"]
-            if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': jo_public_title}):
+            
+            # Kiểm tra mbw_ats_site_name để quyết định doctype
+            site_config_result = get_site_config()
+            mbw_ats_site_name = site_config_result.get("mbw_ats_site_name", "")
+            
+            # Xác định doctype dựa trên mbw_ats_site_name
+            if mbw_ats_site_name == "":
+                candidate_doctype = "CMS_Candidate"
+            else:
+                candidate_doctype = "ATS_Candidate"
+            
+            if frappe.db.exists(candidate_doctype, {'can_email': email, 'job_opening_id': jo_public_title}):
                 frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
-            new_doc = frappe.new_doc('ATS_Candidate')
+            new_doc = frappe.new_doc(candidate_doctype)
             new_doc.can_id = generate_random_id()
             new_doc.can_full_name = applicant_name
             new_doc.can_email = email
@@ -385,7 +397,7 @@ def upload_cv(name_job, **kwargs):
                 new_file = frappe.get_doc(
                     {
                         "doctype": "File",
-                        "attached_to_doctype": "ATS_Candidate",
+                        "attached_to_doctype": candidate_doctype,
                         "attached_to_name": doc_saved.name,
                         "attached_to_field": "can_cv",
                         "folder": "Home",
@@ -398,7 +410,7 @@ def upload_cv(name_job, **kwargs):
                 new_file.save(ignore_permissions=True)
 
             if new_file:
-                can_doc = frappe.get_doc("ATS_Candidate",doc_saved.name)
+                can_doc = frappe.get_doc(candidate_doctype, doc_saved.name)
                 can_doc.can_cv = new_file.file_url
                 can_doc.save(ignore_permissions=True)
                 frappe.db.commit()
@@ -462,8 +474,9 @@ def generate_random_id(length=16):
     characters = string.ascii_uppercase + string.digits
     while True:
         random_id = ''.join(random.choices(characters, k=length))
-        # Kiểm tra xem mã đã tồn tại trong ATS_Candidate chưa
-        if not frappe.db.exists('ATS_Candidate', {'can_id': random_id}):
+        # Kiểm tra xem mã đã tồn tại trong cả ATS_Candidate và CMS_Candidate chưa
+        if (not frappe.db.exists('ATS_Candidate', {'can_id': random_id}) and 
+            not frappe.db.exists('CMS_Candidate', {'can_id': random_id})):
             return random_id
 
 @frappe.whitelist(allow_guest=True)
@@ -511,8 +524,9 @@ def generate_random_id(length=16):
     characters = string.ascii_uppercase + string.digits
     while True:
         random_id = ''.join(random.choices(characters, k=length))
-        # Kiểm tra xem mã đã tồn tại trong ATS_Candidate chưa
-        if not frappe.db.exists('ATS_Candidate', {'can_id': random_id}):
+        # Kiểm tra xem mã đã tồn tại trong cả ATS_Candidate và CMS_Candidate chưa
+        if (not frappe.db.exists('ATS_Candidate', {'can_id': random_id}) and 
+            not frappe.db.exists('CMS_Candidate', {'can_id': random_id})):
             return random_id
 
 @frappe.whitelist(methods=['POST'], allow_guest=True)
@@ -665,9 +679,14 @@ def extract_cv_url():
                 # Xử lý ảnh avatar nếu có
                 if "list_imgs_base64" in data and data["list_imgs_base64"]:
                     try:
+                        # Kiểm tra mbw_ats_site_name để quyết định doctype
+                        site_config_result = get_site_config()
+                        mbw_ats_site_name = site_config_result.get("mbw_ats_site_name", "")
+                        avatar_doctype = "CMS_Candidate" if mbw_ats_site_name == "" else "ATS_Candidate"
+                        
                         data.data["can_avatar"] = upload_base64_without_filename(
                             data["list_imgs_base64"][0],
-                            "ATS_Candidate",
+                            avatar_doctype,
                             data.data["personal_info"].get("can_full_name", "unknown"),
                         )
                     except Exception as avatar_error:
@@ -853,22 +872,28 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             frappe.throw('Họ tên không được để trống')
         if not email:
             frappe.throw('Email không được để trống')
-        if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': name_job}):
-            frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
         if not phone_number:
             frappe.throw('Số điện thoại không được để trống')
 
        
         
         if frappe.db.exists("CMS_JobOpening", name_job):
-            #HAOLD Sửa
-            #Tìm job trong CMS sau đó lấy ra sync_id tiếp theo tìm trong ATS_Job để lấy ra name (ví name đã rename theo expression)
-            # sync_id = frappe.db.get_value("CMS_JobOpening",name_job,"sync_id")
-            # name = frappe.db.get_value("ATS_JobOpening",{"sync_id":sync_id},"name")
-            if frappe.db.exists('ATS_Candidate', {'can_email': email, 'job_opening_id': name_job}):
+            # Kiểm tra mbw_ats_site_name để quyết định doctype
+            site_config_result = get_site_config()
+            mbw_ats_site_name = site_config_result.get("mbw_ats_site_name", "")
+            
+            # Xác định doctype dựa trên mbw_ats_site_name
+            if mbw_ats_site_name == "":
+                candidate_doctype = "CMS_Candidate"
+            else:
+                candidate_doctype = "ATS_Candidate"
+            
+            # Kiểm tra ứng viên đã ứng tuyển chưa
+            if frappe.db.exists(candidate_doctype, {'can_email': email, 'job_opening_id': name_job}):
                 frappe.throw('Bạn đã ứng tuyển vị trí này từ trước')
-            # Create new candidate
-            new_doc = frappe.new_doc('ATS_Candidate')
+            
+            # Create new candidate với doctype phù hợp
+            new_doc = frappe.new_doc(candidate_doctype)
             new_doc.can_id = generate_random_id()
             new_doc.can_full_name = applicant_name
             new_doc.can_email = email
@@ -950,7 +975,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
                         try:
                             new_doc.can_avatar = upload_base64_without_filename(
                                 mapped_data["list_imgs_base64"][0],
-                                "ATS_Candidate",
+                                candidate_doctype,
                                 new_doc.can_full_name,
                             )
                         except Exception as avatar_error:
@@ -970,7 +995,7 @@ def upload_cv_with_ai_extraction(name_job, **kwargs):
             # Attach uploaded file to candidate if file_name provided
             if file_name and frappe.db.exists("File", file_name):
                 file_doc = frappe.get_doc("File", file_name)
-                file_doc.attached_to_doctype = "ATS_Candidate"
+                file_doc.attached_to_doctype = candidate_doctype
                 file_doc.attached_to_name = new_doc.name
                 file_doc.attached_to_field = "can_cv"
                 file_doc.save(ignore_permissions=True)
