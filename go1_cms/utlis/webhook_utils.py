@@ -7,7 +7,7 @@ from datetime import datetime
 from frappe import as_json
 
 def forward_webhook(doc_data):
-    webhook_url = frappe.conf.get("webhook_base_url")
+    webhook_url = frappe.conf.get("mbw_ats_site_name") #frappe.conf.get("webhook_base_url")
     secret = frappe.conf.get("webhook_secret", "default_secret")
     payload_json = json.dumps({"name":doc_data.get("name")})
 

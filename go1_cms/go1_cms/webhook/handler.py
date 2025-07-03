@@ -235,7 +235,7 @@ def sync_linked_documents(data: dict, parent_doctype: str):
             )
 
 def fetch_linked_data(doctype: str, identifier: str):
-    api_base = frappe.conf.get("webhook_base_url")
+    api_base = frappe.conf.get("mbw_ats_site_name") #frappe.conf.get("webhook_base_url")
     normalized_doctype = doctype.replace(" ", "_") 
     url = f"{api_base}/api/method/mbw_ats.integration.cms.{normalized_doctype}"
     api_token = frappe.conf.get("api_token")

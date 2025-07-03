@@ -11,7 +11,7 @@ def test_candidate_sync_status():
     try:
         # Check webhook configuration
         webhook_config = {
-            "webhook_base_url": frappe.conf.get("webhook_base_url"),
+            "webhook_base_url": frappe.conf.get("mbw_ats_site_name"),#frappe.conf.get("webhook_base_url"),
             "webhook_secret": frappe.conf.get("webhook_secret"),
             "api_token": frappe.conf.get("api_token")
         }
@@ -142,7 +142,7 @@ def check_sync_configuration():
         issues = []
         
         # Check webhook base URL
-        webhook_base_url = frappe.conf.get("webhook_base_url")
+        webhook_base_url = frappe.conf.get("mbw_ats_site_name")#frappe.conf.get("webhook_base_url")
         if not webhook_base_url:
             issues.append("webhook_base_url not configured")
             
@@ -267,7 +267,7 @@ def test_webhook_connection():
     Test webhook connection to ATS system
     """
     try:
-        webhook_url = frappe.conf.get("webhook_base_url")
+        webhook_url = frappe.conf.get("mbw_ats_site_name") #frappe.conf.get("webhook_base_url")
         if not webhook_url:
             return {"error": "webhook_base_url not configured"}
             
