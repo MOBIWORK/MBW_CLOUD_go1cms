@@ -231,7 +231,7 @@ def get_all_job(name_section, **kwargs):
 def get_job_detail(name):
     if frappe.db.exists("CMS_JobOpening", name):
         doc = frappe.db.get_value('CMS_JobOpening', name, [
-                                  'name', 'jo_public_title', 'jo_position', 'status', 'jo_application_deadline', 'jo_work_form', 'jo_using_unit', 'jo_location', 'jo_job_description', 'jo_currency', 'jo_min_salary', 'jo_max_salary', 'applicants_applied', 'route'], as_dict=1)
+                                  'name', 'jo_public_title', 'jo_position', 'status', 'jo_application_deadline', 'jo_work_form', 'jo_using_unit', 'jo_location', 'jo_job_description', 'jo_currency', 'jo_min_salary', 'jo_max_salary', 'applicants_applied', 'route', 'jo_job_requirement', 'jo_job_benefits'], as_dict=1)
         return doc
     else:
         frappe.throw(_('Không tìm thấy công việc ứng tuyển'),
