@@ -1,16 +1,15 @@
 <template>
-	<div>
-		<ListView
-			:class="$attrs.class"
-			:columns="columns"
-			:rows="rows"
-			:options="{
-				selectable: options.selectable,
-				showTooltip: options.showTooltip,
-				resizeColumn: options.resizeColumn,
-			}"
-			row-key="name"
-		>
+	<ListView
+		:class="$attrs.class"
+		:columns="columns"
+		:rows="rows"
+		:options="{
+			selectable: options.selectable,
+			showTooltip: options.showTooltip,
+			resizeColumn: options.resizeColumn,
+		}"
+		row-key="name"
+	>
 			<ListHeader class="sm:mx-5 mx-3" @columnWidthUpdated="emit('columnWidthUpdated')">
 				<ListHeaderItem
 					v-for="column in columns"
@@ -164,42 +163,41 @@
 					</Dropdown>
 				</template>
 			</ListSelectBanner>
-		</ListView>
+	</ListView>
 
-		<ListFooter
-			v-if="pageLengthCount"
-			class="border-t sm:px-5 px-3 py-2"
-			v-model="pageLengthCount"
-			:options="{
-				rowCount: options.rowCount,
-				totalCount: options.totalCount,
-			}"
-			@loadMore="emit('loadMore')"
-		/>
-		<ListBulkActions
-			ref="listBulkActionsRef"
-			v-model="list"
-			:doctype="props.doctype"
-			:options="{
-				hideAssign: true,
-			}"
-		/>
-		<ConfirmModal
-			v-model="showConfirmModal"
-			@confirm="() => deleteRecord(fieldStore.childTableField)"
-		>
-			<template #title>
-				<div class="text-lg font-semibold flex justify-center">
-					{{ __("Confirm Deletion") }}
-				</div>
-			</template>
-			<template #content>
-				<span class="flex justify-center">
-					{{ __("Are you sure you want to delete this record?") }}
-				</span>
-			</template>
-		</ConfirmModal>
-	</div>
+	<ListFooter
+		v-if="pageLengthCount"
+		class="border-t sm:px-5 px-3 py-2"
+		v-model="pageLengthCount"
+		:options="{
+			rowCount: options.rowCount,
+			totalCount: options.totalCount,
+		}"
+		@loadMore="emit('loadMore')"
+	/>
+	<ListBulkActions
+		ref="listBulkActionsRef"
+		v-model="list"
+		:doctype="props.doctype"
+		:options="{
+			hideAssign: true,
+		}"
+	/>
+	<ConfirmModal
+		v-model="showConfirmModal"
+		@confirm="() => deleteRecord(fieldStore.childTableField)"
+	>
+		<template #title>
+			<div class="text-lg font-semibold flex justify-center">
+				{{ __("Confirm Deletion") }}
+			</div>
+		</template>
+		<template #content>
+			<span class="flex justify-center">
+				{{ __("Are you sure you want to delete this record?") }}
+			</span>
+		</template>
+	</ConfirmModal>
 </template>
 
 <script setup>
