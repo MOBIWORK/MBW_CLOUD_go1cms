@@ -31,6 +31,12 @@ export default defineConfig({
     }),
   ],
   server: {
+    watch: {
+      ignored: ['**/node_modules/**', '**/dist/**'], // Bỏ qua các thư mục không cần thiết
+      usePolling: true, // Sử dụng cơ chế polling
+      interval: 1000, // Kiểm tra thay đổi mỗi giây
+    },
+    allowedHosts: ['*'],
     port: 8080,
   },
   resolve: {
