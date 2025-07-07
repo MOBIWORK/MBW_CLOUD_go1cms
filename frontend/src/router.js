@@ -247,6 +247,11 @@ const routes = [
     component: () => import('@/pages/ats_process/ATS_Process.vue'),
   },
   {
+    path: '/email-account',
+    name: 'EmailAccount',
+    component: () => import('@/pages/email-account/EmailAccount.vue'),
+  },
+  {
     path: '/data-import',
     name: 'Data Import',
     component: () => import('@/pages/import_data/ImportData.vue'),
@@ -339,6 +344,7 @@ router.beforeEach(async (to, from, next) => {
       to.name == 'District' ||
       to.name == 'Ward' ||
       to.name == 'Process' ||
+      to.name == 'EmailAccount' ||
       to.name == 'cms_candidates') &&
     isLoggedIn
   ) {

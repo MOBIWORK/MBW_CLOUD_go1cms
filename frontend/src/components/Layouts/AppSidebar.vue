@@ -121,6 +121,7 @@ import Province from '@/components/Icons/Province.vue'
 import District from '@/components/Icons/District.vue'
 import Ward from '@/components/Icons/Ward.vue'
 import Recruitment from '@/components/Icons/Recruitment.vue'
+import EmailIcon from '@/components/Icons/EmailIcon.vue'
 
 const { views } = viewsStore()
 
@@ -239,6 +240,11 @@ const jobOpeningSection = {
       label: __('Ward'),
       icon: Ward,
       to: 'Ward',
+    },
+    {
+      label: __('Email Account'),
+      icon: EmailIcon,
+      to: 'EmailAccount',
     },
     {
       label: __('Recruitment'),

@@ -51,7 +51,7 @@
 						</div>
 					</template>
 				</Autocomplete>
-				<div class="flex flex-col">
+				<div class="flex flex-col hidden">
 					<span class="text-xs text-ink-gray-5 mb-2">{{ __("Select Test") }}</span>
 					<Link
 						v-if="props.jobOpeningId"
@@ -101,7 +101,7 @@
 					</div> -->
 				</div>
 
-				<div class="mt-4 border-t pt-4">
+				<div class="mt-4 border-t pt-4 hidden">
 					<div class="text-sm font-semibold mb-2">{{ __("Automation Triggers") }}</div>
 					<div v-if="selectedRound.triggers?.length">
 						<div

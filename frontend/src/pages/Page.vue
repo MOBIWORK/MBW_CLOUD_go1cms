@@ -451,7 +451,7 @@ const previewUrl = computed(() => {
     // Check protocol: http = local, https = production
     const isLocal = window.location.protocol === 'http:'
     const domain = isLocal 
-      ? 'http://cms_fix:8010'
+      ? 'http://localhost:8034'
       : views.data?.config_domain?.domain
     
     return domain + _page.value.web_page.route

@@ -50,7 +50,7 @@
                 </Button>
               </span>
             </Tooltip>
-            <Tooltip :text="__('Delete')" :hover-delay="1" :placement="'top'">
+            <!-- <Tooltip :text="__('Delete')" :hover-delay="1" :placement="'top'">
               <span>
                 <Button
                   variant="ghost"
@@ -66,7 +66,7 @@
                 >
                 </Button>
               </span>
-            </Tooltip>
+            </Tooltip> -->
           </div>
         </div>
         <nested

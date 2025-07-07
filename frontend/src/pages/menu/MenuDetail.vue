@@ -5,7 +5,7 @@
     </template>
     <template #right-header>
       <div class="flex gap-2 justify-end" v-if="alreadyActions">
-        <Dropdown
+        <!-- <Dropdown
           :options="[
             {
               group: __('Delete'),
@@ -26,7 +26,7 @@
               <FeatherIcon name="more-horizontal" class="h-4 w-4" />
             </template>
           </Button>
-        </Dropdown>
+        </Dropdown> -->
         <Button
           variant="subtle"
           theme="gray"

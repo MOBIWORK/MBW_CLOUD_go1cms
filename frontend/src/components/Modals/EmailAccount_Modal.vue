@@ -4,7 +4,7 @@
 			<div class="bg-surface-modal px-4 pb-6 pt-5 sm:px-6">
 				<div class="mb-5 flex items-center justify-between">
 					<div>
-						<h3 class="text-2xl font-semibold leading-6 text-gray-900">
+						<h3 class="text-2xl font-semibold leading-6 text-ink-gray-9">
 							{{ __(dialogOptions.title) || __("Untitled") }}
 						</h3>
 					</div>
@@ -23,18 +23,6 @@
 					</div>
 				</div>
 				<div>
-					<!-- <div v-if="detailMode" class="flex flex-col gap-3.5">
-						<div
-							class="flex h-7 items-center gap-2 text-base text-gray-800"
-							v-for="field in fields"
-							:key="field.name"
-						>
-							<div class="grid w-7 place-content-center">
-								<component :is="field.icon" />
-							</div>
-							<div>{{ field.value }}</div>
-						</div>
-					</div> -->
 					<FieldLayout
 						v-if="tabs.data"
 						:tabs="tabs.data"
@@ -46,7 +34,7 @@
 			<div v-if="showActionButtons" class="px-4 pb-7 pt-4 sm:px-6">
 				<div class="space-y-2 flex justify-end">
 					<Button
-						class="w-fit"
+						class="w-fit flex justify-end"
 						v-for="action in dialogOptions.actions"
 						:key="action.label"
 						v-bind="action"
@@ -60,10 +48,9 @@
 </template>
 
 <script setup>
-import { useLinkRefreshStore } from "@/stores/linkRefresh";
-import FieldLayout from "@/components/FieldLayout/FieldLayout.vue";
 import EditIcon from "@/components/Icons/EditIcon.vue";
-import OrganizationsIcon from "@/components/Icons/OrganizationsIcon.vue";
+import FieldLayout from "@/components/FieldLayout/FieldLayout.vue";
+import EmailIcon from "@/components/Icons/EmailIcon.vue";
 import { usersStore } from "@/stores/users";
 import { call, FeatherIcon, createResource } from "frappe-ui";
 import { ref, nextTick, watch, computed, h } from "vue";
@@ -74,7 +61,7 @@ import { useFieldStore } from "../../stores/activeRecord";
 import { usePermissionStore } from "@/stores/permission";
 
 const useField = useFieldStore();
-const linkRefreshStore = useLinkRefreshStore();
+
 const quickEntryDoctype = useQuickEntry();
 
 const props = defineProps({
@@ -90,17 +77,13 @@ const props = defineProps({
 		type: Object,
 		default: {},
 	},
-	listPermission: {
-		type: Object,
-		default: {},
-	},
 	editMode: {
 		type: Boolean,
 		default: false,
 	},
 	doctype: {
 		type: String,
-		default: "ATS_Unit",
+		default: "Email Account",
 	},
 });
 
@@ -125,31 +108,68 @@ const title = ref(null);
 const detailMode = ref(false);
 const editMode = ref(false);
 let _address = ref({});
-const context = __("unit"); // Ngữ cảnh hiện tại
+const context = __("email account"); // Ngữ cảnh hiện tại
+
 let _data = ref({
+    email_id: "",
+    email_account_name: "",
+    domain: "",
+    service: "",
+    auth_method: "Basic",
+    backend_app_flow: 0,
+    password: "",
+    awaiting_password: 0,
+    ascii_encode_password: 0,
+    connected_app: "",
+    connected_user: "",
+    login_id_is_different: 0,
+    login_id: "",
+    enable_incoming: 0,
+    default_incoming: 0,
+    use_imap: 0,
+    use_ssl: 0,
+    use_starttls: 0,
+    email_server: "",
+    incoming_port: "",
+    attachment_limit: 0,
+    email_sync_option: "UNSEEN",
+    initial_sync_count: "250",
+    append_emails_to_sent_folder: 0,
+    sent_folder_name: "",
+    append_to: "",
+    create_contact: 1,
+    enable_automatic_linking: 0,
+    notify_if_unreplied: 0,
+    unreplied_for_mins: 30,
+    send_notification_to: "",
+    enable_outgoing: 0,
+    use_tls: 0,
+    use_ssl_for_outgoing: 0,
+    smtp_server: "",
+    smtp_port: "",
+    default_outgoing: 0,
+    always_use_account_email_id_as_sender: 0,
+    always_use_account_name_as_sender_name: 0,
+    send_unsubscribe_message: 1,
+    track_email_status: 1,
+    no_smtp_authentication: 0,
+    always_bcc: "",
+    add_signature: 0,
+    signature: "",
+    enable_auto_reply: 0,
+    auto_reply_message: "",
+    footer: "",
+    brand_logo: "",
+    uidvalidity: "",
+    uidnext: 0,
+    no_failed: 0,
 	name: "",
-	parent_ats_unit: "",
-	unit_id: "",
-	unit_name: "",
-	company_id: "",
-	unit_address: "",
-	unit_head: "",
-	unit_level: "",
-	is_group: 1,
-	cat_order: 0,
-	cat_status: "Active",
-	cat_color: "",
-	cat_icon: "",
 });
 
 // xu ly perrmission
 const { can } = usePermissionStore();
 
-console.log("can", can);
-
 const canEdit = can(props.doctype, "write");
-
-console.log("canEdit", canEdit);
 const showActionButtons = ref(false);
 watch(
 	() => props.editMode,
@@ -163,51 +183,38 @@ watch(
 	{ immediate: true },
 );
 
+let doc = ref({});
+let oldValue = ref();
 
 const validateData = () => {
-	if (!_data.value.unit_id) {
+	if (!_data.value.email_id) {
 		createToast({
-			title: __("Error"),
-			text: __("Unit ID is required."),
+			title: __("Error occurred"),
+			text: __("Email Address is required."),
 			icon: "x",
 			iconClasses: "text-red-600",
 		});
 		loading.value = false;
 		return false;
 	}
-	if (!_data.value.unit_name) {
+	if (!_data.value.email_account_name) {
 		createToast({
-			title: __("Error"),
-			text: __("Unit Name is required."),
+			title: __("Error occurred"),
+			text: __("Email Account Name is required."),
 			icon: "x",
 			iconClasses: "text-red-600",
 		});
 		loading.value = false;
-		return false;
-	}
-	if (!_data.value.cat_status) {
-		createToast({
-			title: __("Error"),
-			text: __("Trạng thái sử dụng đơn vị là bắt buộc."),
-			icon: "x",
-			iconClasses: "text-red-600",
-		});
 		return false;
 	}
 	return true;
 };
 
-const showAddressModal = ref(false);
-
-let doc = ref({});
-let oldValue = ref();
-
 async function updateData() {
 	const old = oldValue.value;
-	const newOrg = { ..._data.value };
-	console.log(old, newOrg);
+	const newOrg = _data.value;
 
-	const nameChanged = old.name !== newOrg.unit_id;
+	const nameChanged = old.name !== newOrg.email_account_name;
 	delete old.name;
 	delete newOrg.name;
 
@@ -235,11 +242,12 @@ async function updateData() {
 }
 
 async function callRenameDoc() {
+	console.log(doc.value);
 	try {
 		const d = await call("frappe.client.rename_doc", {
-			doctype: "ATS_Unit",
+			doctype: props.doctype,
 			old_name: useField.childTableField,
-			new_name: _data.value.unit_id,
+			new_name: _data.value.email_account_name,
 		});
 		loading.value = false;
 		return d;
@@ -266,13 +274,11 @@ async function callSetValue(values) {
 
 		// Gọi API và chờ phản hồi
 		const d = await call("frappe.client.set_value", {
-			doctype: "ATS_Unit",
-			name: _data.value.unit_id,
+			doctype: props.doctype,
+			name: _data.value.email_account_name,
 			fieldname: values,
 		});
 
-		// Phát tín hiệu cập nhật danh sách
-		emit("updateList");
 		createToast({
 			title: __("Success"),
 			text: __(`Successfully updated ${context}`),
@@ -309,14 +315,13 @@ async function callInsertDoc() {
 		// Gọi API để chèn tài liệu mới
 		const doc = await call("frappe.client.insert", {
 			doc: {
-				doctype: "ATS_Unit",
+				doctype: props.doctype,
 				..._data.value,
 			},
 		});
 
 		// Kiểm tra nếu tài liệu được tạo thành công
 		if (doc.name) {
-			// capture('organization_created') // Uncomment nếu cần theo dõi sự kiện
 			handleDataUpdate(doc);
 			createToast({
 				title: __("Success"),
@@ -348,7 +353,7 @@ function handleDataUpdate(doc, renamed = false) {
 }
 
 const dialogOptions = computed(() => {
-	let title = !editMode.value ? "Add Unit" : "Edit Data";
+	let title = !editMode.value ? "Add Email Account" : "Edit Data";
 	let size = "6xl";
 	let actions = detailMode.value
 		? []
@@ -366,9 +371,9 @@ const dialogOptions = computed(() => {
 const fields = computed(() => {
 	let details = [
 		{
-			icon: OrganizationsIcon,
-			name: "unit_id",
-			value: _data.value.unit_id,
+			icon: EmailIcon,
+			name: "email_id",
+			value: _data.value.email_id,
 		},
 	];
 
@@ -394,28 +399,71 @@ watch([() => show.value, () => props.editMode], ([showVal, editModeVal]) => {
 
 	nextTick(() => {
 		oldValue.value = { ...props.list_field_value };
-
 		if (editModeVal) {
 			_data.value = { ...props.list_field_value };
-
 		} else {
+			//_data.value = doc.value;
 			_data.value = {
+				email_id: "",
+				email_account_name: "",
+				domain: "",
+				service: "",
+				auth_method: "Basic",
+				backend_app_flow: 0,
+				password: "",
+				awaiting_password: 0,
+				ascii_encode_password: 0,
+				connected_app: "",
+				connected_user: "",
+				login_id_is_different: 0,
+				login_id: "",
+				enable_incoming: 0,
+				default_incoming: 0,
+				use_imap: 0,
+				use_ssl: 0,
+				use_starttls: 0,
+				email_server: "",
+				incoming_port: "",
+				attachment_limit: 0,
+				email_sync_option: "UNSEEN",
+				initial_sync_count: "250",
+				append_emails_to_sent_folder: 0,
+				sent_folder_name: "",
+				append_to: "",
+				create_contact: 1,
+				enable_automatic_linking: 0,
+				notify_if_unreplied: 0,
+				unreplied_for_mins: 30,
+				send_notification_to: "",
+				enable_outgoing: 0,
+				use_tls: 0,
+				use_ssl_for_outgoing: 0,
+				smtp_server: "",
+				smtp_port: "",
+				default_outgoing: 0,
+				always_use_account_email_id_as_sender: 0,
+				always_use_account_name_as_sender_name: 0,
+				send_unsubscribe_message: 1,
+				track_email_status: 1,
+				no_smtp_authentication: 0,
+				always_bcc: "",
+				add_signature: 0,
+				signature: "",
+				enable_auto_reply: 0,
+				auto_reply_message: "",
+				footer: "",
+				brand_logo: "",
+				uidvalidity: "",
+				uidnext: 0,
+				no_failed: 0,
 				name: "",
-				parent_ats_unit: "",
-				unit_id: "",
-				unit_name: "",
-				company_id: "",
-				unit_address: "",
-				unit_head: "",
-				unit_level: "",
-				is_group: 1,
-				cat_order: 0,
-				cat_status: "Active",
-				cat_color: "",
-				cat_icon: "",
 			};
 		}
 	});
+
+	if (!show.value) {
+		doc.value = {};
+	}
 
 	editMode.value = editModeVal;
 });
@@ -428,14 +476,4 @@ function openQuickEntryModal() {
 		show.value = false;
 	});
 }
-
-watch(() => show.value, (newVal, oldVal) => {
-  if (newVal && !oldVal) {
-    linkRefreshStore.pushModal('ATS_Unit_Modal')
-    console.log('🔴 Opened ATS_Unit_Modal, depth:', linkRefreshStore.modalDepth)
-  } else if (!newVal && oldVal) {
-    linkRefreshStore.popModal()
-    console.log('🟢 Closed ATS_Unit_Modal, depth:', linkRefreshStore.modalDepth)
-  }
-})
-</script>
+</script> 

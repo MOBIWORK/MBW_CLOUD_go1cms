@@ -81,3 +81,11 @@ def get_candidate_counts(job_opening):
     ]
 
     return result
+
+def update_candidate_count(job_opening_id):
+    """
+    Cập nhật số lượng CMS_Candidate ứng tuyển vào CMS_JobOpening khi có thay đổi.
+    """
+    if job_opening_id:  # Sử dụng job_opening_id thay vì doc.job_opening_id
+        count = frappe.db.count("CMS_Candidate", filters={"job_opening_id": job_opening_id})
+        frappe.db.set_value("CMS_JobOpening", job_opening_id, "applicants_applied", count)

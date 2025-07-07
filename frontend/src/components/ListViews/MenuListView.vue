@@ -42,7 +42,7 @@
                   </Button>
                 </div>
               </Tooltip>
-              <Tooltip
+              <!-- <Tooltip
                 :text="__('Delete menu')"
                 :hover-delay="1"
                 placement="top"
@@ -58,7 +58,7 @@
                   >
                   </Button>
                 </div>
-              </Tooltip>
+              </Tooltip> -->
             </div>
           </div>
           <div

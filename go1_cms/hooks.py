@@ -127,6 +127,7 @@ before_uninstall = "go1_cms.go1_cms.before_uninstall.before_uninstall"
 override_doctype_class = {
     # "Job Opening": "go1_cms.overrides.job_opening.CustomJobOpening",
     # "Website Item": "go1_cms.overrides.website_item.CustomWebsiteItem",
+    "Email Account": "go1_cms.overrides.email_account.CustomEmailAccount",
 }
 
 # Document Events

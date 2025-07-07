@@ -75,6 +75,12 @@ def after_install():
 		frappe.enqueue(sync_ats_categories,queue="short",
 			timeout=300,
 			now=True)
+	create_default_jo_status()
+	setup_candidate_permissions()
+	# sync data ats 
+	frappe.enqueue(sync_ats_categories,queue="short",
+        timeout=300,
+        now=True)
 
 
 def sync_ats_categories():
@@ -879,3 +885,20 @@ def setup_candidate_permissions():
     
 	frappe.db.commit()
 	print("Candidate role & permissions set successfully.")
+
+def create_default_jo_status():
+	jo_status_list = [
+		{"color": "gray", "position": 3, "jo_status": "Paused"},
+		{"color": "red", "position": 4, "jo_status": "Closed for Applications"},
+		{"color": "gray", "position": 1, "jo_status": "Draft"},
+		{"color": "blue", "position": 5, "jo_status": "Filled"},
+		{"color": "green", "position": 2, "jo_status": "Open"},
+	]
+
+	for item in jo_status_list:
+		if not frappe.db.exists("JO Status", {"jo_status": item["jo_status"]}):
+			doc = frappe.new_doc("JO Status")
+			doc.color = item["color"]
+			doc.position = item["position"]
+			doc.jo_status = item["jo_status"]
+			doc.insert(ignore_permissions=True)

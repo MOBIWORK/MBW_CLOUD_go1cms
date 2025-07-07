@@ -96,6 +96,55 @@ class CMS_Candidate(Document):
 				self.status = round_name
 		# if not self.candidatesource_id:
 		# 	self.candidatesource_id = "Website"
+
+	def after_delete(self):
+		if self.job_opening_id:
+			# Cập nhật số lượng ứng viên trong Job Opening
+			#update_candidate_count(self.job_opening_id)
+			# NOTE : Cho vào enquee
+			frappe.enqueue(
+				method="go1_cms.go1_cms.doctype.cms_jobopening.api.update_candidate_count",
+				job_opening_id=self.job_opening_id,
+				queue="short",
+				timeout=300,
+				now=True
+			)
+
+	def after_insert(self):
+		"""
+		Hook sau khi insert - enqueue các xử lý nặng
+		"""
+		try:
+			# Enqueue xử lý application date logic đầy đủ
+			# if self.job_opening_id:
+			# 	enqueue_application_date_processing(
+			# 		candidate_id=self.name,
+			# 		job_opening_id=self.job_opening_id,
+			# 		force_update=True,
+			# 		now=False  # Chạy background
+			# 	)
+			
+			# Enqueue update candidate count
+			if self.job_opening_id:
+				#update_candidate_count(self.job_opening_id)
+				frappe.enqueue(
+					method="go1_cms.go1_cms.doctype.cms_jobopening.api.update_candidate_count",
+					job_opening_id=self.job_opening_id,
+					queue="short",
+					timeout=300,
+					now=True
+				)
+			#Gửi socket để reload lại danh sách candidate nếu có cv mới
+			frappe.publish_realtime(
+                event="candidate_insert",
+                message={
+                    "user": self.name,
+                    "results": self,
+                },
+                user=frappe.session.user,
+            )
+		except Exception as e:
+			pass
   
 @frappe.whitelist()
 def get_job_opening_rounds(job_opening):
