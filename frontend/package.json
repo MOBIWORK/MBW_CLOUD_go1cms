@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "vite build --base=/assets/go1_cms/frontend/ && yarn copy-html-entry",
+    "build": "NODE_OPTIONS=--max_old_space_size=4096 vite build --base=/assets/go1_cms/frontend/ && yarn copy-html-entry",
     "copy-html-entry": "cp ../go1_cms/public/frontend/index.html ../go1_cms/www/cms.html",
     "serve": "vite preview"
   },
