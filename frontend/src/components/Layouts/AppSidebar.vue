@@ -168,6 +168,11 @@ const links = [
     icon: DisplayIcon,
     to: 'ats_job_opening',
   },
+  {
+    label: "Posts",
+    icon: NewsIcon,
+    to: 'Posts',
+  }
 ]
 
 const dashboardSection = {
