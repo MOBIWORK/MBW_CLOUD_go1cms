@@ -37,7 +37,7 @@
         :title="__('General Settings')"
         v-model="_settings.fields_cp"
       ></FieldsComponent>
-      <div class="p-6 border border-gray-300 rounded-sm mb-4">
+      <!-- <div class="p-6 border border-gray-300 rounded-sm mb-4">
         <div class="mb-4 font-bold text-xl">{{ __('Instructions') }}</div>
         <div class="text-base py-4 border-t">
           <div class="font-bold text-lg mb-4">
@@ -263,7 +263,7 @@
             </SectionDropdown>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
     <div v-else class="p-4 border border-gray-300 rounded-sm mb-4">
       <div class="flex justify-center h-screen mt-40 text-gray-700">

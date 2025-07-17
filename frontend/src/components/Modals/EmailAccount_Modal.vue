@@ -386,6 +386,7 @@ const tabs = createResource({
 	params: { doctype: props.doctype, type: "Quick Entry" },
 	auto: true,
 });
+console.log("tabs==========", tabs);
 
 const filteredSections = computed(() => {
 	let allSections = sections.data || [];

@@ -69,7 +69,7 @@ function handleClose() {
 const dialogOptions = computed(() => {
   return {
     title: __("Crop image"),
-    size: '3xl',
+    size: '5xl',
     class: "space-y-2 flex justify-end",
   }
 })
@@ -79,7 +79,7 @@ const dialogOptions = computed(() => {
 <style scoped>
 .cropper {
   width: 100%;
-  height: 400px;
+  height: 600px;
   background: #f0f0f0;
   overflow: hidden;
 }

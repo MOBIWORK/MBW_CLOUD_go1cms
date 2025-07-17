@@ -1,5 +1,5 @@
 <template>
-	<div v-if="field.visible" class="field">
+	<div v-if="field.display_via_depends_on" class="field">
 		<div v-if="field.fieldtype != 'Check'" class="mb-2 text-sm text-ink-gray-5">
 			{{ __(field.label) }}
 			<span
@@ -84,7 +84,7 @@
 				@click="field.edit(data[field.fieldname])"
 			>
 				<template #prefix>
-					<EditIcon class="h-4 w-4" />
+				<EditIcon class="h-4 w-4" />
 				</template>
 			</Button>
 		</div>
@@ -207,6 +207,27 @@
 			:hidden="Boolean(field.hidden)"
 			@change="data[field.fieldname] = flt($event.target.value)"
 		/>
+		<div v-else-if="field.fieldtype === 'Password'" class="relative">
+			<FormControl
+			  :type="showPassword[field.fieldname] ? 'text' : 'password'"
+			  :placeholder="getPlaceholder(field)"
+			  v-model="data[field.fieldname]"
+			  :disabled="Boolean(field.read_only)"
+			  :description="__(field.description)"
+			  @input="(e) => fieldChange(e.target.value, field)"
+			/>
+			<button
+			  type="button"
+			  @click="togglePasswordVisibility(field.fieldname)"
+			  class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+			  :title="showPassword[field.fieldname] ? __('Hide password') : __('Show password')"
+			>
+			  <FeatherIcon
+				:name="showPassword[field.fieldname] ? 'eye-off' : 'eye'"
+				class="h-4 w-4"
+			  />
+			</button>
+		  </div>
 		<FileUploader
 			v-else-if="field.fieldtype === 'Attach'"
 			:fileTypes="['files/*']"
@@ -423,7 +444,7 @@ import {
 	TextInput,
 } from "frappe-ui";
 import MultipleSelect from "@/components/Controls/MultipleSelect.vue";
-import { computed, inject } from "vue";
+import { computed, inject, reactive } from "vue";
 import StarRating from "@/components/StarRating.vue";
 import TableMultiselectInput from "@/components/Controls/TableMultiselectInput.vue";
 import { createDocument } from "@/composables/document";
@@ -442,8 +463,15 @@ const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } = getMeta
 const { getUser } = usersStore();
 const linkRefreshStore = useLinkRefreshStore();
 
+const showPassword = reactive({})
+
+function togglePasswordVisibility(fieldname) {
+  showPassword[fieldname] = !showPassword[fieldname]
+}
+
 const field = computed(() => {
 	let field = props.field;
+
 	if (field.fieldtype == "Select" && typeof field.options === "string") {
 		field.options = field.options.split("\n").map((option) => {
 			return { label: option, value: option };
@@ -459,26 +487,26 @@ const field = computed(() => {
 	}
 
 	if (field.fieldtype === "Link" && field.options !== "User") {
-		console.log('🔗 Field create:', field.create);
+		// console.log('🔗 Field create:', field.create);
 		if (!field.create && !disableCreate) {
 			field.create = (value, close) => {
 				const callback = (d) => {
-					console.log('🎯 Field callback called with:', d);
+					// console.log('🎯 Field callback called with:', d);
 					if (d) {
 						// Set value vào field hiện tại
 						data.value[field.fieldname] = d.name;
-						console.log(`🔗 Set field ${field.fieldname} = ${d.name}`);
+						// console.log(`🔗 Set field ${field.fieldname} = ${d.name}`);
 						
 						// Trigger store để refresh tất cả Link fields khác cùng doctype
 						linkRefreshStore.triggerLinkRefresh(field.options, d.name);
-						console.log("✅ Triggered store refresh for", field.options, d.name);
-						console.log('📋 Store state:', linkRefreshStore.lastCreatedDocument);
+						// console.log("✅ Triggered store refresh for", field.options, d.name);
+						// console.log('📋 Store state:', linkRefreshStore.lastCreatedDocument);
 					} else {
 						console.log('❌ Field callback: No document data received');
 					}
 				};
-				console.log('🚀 Creating document for field:', field.fieldname, 'doctype:', field.options);
-				console.log('🔗 Callback function created:', typeof callback);
+				// console.log('🚀 Creating document for field:', field.fieldname, 'doctype:', field.options);
+				// console.log('🔗 Callback function created:', typeof callback);
 				createDocument(field.options, value, close, callback);
 			};
 		}
@@ -494,8 +522,10 @@ const field = computed(() => {
 			? evaluateDependsOnValue(field.read_only_depends_on, data.value)
 			: null,
 	};
-
+	
+	// console.log("_field", _field);
 	_field.visible = isFieldVisible(_field);
+
 	return _field;
 });
 
@@ -509,6 +539,11 @@ function isFieldVisible(field) {
 		!field.hidden
 	);
 }
+
+function fieldChange(value, df) {
+  data.value[df.fieldname] = value
+}
+
 
 const getPlaceholder = (field) => {
 	if (field.placeholder) {

@@ -11,6 +11,7 @@ import zipfile
 from frappe.utils import encode, get_files_path, getdate, to_timedelta,  flt
 from go1_cms.api.sync_setup import sync_from_external
 from frappe.installer import update_site_config
+from frappe.core.doctype.user.user import generate_keys
 
 def get_all_folder_in_dir(version):
 	path = os.path.join(frappe.get_module_path("go1_cms"),
@@ -19,6 +20,8 @@ def get_all_folder_in_dir(version):
 
 
 def after_install():
+	# Key api
+	create_api_key_for_admin()
 	# * load images
 	unzip_section_images()
 
@@ -67,6 +70,8 @@ def after_install():
 	"""Khởi tạo biến cho webhook
 	"""	
 	setup_candidate_permissions()
+	update_site_config("api_key_press", "91c4ef9b30a300e")
+	update_site_config("api_secret_press", "13b45ba7b9e0e8e")
 	# update_site_config("webhook_secret", "CK_p9hGioqEdOuUS8b2-2G88T2aKq2-C-SnPYadKlY4=")
 	# update_site_config("api_token", "9473bc87d2b7d951066b1fb73095f95c")
 	# if frappe.conf.get("mbw_ats_site_name"):
@@ -902,3 +907,26 @@ def create_default_jo_status():
 			doc.position = item["position"]
 			doc.jo_status = item["jo_status"]
 			doc.insert(ignore_permissions=True)
+
+def auto_create_api_key_admin():
+    user = frappe.get_doc("User", "Administrator")
+    result = generate_keys(user)
+    
+    api_key = user.api_key
+    api_secret = result.get("api_secret")  # Không thể truy cập lại được nữa
+
+    # Ghi vào site_config.json
+    site_config_path = frappe.get_site_path("site_config.json")
+    with open(site_config_path) as f:
+        config = json.load(f)
+
+    config["admin_api_key"] = api_key
+    if api_secret:
+        config["admin_api_secret"] = api_secret
+    else:
+        frappe.logger().warning("[CMS] ⚠️ Không thể lấy lại api_secret nếu đã được tạo trước đó.")
+
+    with open(site_config_path, "w") as f:
+        json.dump(config, f, indent=4)
+
+    frappe.logger().info("[CMS] ✅ API Key/Secret")

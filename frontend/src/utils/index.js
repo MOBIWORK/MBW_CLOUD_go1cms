@@ -686,6 +686,21 @@ export function evaluateDependsOnValue(expression, doc) {
 	return out;
 }
 
+export function _eval(code, context = {}) {
+  let variable_names = Object.keys(context)
+  let variables = Object.values(context)
+  code = `let out = ${code}; return out`
+  try {
+    let expression_function = new Function(...variable_names, code)
+    return expression_function(...variables)
+  } catch (error) {
+    console.log('Error evaluating the following expression:')
+    console.error(code)
+    throw error
+  }
+}
+
+
 export function validateTriggers(triggers) {
 	if (!Array.isArray(triggers)) return { valid: true };
 
@@ -794,4 +809,10 @@ export async function setupCustomizations(data, obj) {
 	data._customStatuses = statuses;
 	data._customActions = actions;
 	return { statuses, actions };
+}
+
+export function runSequentially(functions) {
+  return functions.reduce((promise, fn) => {
+    return promise.then(() => fn())
+  }, Promise.resolve())
 }
