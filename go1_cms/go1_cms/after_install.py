@@ -21,7 +21,7 @@ def get_all_folder_in_dir(version):
 
 def after_install():
 	# Key api
-	create_api_key_for_admin()
+	auto_create_api_key_admin()
 	# * load images
 	unzip_section_images()
 
