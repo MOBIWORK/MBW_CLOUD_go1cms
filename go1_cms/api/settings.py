@@ -69,11 +69,11 @@ def get_setup():
                     'show_edit': True,
                     'doctype': "Email Account",
                     'filters': {},
-                    'actions': [
-                        '/app/email-account/',
-                        'new-email-account',
-                        cms_settings.system_email or ''
-                    ]
+                    # 'actions': [
+                    #     '/app/email-account/',
+                    #     'new-email-account',
+                    #     cms_settings.system_email or ''
+                    # ]
                 },
                 {
                     'field_label': _('Receive email notifications'),
@@ -281,25 +281,25 @@ def get_setup():
                 'type': 'warn'
             }
 
-        fields_sync = {
-            'allow_edit':  True,
-            'show_edit': True,
-            'section_title': _('Sync contacts to Lead (CRM App)'),
-            'fields': [
-                {
-                    'field_label': _('Allow synchronization'),
-                    'field_key': 'sync_lead_data',
-                    'label_input': _('Allow'),
-                    'content': cms_settings.sync_lead_data == 1,
-                    'field_type': 'checkbox',
-                    'allow_edit': 'crm' in frappe.get_installed_apps(),
-                    'show_edit': True,
-                }
-            ],
-            'description': description,
-            'name': 'sync'
-        }
-        fields_cp.append(fields_sync)
+        # fields_sync = {
+        #     'allow_edit':  True,
+        #     'show_edit': True,
+        #     'section_title': _('Sync contacts to Lead (CRM App)'),
+        #     'fields': [
+        #         {
+        #             'field_label': _('Allow synchronization'),
+        #             'field_key': 'sync_lead_data',
+        #             'label_input': _('Allow'),
+        #             'content': cms_settings.sync_lead_data == 1,
+        #             'field_type': 'checkbox',
+        #             'allow_edit': 'crm' in frappe.get_installed_apps(),
+        #             'show_edit': True,
+        #         }
+        #     ],
+        #     'description': description,
+        #     'name': 'sync'
+        # }
+        # fields_cp.append(fields_sync)
 
         return {'fields_cp': fields_cp, 'docname': 'CMS Settings'}
     except Exception as ex:
