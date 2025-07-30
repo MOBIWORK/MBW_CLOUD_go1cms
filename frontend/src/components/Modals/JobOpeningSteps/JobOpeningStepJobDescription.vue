@@ -7,7 +7,170 @@
 			</p>
 		</div>
 
-		
+		<!-- AI Generation Section -->
+		<div class="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-xl p-5 shadow-sm">
+			<div class="flex items-start space-x-4">
+				<div class="flex-shrink-0">
+					<div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-md">
+						<FeatherIcon name="zap" class="h-5 w-5 text-white" />
+					</div>
+				</div>
+				<div class="flex-1">
+					<p class="text-base font-semibold text-gray-900 mb-1">✨ {{ __('AI Assistant') }}</p>
+					<p class="text-sm text-gray-700 mb-3">
+						{{ __('Save time! Let AI generate professional job content instantly. Click the buttons below first, then edit as needed.') }}
+					</p>
+					
+					<!-- AI Generation Controls -->
+					<div class="space-y-4">
+						<!-- Generate All Button (when no content) -->
+						<div v-if="!hasAnyContent" class="text-center">
+							<Button
+								size="md"
+								variant="solid"
+								theme="purple"
+								@click="generateAllContent"
+								:loading="isAnyGenerating"
+								:disabled="!formData.jo_position"
+								class="font-medium px-6 py-2"
+							>
+								<template #prefix>
+									<FeatherIcon name="zap" class="h-5 w-5" />
+								</template>
+								{{ __('🚀 Generate Complete Job Description') }}
+							</Button>
+						</div>
+
+						<!-- Individual Generate Buttons (when has content) -->
+						<div v-else class="space-y-3">
+							<div class="flex flex-wrap gap-3">
+								<Button
+									size="sm"
+									variant="solid"
+									theme="purple"
+									@click="generateJobDescription"
+									:loading="generatingDescription"
+									:disabled="!formData.jo_position"
+									class="font-medium"
+								>
+									<template #prefix>
+										<FeatherIcon name="edit-3" class="h-4 w-4" />
+									</template>
+									{{ __('Generate Description') }}
+								</Button>
+								<Button
+									size="sm"
+									variant="solid"
+									theme="blue"
+									@click="generateJobRequirements"
+									:loading="generatingRequirements"
+									:disabled="!formData.jo_position"
+									class="font-medium"
+								>
+									<template #prefix>
+										<FeatherIcon name="list" class="h-4 w-4" />
+									</template>
+									{{ __('Generate Requirements') }}
+								</Button>
+								<Button
+									size="sm"
+									variant="solid"
+									theme="green"
+									@click="generateJobBenefits"
+									:loading="generatingBenefits"
+									:disabled="!formData.jo_position"
+									class="font-medium"
+								>
+									<template #prefix>
+										<FeatherIcon name="gift" class="h-4 w-4" />
+									</template>
+									{{ __('Generate Benefits') }}
+								</Button>
+							</div>
+							
+							<!-- Regenerate All Button -->
+							<div class="text-center border-t border-purple-100 pt-2">
+								<Button
+									size="sm"
+									variant="outline"
+									theme="purple"
+									@click="generateAllContent"
+									:loading="isAnyGenerating"
+									:disabled="!formData.jo_position"
+									class="font-medium text-xs"
+								>
+									<template #prefix>
+										<FeatherIcon name="refresh-ccw" class="h-3 w-3" />
+									</template>
+									{{ __('Regenerate All Content') }}
+								</Button>
+							</div>
+						</div>
+						
+						<!-- Custom Description -->
+						<div class="border-t border-purple-200 pt-3 mt-3">
+							<p class="text-xs font-medium text-gray-700 mb-2">📝 {{ __('Custom Instructions:') }}</p>
+							<textarea
+								v-model="customDescription"
+								:placeholder="__('Enter custom instructions for AI (e.g., mention specific skills, company culture, remote work options...)')"
+								class="w-full text-xs px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-purple-400 bg-white resize-none"
+								rows="2"
+								maxlength="500"
+							></textarea>
+							<div class="flex justify-between items-center mt-1">
+								<span class="text-xs text-gray-500">{{ customDescription.length }}/500 {{ __('characters') }}</span>
+								<Button
+									v-if="customDescription.trim()"
+									size="sm"
+									variant="ghost"
+									@click="customDescription = ''"
+									class="text-xs"
+								>
+									<FeatherIcon name="x" class="h-3 w-3" />
+								</Button>
+							</div>
+						</div>
+
+						<!-- Refine Options -->
+						<div class="border-t border-purple-200 pt-3 mt-3">
+							<p class="text-xs font-medium text-gray-700 mb-2">🔧 {{ __('Refine Content:') }}</p>
+							<div class="flex items-center space-x-3">
+								<select 
+									v-model="selectedRefineStyle"
+									class="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-purple-400 bg-white"
+								>
+									<option value="">{{ __('Choose refine style...') }}</option>
+									<option 
+										v-for="preset in refinePresets" 
+										:key="preset.value"
+										:value="preset.value"
+									>
+										{{ preset.label }}
+									</option>
+								</select>
+								<Button
+									size="sm"
+									variant="solid"
+									theme="purple"
+									@click="executeRefine"
+									:disabled="!selectedRefineStyle || isAnyGenerating"
+									class="text-xs font-medium"
+								>
+									<template #prefix>
+										<FeatherIcon name="refresh-cw" class="h-3 w-3" />
+									</template>
+									{{ __('✨ Refine') }}
+								</Button>
+							</div>
+						</div>
+					</div>
+					
+					<div v-if="!formData.jo_position" class="mt-2 text-xs text-orange-600 font-medium">
+						⚠️ {{ __('Please select a position in Step 1 first to enable AI generation') }}
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<!-- Form Fields Section -->
 		<div class="space-y-6">
@@ -137,6 +300,7 @@ const generatingDescription = ref(false)
 const generatingRequirements = ref(false)
 const generatingBenefits = ref(false)
 const selectedRefineStyle = ref('')
+const customDescription = ref('')
 
 // Refine presets
 const refinePresets = ref([
@@ -193,8 +357,24 @@ const generateAllContent = async () => {
 	generatingBenefits.value = true
 	
 	try {
+		// Build comments with custom description
+		let comments = `Create a complete and professional job description for position: ${formData.value.jo_position}. Include detailed job description, candidate requirements and attractive benefits.`
+		
+		// Add refine style if selected
+		if (selectedRefineStyle.value) {
+			const selectedPreset = refinePresets.value.find(p => p.value === selectedRefineStyle.value)
+			if (selectedPreset) {
+				comments += ` Please ${selectedPreset.comment}.`
+			}
+		}
+		
+		// Add custom description if provided
+		if (customDescription.value.trim()) {
+			comments += ` Additional requirements: ${customDescription.value.trim()}`
+		}
+
 		// Use generate_job_description_v2 for initial generation
-		const response = await call('mbw_ats.api.ai.generate_job_description_v2', {
+		const response = await call('go1_cms.api.ai.generate_job_description_v2', {
 			jobTitle: formData.value.jo_position,
 			tone: 'professional',
 			comments: `Tạo bản mô tả công việc hoàn chỉnh và chuyên nghiệp cho vị trí: ${formData.value.jo_position}. Bao gồm mô tả chi tiết về công việc, yêu cầu ứng viên và quyền lợi hấp dẫn.`
@@ -259,6 +439,11 @@ const generateJobDescription = async () => {
 			}
 		}
 
+		// Add custom description if provided
+		if (customDescription.value.trim()) {
+			baseComment += ` Additional requirements: ${customDescription.value.trim()}`
+		}
+
 		// Prepare current JD data for refinement
 		const originalJD = {
 			jobDescription: formData.value.jo_job_description || `Mô tả công việc cho vị trí: ${formData.value.jo_position}`,
@@ -266,7 +451,7 @@ const generateJobDescription = async () => {
 			jobResponsibilities: formData.value.jo_job_benefits || ''
 		}
 
-		const response = await call('mbw_ats.api.ai.jd_section_refine', {
+		const response = await call('go1_cms.api.ai.jd_section_refine', {
 			originalJD: originalJD,
 			fieldsToRewrite: ['jobDescription'],
 			comments: baseComment
@@ -319,6 +504,11 @@ const generateJobRequirements = async () => {
 			}
 		}
 
+		// Add custom description if provided
+		if (customDescription.value.trim()) {
+			baseComment += ` Additional requirements: ${customDescription.value.trim()}`
+		}
+
 		// Prepare current JD data for refinement
 		const originalJD = {
 			jobDescription: formData.value.jo_job_description || '',
@@ -326,7 +516,7 @@ const generateJobRequirements = async () => {
 			jobResponsibilities: formData.value.jo_job_benefits || ''
 		}
 
-		const response = await call('mbw_ats.api.ai.jd_section_refine', {
+		const response = await call('go1_cms.api.ai.jd_section_refine', {
 			originalJD: originalJD,
 			fieldsToRewrite: ['jobRequirements'],
 			comments: baseComment
@@ -379,6 +569,11 @@ const generateJobBenefits = async () => {
 			}
 		}
 
+		// Add custom description if provided
+		if (customDescription.value.trim()) {
+			baseComment += ` Additional requirements: ${customDescription.value.trim()}`
+		}
+
 		// Prepare current JD data for refinement
 		const originalJD = {
 			jobDescription: formData.value.jo_job_description || '',
@@ -386,7 +581,7 @@ const generateJobBenefits = async () => {
 			jobResponsibilities: formData.value.jo_job_benefits || `Quyền lợi và phúc lợi cho vị trí: ${formData.value.jo_position}`
 		}
 
-		const response = await call('mbw_ats.api.ai.jd_section_refine', {
+		const response = await call('go1_cms.api.ai.jd_section_refine', {
 			originalJD: originalJD,
 			fieldsToRewrite: ['jobResponsibilities'],
 			comments: baseComment
@@ -425,6 +620,11 @@ const executeRefine = async () => {
 	if (!selectedPreset) return
 	
 	const comment = selectedPreset.comment
+
+	// Add custom description if provided
+	if (customDescription.value.trim()) {
+		comment += `. Additional requirements: ${customDescription.value.trim()}`
+	}
 	const fieldsToRefine = []
 	
 	// Determine which fields have content to refine
