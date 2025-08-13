@@ -1,0 +1,182 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2024-12-28 10:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+     "user_section",
+     "user_id",
+     "user_name",
+     "user_role",
+     "cb_preferences",
+     "primary_intent",
+     "preferred_position",
+     "company_size",
+     "hiring_volume",
+     "cb_onboarding",
+     "has_completed_onboarding",
+     "onboarding_completed_date",
+     "current_step",
+     "cb_quick_actions",
+     "favorite_actions",
+     "recent_actions",
+     "cb_settings",
+     "show_welcome_message",
+     "auto_create_templates",
+     "enable_ai_suggestions"
+    ],
+    "fields": [
+     {
+      "fieldname": "user_section",
+      "fieldtype": "Section Break",
+      "label": "User Information"
+     },
+     {
+      "fieldname": "user_id",
+      "fieldtype": "Link",
+      "label": "User",
+      "options": "User",
+      "reqd": 1
+     },
+     {
+      "fieldname": "user_name",
+      "fieldtype": "Data",
+      "label": "User Name",
+      "read_only": 1
+     },
+     {
+      "fieldname": "user_role",
+      "fieldtype": "Select",
+      "label": "Primary Role",
+      "options": "\nRecruiter\nHiring Manager\nHR Staff\nInterviewer\nAdmin"
+     },
+     {
+      "fieldname": "cb_preferences",
+      "fieldtype": "Column Break"
+     },
+     {
+      "fieldname": "primary_intent",
+      "fieldtype": "Select",
+      "label": "Primary Intent",
+      "options": "\nPost Job\nManage Candidates\nSchedule Interviews\nSetup Company\nImport Data\nExplore Dashboard"
+     },
+     {
+      "fieldname": "preferred_position",
+      "fieldtype": "Link",
+      "label": "Preferred Position",
+      "options": "ATS_Position"
+     },
+     {
+      "fieldname": "company_size",
+      "fieldtype": "Select",
+      "label": "Company Size",
+      "options": "\nStartup (1-10)\nSmall (11-50)\nMedium (51-200)\nLarge (200+)"
+     },
+     {
+      "fieldname": "hiring_volume",
+      "fieldtype": "Select",
+      "label": "Monthly Hiring Volume",
+      "options": "\nLow (1-5)\nMedium (6-20)\nHigh (21-50)\nVery High (50+)"
+     },
+     {
+      "fieldname": "cb_onboarding",
+      "fieldtype": "Section Break",
+      "label": "Onboarding Status"
+     },
+     {
+      "fieldname": "has_completed_onboarding",
+      "fieldtype": "Check",
+      "label": "Has Completed Onboarding"
+     },
+     {
+      "fieldname": "onboarding_completed_date",
+      "fieldtype": "Datetime",
+      "label": "Onboarding Completed Date",
+      "read_only": 1
+     },
+     {
+      "fieldname": "current_step",
+      "fieldtype": "Data",
+      "label": "Current Step"
+     },
+     {
+      "fieldname": "cb_quick_actions",
+      "fieldtype": "Column Break"
+     },
+     {
+      "fieldname": "favorite_actions",
+      "fieldtype": "Small Text",
+      "label": "Favorite Actions (JSON)"
+     },
+     {
+      "fieldname": "recent_actions",
+      "fieldtype": "Small Text",
+      "label": "Recent Actions (JSON)"
+     },
+     {
+      "fieldname": "cb_settings",
+      "fieldtype": "Section Break",
+      "label": "Settings"
+     },
+     {
+      "fieldname": "show_welcome_message",
+      "fieldtype": "Check",
+      "default": "1",
+      "label": "Show Welcome Message"
+     },
+     {
+      "fieldname": "auto_create_templates",
+      "fieldtype": "Check",
+      "default": "1",
+      "label": "Auto Create Templates"
+     },
+     {
+      "fieldname": "enable_ai_suggestions",
+      "fieldtype": "Check",
+      "default": "1",
+      "label": "Enable AI Suggestions"
+     }
+    ],
+    "index_web_pages_for_search": 1,
+    "is_single": 1,
+    "istable": 0,
+    "links": [],
+    "modified": "2025-08-12 09:27:28.010171",
+    "modified_by": "Administrator",
+    "module": "Go1 CMS",
+    "name": "User Onboarding Preferences",
+    "owner": "Administrator",
+    "permissions": [
+     {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+     },
+     {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "HR Manager",
+      "share": 1,
+      "write": 1
+     },
+     {
+      "read": 1,
+      "role": "HR User",
+      "write": 1
+     }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+   } 

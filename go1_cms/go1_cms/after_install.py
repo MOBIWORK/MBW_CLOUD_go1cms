@@ -886,8 +886,8 @@ def setup_candidate_permissions():
 		"apply_user_permissions": 1,
 		"if_owner": 1
 		})
-	quiz_perm.insert(ignore_permissions=True)  
-    
+	quiz_perm.insert(ignore_permissions=True)
+	
 	frappe.db.commit()
 	print("Candidate role & permissions set successfully.")
 
@@ -909,24 +909,29 @@ def create_default_jo_status():
 			doc.insert(ignore_permissions=True)
 
 def auto_create_api_key_admin():
-    user = frappe.get_doc("User", "Administrator")
-    result = generate_keys(user)
-    
-    api_key = user.api_key
-    api_secret = result.get("api_secret")  # Không thể truy cập lại được nữa
+	user = frappe.get_doc("User", "Administrator")
+	result = generate_keys(user)
 
-    # Ghi vào site_config.json
-    site_config_path = frappe.get_site_path("site_config.json")
-    with open(site_config_path) as f:
-        config = json.load(f)
+	user.reload()
 
-    config["admin_api_key"] = api_key
-    if api_secret:
-        config["admin_api_secret"] = api_secret
-    else:
-        frappe.logger().warning("[CMS] ⚠️ Không thể lấy lại api_secret nếu đã được tạo trước đó.")
+	print('========================= user: ', user, flush=True)
+	print('========================= value: ', user.get('api_key'), flush=True)
 
-    with open(site_config_path, "w") as f:
-        json.dump(config, f, indent=4)
+	api_key = user.get('api_key')
+	api_secret = result.get("api_secret")  # Không thể truy cập lại được nữa
 
-    frappe.logger().info("[CMS] ✅ API Key/Secret")
+	# Ghi vào site_config.json
+	site_config_path = frappe.get_site_path("site_config.json")
+	with open(site_config_path) as f:
+		config = json.load(f)
+
+	config["admin_api_key"] = api_key
+	if api_secret:
+		config["admin_api_secret"] = api_secret
+	else:
+		frappe.logger().warning("[CMS] ⚠️ Không thể lấy lại api_secret nếu đã được tạo trước đó.")
+
+	with open(site_config_path, "w") as f:
+		json.dump(config, f, indent=4)
+
+	frappe.logger().info("[CMS] ✅ API Key/Secret")

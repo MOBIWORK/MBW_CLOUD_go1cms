@@ -287,6 +287,15 @@ const routes = [
     name: 'cms_candidates',
     component: () => import('@/pages/cms_candidate/Candidates.vue'),
   },
+  {
+		path: "/wizard",
+		name: "onboarding_wizard",
+		component: () => import("@/pages/wizard/OnboardingWizard.vue"),
+		meta: { 
+			layout: 'wizard',
+			// requiresAuth: true 
+		}
+	},
 ]
 
 const scrollBehavior = (to, from, savedPosition) => {
@@ -369,12 +378,12 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.name === 'Login' && isLoggedIn) {
     next({ name: 'Interface Repository' })
-  } else if (to.name !== 'Login' && !isLoggedIn) {
+  } else if (to.name !== 'Login' && to.name !== 'onboarding_wizard' && !isLoggedIn) {
     next({ name: 'Login' })
   } else if (
     isLoggedIn &&
     !isSystemUser &&
-    !['Permission Denied Page', 'Invalid Page'].includes(to.name)
+    !['Permission Denied Page', 'Invalid Page', 'onboarding_wizard'].includes(to.name)
   ) {
     next({ name: 'Permission Denied Page' })
   } else if (to.matched.length === 0) {
