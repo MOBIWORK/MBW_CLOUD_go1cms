@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-13 10:16:10.019582",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "hide_user_guide"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "hide_user_guide",
+   "fieldtype": "Check",
+   "label": "Hide User Guide"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-08-13 10:16:54.352533",
+ "modified_by": "Administrator",
+ "module": "Go1 CMS",
+ "name": "User Guide Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
