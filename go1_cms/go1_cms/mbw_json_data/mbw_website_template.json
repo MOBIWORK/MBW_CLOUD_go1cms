@@ -1,5 +1,28 @@
 [
   {
+    "name": "WT-17551328232175348",
+    "owner": "Administrator",
+    "creation": "2025-08-14 07:53:43.206085",
+    "modified": "2025-08-15 11:57:20.110718",
+    "modified_by": "Administrator",
+    "docstatus": 0,
+    "idx": 0,
+    "custom_name": "WT-17551328232175348",
+    "template_name": "Trang tuyển dụng version 04",
+    "image_preview": "/files/interface-template-03.png",
+    "type_template": "Introduction website",
+    "link_download": "/files/ats_wt_17551328232175348.tar",
+    "web_theme": null,
+    "header_component": null,
+    "footer_component": null,
+    "template_in_use": 0,
+    "installed_template": 0,
+    "content": "<div class=\"ql-editor read-mode\"><p>Đây là bản kiểm thử của hệ thống</p></div>",
+    "doctype": "MBW Website Template",
+    "page_templates": [],
+    "images": []
+  },
+  {
     "name": "WT-17542782356564267",
     "owner": "Administrator",
     "creation": "2025-08-04 10:30:35.627755",

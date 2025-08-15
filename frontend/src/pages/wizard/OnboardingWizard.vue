@@ -62,11 +62,6 @@
       </div>
     </div>
 
-    <div class="flex justify-end">
-      <!-- <div></div> -->
-      <div>hello</div>
-    </div>
-
     <!-- Step 1 Content -->
     <div v-if="currentStep === 1" class="bg-white rounded-xl shadow-md w-full max-w-sm sm:max-w-xl p-4 sm:p-8 flex flex-col items-center">
       <h2 class="text-lg sm:text-xl font-bold mb-2 text-center">Bước 1: Thông tin website</h2>
@@ -175,17 +170,6 @@
             v-model="companyInfo.instagram"
             type="text" 
             placeholder="https://instagram.com/@channel" 
-            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
-          />
-        </div>
-
-        <!-- Facebook -->
-        <div class="col-span-1">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Gmail</label>
-          <input 
-            v-model="companyInfo.envelope"
-            type="text" 
-            placeholder="https://gmail.com/page" 
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
           />
         </div>
@@ -347,9 +331,8 @@ const companyInfo = ref({
   email_id: '',
   youtube: '',
   instagram:'',
-  envelope:'',
   facebook: '',
-  address: ''
+  address: '',
 })
 
 const faviconFileName = ref('')
@@ -404,6 +387,7 @@ const saveFooterInfo = async (payload) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ input_data: payload })
     })
+    console.log('payload>>>>>>>>>>>>>>>>>', payload)
 
     const result = await response.json()
     return result
@@ -420,8 +404,7 @@ const finishSetup = async () => {
     email_id: companyInfo.value.email_id,
     youtube: companyInfo.value.youtube,
     facebook: companyInfo.value.facebook,
-    instagram: companyInfo.value.instagram,  
-    envelope: companyInfo.value.envelope,
+    instagram: companyInfo.value.instagram,
     address: companyInfo.value.address,
     intro: companyIntro.value
   }
@@ -430,7 +413,8 @@ const finishSetup = async () => {
     const res = await saveFooterInfo(payload)
     if (res.message?.status === 'success') {
       alert('Thiết lập hoàn tất!')
-      window.location.href = '/job_opening'
+      // Gọi skipWizard thay vì redirect trực tiếp
+      await skipWizard()
     } else {
       alert('Có lỗi khi lưu dữ liệu')
     }
