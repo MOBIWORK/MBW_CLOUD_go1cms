@@ -24,11 +24,17 @@ export const usersStore = defineStore('go-user', () => {
   // Computed để kiểm tra xem người dùng có phải là khách không
   const isGuest = computed(() => user.value.is_guest === true || user.value.name === 'Guest')
   
+  // Method để reset user state
+  function reset() {
+    user.value = { name: 'Guest', is_guest: true }
+    getUser.reset()
+  }
 
   return {
     user,
     getUser,
     allUsers,
-    isGuest
+    isGuest,
+    reset,
   }
 })

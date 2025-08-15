@@ -619,7 +619,7 @@ const executeRefine = async () => {
 	const selectedPreset = refinePresets.value.find(p => p.value === selectedRefineStyle.value)
 	if (!selectedPreset) return
 	
-	const comment = selectedPreset.comment
+	let comment = selectedPreset.comment
 
 	// Add custom description if provided
 	if (customDescription.value.trim()) {

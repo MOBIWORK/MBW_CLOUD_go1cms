@@ -16,6 +16,79 @@ def get_categories():
 
 
 @frappe.whitelist(allow_guest=True)
+def get_blog_list_test(name_section, **kwargs):
+    try:
+        page_no = int(kwargs.get("page_no", 1)) - 1
+    except:
+        page_no = 0
+
+    page_len = 20
+    text_search = kwargs.get("text_search", "")
+
+    doc_section = frappe.db.get_value(
+        "Page Section",
+        name_section,
+        as_dict=1,
+    )
+    sort_field = doc_section.sort_field if doc_section.sort_field else "published_on"
+    limit = doc_section.no_of_records if doc_section.no_of_records else page_len
+
+    offset = page_no * limit
+    sort_by = frappe.qb.desc
+    if kwargs.get("sort_by", "desc").lower() == "asc":
+        sort_by = frappe.qb.asc
+
+    MbwBlogPost = frappe.qb.DocType("Mbw Blog Post")
+
+    # get data
+    m_query = (frappe.qb.from_(MbwBlogPost)).where(MbwBlogPost.published == 1)
+
+    if text_search:
+        m_query = m_query.where(MbwBlogPost.title.like("%" + text_search + "%"))
+
+
+    q_data = (
+        m_query.select(
+            MbwBlogPost.name,
+            MbwBlogPost.blogger,
+            MbwBlogPost.title,
+            MbwBlogPost.blog_intro,
+            MbwBlogPost.route,
+            MbwBlogPost.published_on,
+            MbwBlogPost.meta_image,
+        )
+        .offset(offset)
+        .limit(limit)
+        .orderby(MbwBlogPost[sort_field], order=sort_by)
+        .distinct()
+    )
+
+    blogs = q_data.run(as_dict=True)
+    for item in blogs:
+        published_on = item.get("published_on")
+        item["published_on"] = published_on.strftime("%d-%m-%Y")
+
+    q_count = m_query.select(fn.Count(MbwBlogPost.name).as_("total").distinct())
+    rs_count = q_count.run(as_dict=True)
+    if rs_count and limit > 0:
+        total_page = math.ceil(rs_count[0].total / limit)
+    else:
+        total_page = 0
+    pagination = {
+        "current_page": page_no + 1,
+        "total": rs_count[0].total if rs_count and limit > 0 else 0,
+        "total_page": total_page,
+        "limit": limit,
+    }
+    print(
+        "SQL Query:\n{}\n\nSQL Count Query:\n{}".format(
+            q_data.get_sql(), q_count.get_sql()
+        )
+    )
+    return {"data": blogs, "pagination": pagination}
+
+
+@frappe.whitelist(allow_guest=True)
 def get_blog_list(name_section, **kwargs):
     try:
         page_no = int(kwargs.get('page_no', 1)) - 1

@@ -12,7 +12,6 @@ from go1_cms.api.wrapper_api import (
 
 
 @frappe.whitelist()
-@check_user_admin
 def get_info_footer_component():
     web_edit = frappe.db.get_value(
         'MBW Client Website', {"edit": 1}, ['name', 'footer_component', 'route_web'], as_dict=1)
@@ -89,7 +88,6 @@ def get_info_footer_component():
 
 
 @frappe.whitelist()
-@check_user_admin
 def update_info_footer_component(data):
     try:
         web_edit = frappe.db.get_value(
@@ -107,7 +105,7 @@ def update_info_footer_component(data):
 
         # reload footer component
         footer_component.reload()
-
+        
         # update field footer component
         data_update = update_fields_page(data)
 
@@ -117,7 +115,7 @@ def update_info_footer_component(data):
 
         footer_component.reload()
         footer_component.save()
-
+        print("data>>>>>>>>>>>>>>>>>>>>>>>>:", footer_component )
         return {'name': footer_component.name}
     except frappe.ValidationError as ex:
         frappe.clear_last_message()

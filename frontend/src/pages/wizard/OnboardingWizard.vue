@@ -1,5 +1,18 @@
 <template>
   <div class="min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+    <!-- Skip Button -->
+    <div class="absolute top-4 right-4">
+      <button 
+        @click="skipWizard"
+        class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span>Bỏ qua</span>
+      </button>
+    </div>
+
     <!-- Header -->
     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-2">Chào mừng đến với CMS</h1>
     <p class="text-center text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Thiết lập thông tin cơ bản cho website của bạn</p>
@@ -47,6 +60,11 @@
           <span v-else>4</span>
         </div>
       </div>
+    </div>
+
+    <div class="flex justify-end">
+      <!-- <div></div> -->
+      <div>hello</div>
     </div>
 
     <!-- Step 1 Content -->
@@ -112,7 +130,7 @@
         <div class="col-span-1">
           <label class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại</label>
           <input 
-            v-model="companyInfo.phone"
+            v-model="companyInfo.phone_no"
             type="text" 
             placeholder="0123 456 789" 
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
@@ -123,8 +141,8 @@
         <div class="col-span-1">
           <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
           <input 
-            v-model="companyInfo.email"
-            type="email" 
+            v-model="companyInfo.email_id"
+            type="text" 
             placeholder="info@company.com" 
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
           />
@@ -135,7 +153,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">YouTube</label>
           <input 
             v-model="companyInfo.youtube"
-            type="url" 
+            type="text" 
             placeholder="https://youtube.com/@channel" 
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
           />
@@ -146,8 +164,28 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">Facebook</label>
           <input 
             v-model="companyInfo.facebook"
-            type="url" 
+            type="text" 
             placeholder="https://facebook.com/page" 
+            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
+          />
+        </div>
+        <div class="col-span-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Instagram</label>
+          <input 
+            v-model="companyInfo.instagram"
+            type="text" 
+            placeholder="https://instagram.com/@channel" 
+            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
+          />
+        </div>
+
+        <!-- Facebook -->
+        <div class="col-span-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Gmail</label>
+          <input 
+            v-model="companyInfo.envelope"
+            type="text" 
+            placeholder="https://gmail.com/page" 
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
           />
         </div>
@@ -301,36 +339,33 @@ import { ref, watch, computed } from 'vue'
 
 const currentStep = ref(1)
 const showWebsiteInput = ref(false)
-const showManualInput = ref(false)
 const websiteUrl = ref('')
 
 const companyInfo = ref({
   name: '',
-  phone: '',
-  email: '',
+  phone_no: '',
+  email_id: '',
   youtube: '',
+  instagram:'',
+  envelope:'',
   facebook: '',
   address: ''
 })
 
 const faviconFileName = ref('')
 const mainImgFileName = ref('')
-const companyIntro = ref('') // HTML code
-const plainText = ref('')    // Plain text
+const companyIntro = ref('')
+const plainText = ref('')
 const isHtmlMode = ref(false)
 
-// Khi chuyển đổi chế độ, đồng bộ dữ liệu
 watch(isHtmlMode, (val, oldVal) => {
   if (val && !oldVal) {
-    // Chuyển từ plain text sang HTML
     companyIntro.value = plainText.value
       ? `<p>${plainText.value.replace(/\n/g, '</p><p>')}</p>`
       : ''
   } else if (!val && oldVal) {
-    // Chuyển từ HTML sang plain text
     const tmp = document.createElement('div')
     tmp.innerHTML = companyIntro.value
-    // Lấy text, giữ xuống dòng nếu có nhiều <p>
     plainText.value = Array.from(tmp.querySelectorAll('p')).map(p => p.textContent).join('\n') || tmp.textContent || ''
   }
 })
@@ -352,23 +387,76 @@ const goToStep = (step) => {
   currentStep.value = step
 }
 
-const readWebsiteInfo = () => {
-  // Logic để đọc thông tin website sẽ được implement sau
-  console.log('Reading website info from:', websiteUrl.value)
-}
-
 const onFaviconChange = (e) => {
   const file = e.target.files[0]
   faviconFileName.value = file ? file.name : ''
 }
+
 const onMainImgChange = (e) => {
   const file = e.target.files[0]
   mainImgFileName.value = file ? file.name : ''
 }
 
-const finishSetup = () => {
-  // Logic hoàn thành thiết lập sẽ bổ sung sau
-  alert('Thiết lập hoàn tất!')
+const saveFooterInfo = async (payload) => {
+  try {
+    const response = await fetch('/api/method/go1_cms.api.wizard.update_footer_from_onboarding_wizard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input_data: payload })
+    })
+
+    const result = await response.json()
+    return result
+  } catch (err) {
+    console.error('Lỗi khi gọi API:', err)
+    throw err
+  }
+}
+
+const finishSetup = async () => {
+  const payload = {
+    name: companyInfo.value.name,
+    phone_no: companyInfo.value.phone_no,
+    email_id: companyInfo.value.email_id,
+    youtube: companyInfo.value.youtube,
+    facebook: companyInfo.value.facebook,
+    instagram: companyInfo.value.instagram,  
+    envelope: companyInfo.value.envelope,
+    address: companyInfo.value.address,
+    intro: companyIntro.value
+  }
+
+  try {
+    const res = await saveFooterInfo(payload)
+    if (res.message?.status === 'success') {
+      alert('Thiết lập hoàn tất!')
+      window.location.href = '/job_opening'
+    } else {
+      alert('Có lỗi khi lưu dữ liệu')
+    }
+  } catch (error) {
+    alert('Không thể lưu dữ liệu, vui lòng thử lại.')
+  }
+}
+
+const skipWizard = async () => {
+  try {
+    const response = await fetch('/api/method/go1_cms.api.wizard.mark_done', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    
+    if (response.ok) {
+      const result = await response.json()
+      if (result.message && result.message.status === 'success') {
+        window.location.href = '/job_opening'
+      }
+    } else {
+      throw new Error('Failed to mark wizard as done')
+    }
+  } catch (error) {
+    console.error('Error skipping wizard:', error)
+  }
 }
 </script>
 

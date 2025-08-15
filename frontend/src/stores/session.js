@@ -28,7 +28,8 @@ export const sessionStore = defineStore('cms-session', () => {
       throw new Error(__('Incorrect email or password.'))
     },
     onSuccess() {
-      usersStore.reload()
+      const userStore = usersStore()
+      userStore.getUser.reload()
       user.value = sessionUser()
       login.reset()
       window.location.href = '/cms'
@@ -38,7 +39,8 @@ export const sessionStore = defineStore('cms-session', () => {
   const logout = createResource({
     url: 'logout',
     onSuccess() {
-      usersStore.reset()
+      const userStore = usersStore()
+      userStore.reset()
       user.value = null
       window.location.href = '/cms/login'
     },
