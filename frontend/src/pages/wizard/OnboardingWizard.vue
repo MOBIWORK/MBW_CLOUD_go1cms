@@ -461,7 +461,7 @@ const skipWizard = async () => {
     if (response.ok) {
       const result = await response.json()
       if (result.message && result.message.status === 'success') {
-        window.location.href = '/job_opening'
+        window.location.href = '/cms/job_opening'
       }
     } else {
       throw new Error('Failed to mark wizard as done')
