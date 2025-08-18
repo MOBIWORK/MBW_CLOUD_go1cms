@@ -56,8 +56,13 @@ def get_web_template(name):
 
 @frappe.whitelist()
 @check_user_admin
-def create_client_website(name):
+def create_client_website(name, action=None):
     try:
+        # Nếu không có action thì thực hiện install_template trước
+        if not action:
+            # print('========================= vào đây =>>>', flush=True)
+            install_template(name)
+            
         template = frappe.get_doc("MBW Website Template", name)
         if not template:
             frappe.throw(_("Template not found"), frappe.DoesNotExistError)
@@ -213,13 +218,25 @@ def create_client_website(name):
         frappe.throw(_("An error has occurred"))
 
 
-@frappe.whitelist()
-@check_user_admin
+@frappe.whitelist(allow_guest=True)
+# @check_user_admin
 def prepare_file_template(name):
-    # === comment: if keep template
-    # return {'code': 200, 'msg': _("Interface loaded successfully")}
     rs = install_template(name)
     if rs:
         return {'code': 200, 'msg': _("Interface loaded successfully")}
     else:
         return {'code': 0, 'msg': _("Failed to load interface")}
+
+@frappe.whitelist(allow_guest=True)
+def get_key_config():
+    try:
+        site_config = frappe.get_site_config()
+        admin_api_key = site_config.get("admin_api_key")
+        admin_api_secret = site_config.get("admin_api_secret")
+
+        return {
+            "admin_api_key": admin_api_key,
+            "admin_api_secret": admin_api_secret
+        }
+    except Exception as e:
+        frappe.log_error(f"Error getting site config: {str(e)}")

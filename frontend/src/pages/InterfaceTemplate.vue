@@ -503,6 +503,7 @@ async function addWebTemplate() {
   try {
     await call('go1_cms.api.mbw_website_template.create_client_website', {
       name: props.interfaceId,
+      action: "webAdd",
     }).then((d) => {
       if (d) {
         createToast({

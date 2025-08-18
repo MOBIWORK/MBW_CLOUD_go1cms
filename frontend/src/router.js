@@ -332,6 +332,20 @@ router.beforeEach(async (to, from, next) => {
     from.meta.scrollPos.top = document.querySelector('#list-rows')?.scrollTop
   }
 
+  // On first visit or when guide is enabled, redirect to onboarding wizard
+  // try {
+  //   if (to.name !== 'onboarding_wizard') {
+  //     const response = await fetch('/api/method/go1_cms.api.wizard.should_show')
+  //     const data = await response.json()
+  //     if (data?.message?.show_guide) {
+  //       next({ name: 'onboarding_wizard' })
+  //       return
+  //     }
+  //   }
+  // } catch (error) {
+  //   console.error('Error checking onboarding wizard:', error)
+  // }
+
   if (to.name == 'Setup File Template' && isLoggedIn) {
     const { views } = viewsStore()
     const data = await views.fetch()
