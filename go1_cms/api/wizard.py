@@ -25,7 +25,10 @@ def should_show():
 @frappe.whitelist(allow_guest=True)
 def update_footer_from_onboarding_wizard(input_data):
     try:
+        print("input_data>><<<<><><><><><", input_data)
         raw_data = frappe.local.form_dict.get('input_data')
+        print("isinstance(raw_data, str)>>>>>>>>>>>>>:", isinstance(raw_data, str))
+        print("raw_data>>>>>>>>>>>>>:", raw_data)
         if isinstance(raw_data, str):
             input_data = json.loads(raw_data)
         else:
@@ -33,23 +36,28 @@ def update_footer_from_onboarding_wizard(input_data):
         # 1. Lấy dữ liệu footer hiện tại
         current_footer = get_info_footer_component()
 
-        # 2. Merge dữ liệu từ OnboardingWizard.vue vào dict hiện tại
+        # 3. Merge dữ liệu từ OnboardingWizard.vue vào dict hiện tại
         # Ví dụ: gán các field cụ thể
+        
         for section in current_footer["fields_st_cp"]:
             for field in section.get("fields", []):
+                print("field>>>>>>>>>>>>>>>>>>:", field.get("field_label"))
                 key = field.get("field_key")
+                # print("key>>>>>>>>>>>>>>>>>>:", key)
+                # print("key in inpu t_data and input_data[key] is not None>>>>>>>>>>>><<><><><>>",key in input_data and input_data[key] is not None)
+                
                 if key in input_data and input_data[key] is not None:
+                    
                     field["content"] = input_data[key]
+                    # print("field['content']>>>>>>>>>>>>>>>>>>:", field["content"])
 
         for section in current_footer["fields_cp"]:
             for field in section.get("fields", []):
                 key = field.get("field_key")
                 if key in input_data and input_data[key] is not None:
                     field["content"] = input_data[key]
-
-        # 3. Gọi update_info_footer_component để lưu
+        # 4. Gọi update_info_footer_component để lưu
         update_info_footer_component(current_footer)
-        print(">>>>>>>>>>>>>>>>>>>:", current_footer)
 
         return {"status": "success"}
 

@@ -178,7 +178,7 @@
         <div class="col-span-2">
           <label class="block text-sm font-medium text-gray-700 mb-2">Địa chỉ</label>
           <textarea 
-            v-model="companyInfo.address"
+            v-model="addressModel"
             placeholder="Nhập địa chỉ công ty" 
             rows="3"
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm sm:text-base" 
@@ -333,6 +333,7 @@ const companyInfo = ref({
   instagram:'',
   facebook: '',
   address: '',
+  address_content: '' // Thêm field address_content
 })
 
 const faviconFileName = ref('')
@@ -363,6 +364,32 @@ const introModel = computed({
     } else {
       plainText.value = val
     }
+  }
+})
+
+// Computed property để xử lý v-model cho address và address_content
+const addressModel = computed({
+  get() {
+    // Ưu tiên address_content nếu có, nếu không thì dùng address
+    return companyInfo.value.address_content || companyInfo.value.address || ''
+  },
+  set(value) {
+    // Cập nhật cả hai field
+    companyInfo.value.address = value
+    companyInfo.value.address_content = value
+  }
+})
+
+// Watcher để đồng bộ hóa giữa address và address_content
+watch(() => companyInfo.value.address, (newValue) => {
+  if (newValue !== companyInfo.value.address_content) {
+    companyInfo.value.address_content = newValue
+  }
+})
+
+watch(() => companyInfo.value.address_content, (newValue) => {
+  if (newValue !== companyInfo.value.address) {
+    companyInfo.value.address = newValue
   }
 })
 
@@ -406,6 +433,7 @@ const finishSetup = async () => {
     facebook: companyInfo.value.facebook,
     instagram: companyInfo.value.instagram,
     address: companyInfo.value.address,
+    address_content: companyInfo.value.address_content, // Thêm address_content vào payload
     intro: companyIntro.value
   }
 
